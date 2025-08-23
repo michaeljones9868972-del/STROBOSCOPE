@@ -24,24 +24,32 @@
       align-items: center;
       z-index: 1000;
       color: #E0908D;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       font-size: 48px;
       font-weight: bold;
       cursor: pointer;
+      text-align: center;
+      letter-spacing: 2px;
+    }
+    .splash:hover {
+      color: #F5704A;
     }
   </style>
 </head>
 <body>
 
-  <!-- Заставка для активации полноэкранного режима -->
-  <div class="splash" id="splash">(◕‿◕)</div>
+  <!-- Заставка -->
+  <div class="splash" id="splash">
+    <div>(◕‿◕)<br><span style="font-size:18px;color:#aaa">нажми, чтобы начать</span></div>
+  </div>
 
   <script>
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let url = "https://coolors.co/app/9AA8A8-466A44-E0D5BE-E0908D-C7495C-ffffff-680003-BC0000-F5704A-EFB9AD-828D00";
     let cols;
-    let isFullscreen = false;
+    let isPlaying = false;
+    let audio; // переменная для аудио
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -49,9 +57,8 @@
       noStroke();
       cols = createCols(url);
 
-      // 🔁 Изменено на 0.48, как ты просил
+      // Размер как ты хотел
       MAX_INIT_SIZE = max(width, height) * 0.48;
-      
       MAX_ANGLE_STEP = PI / 20;
       SIZE_MULT = 0.88;
       MIN_SIZE = 8;
@@ -60,15 +67,20 @@
       initAngle = 0;
       initColIndex = 0;
 
-      // Активация полноэкранного режима по клику
-      document.getElementById('splash').addEventListener('click', () => {
-        enterFullscreen();
-      });
+      // Создаём аудио (без автовоспроизведения)
+      audio = new Audio();
+      audio.src = "https://ice4.somafm.com/beatblender-128-mp3"; // потоковое радио
+      audio.type = "audio/mpeg";
+      audio.loop = true; // можно убрать, если не нужно
+
+      // Клик по заставке
+      document.getElementById('splash').addEventListener('click', startExperience);
     }
 
     function draw() {
-      background(0);
+      if (!isPlaying) return;
 
+      background(0);
       let count = sin(frameCount / 150);
       let angleStep = MAX_ANGLE_STEP * count;
       let colIndex = initColIndex;
@@ -80,8 +92,7 @@
         translate(width / 2, height / 2);
         rotate(angle);
         fill(cols[colIndex % cols.length]);
-        // Круги
-        ellipse(0, 0, size, size);
+        ellipse(0, 0, size, size); // круг
         pop();
 
         angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
@@ -89,7 +100,6 @@
         colIndex++;
       }
 
-      // Динамика
       initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
       initAngle += angleStep * 0.1;
 
@@ -99,29 +109,37 @@
       }
     }
 
-    function enterFullscreen() {
+    function startExperience() {
       const splash = document.getElementById('splash');
       splash.style.opacity = 0;
-      setTimeout(() => {
-        splash.remove();
-      }, 500);
+      setTimeout(() => splash.remove(), 500);
 
-      // Полноэкранный режим
+      // Включаем полноэкранный режим
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
       }
 
-      isFullscreen = true;
+      // Запускаем аудио (только после клика!)
+      audio.play().catch(e => {
+        console.log("Автовоспроизведение заблокировано:", e);
+        alert("Пожалуйста, разрешите автовоспроизведение в браузере.");
+      });
+
+      isPlaying = true;
+    }
+
+    function keyPressed() {
+      if (keyCode === ESC || keyCode === 32) {
+        if (audio) audio.pause();
+        location.reload(); // выход
+      }
     }
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
-      // Также обновляем MAX_INIT_SIZE при изменении размера окна
       MAX_INIT_SIZE = max(width, height) * 0.48;
     }
 
