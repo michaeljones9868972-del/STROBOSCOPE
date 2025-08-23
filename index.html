@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Погружение</title>
+  <title>Анимация</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <style>
     body {
@@ -11,61 +11,37 @@
       padding: 0;
       overflow: hidden;
       background: #000;
-      font-family: Arial, sans-serif;
     }
     canvas {
       display: block;
     }
-    .overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.8);
+    .info {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
       color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
-      text-align: center;
-      z-index: 10;
-      transition: opacity 1s ease, visibility 0s 1s;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
     }
-    .overlay.hide {
+    /* Скрытие при полноэкранном режиме */
+    .hide {
       opacity: 0;
-      pointer-events: none;
-    }
-    button {
-      margin-top: 20px;
-      padding: 12px 30px;
-      font-size: 18px;
-      background: #D5FB00;
-      color: #223C20;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    button:hover {
-      background: #DE60CA;
-      color: white;
+      transition: opacity 1s ease;
     }
   </style>
 </head>
 <body>
 
-  <!-- Всплывающее окно -->
-  <div class="overlay" id="overlay">
-    <h2>Погрузиться в анимацию</h2>
-    <p>Через 3 секунды вы сможете войти в полноэкранный режим</p>
-    <button id="fullscreenBtn" disabled>Войти в полноэкранный режим</button>
-  </div>
+  <div class="info" id="info">Анимация начнётся через 3 секунды...</div>
 
   <script>
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let url = "https://coolors.co/app/223C20-4C8D26-D5FB00-DE60CA-882380";
     let cols;
-    let isFullscreen = false;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -82,115 +58,82 @@
       initAngle = 0;
       initColIndex = 0;
 
-      // Активация кнопки через 3 секунды
+      // Через 3 секунды скрываем всё, кроме canvas
       setTimeout(() => {
-        document.getElementById('fullscreenBtn').disabled = false;
-        document.getElementById('fullscreenBtn').innerText = "Погрузиться в анимацию";
+        document.getElementById('info').classList.add('hide');
+        setTimeout(() => {
+          document.getElementById('info').style.display = 'none';
+        }, 1000);
       }, 3000);
-
-      // Кнопка на весь экран
-      document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
     }
 
     function draw() {
       background(0);
 
-      // Показываем overlay только в начале
-      if (isFullscreen || document.querySelector('.overlay').style.display === 'none') {
-        let count = sin(frameCount / 150);
-        let angleStep = MAX_ANGLE_STEP * count;
-        let colIndex = initColIndex;
-        let size = initSize;
-        let angle = initAngle;
+      let count = sin(frameCount / 150);
+      let angleStep = MAX_ANGLE_STEP * count;
+      let colIndex = initColIndex;
+      let size = initSize;
+      let angle = initAngle;
 
-        while (size > MIN_SIZE) {
-          push();
-          translate(width / 2, height / 2);
-          rotate(angle);
-          fill(cols[colIndex % cols.length]);
-          ellipse(0, 0, size, size * 0.7); // круги
-          pop();
+      while (size > MIN_SIZE) {
+        push();
+        translate(width / 2, height / 2);
+        rotate(angle);
+        fill(cols[colIndex % cols.length]);
+        // Рисуем круги (овальные формы) вместо прямоугольников
+        ellipse(0, 0, size, size * 0.7); // круги в центре
+        pop();
 
-          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
-          size *= SIZE_MULT;
-          colIndex++;
-        }
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
+        size *= SIZE_MULT;
+        colIndex++;
+      }
 
-        initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
-        initAngle += angleStep * 0.1;
+      initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
+      initAngle += angleStep * 0.1;
 
-        if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
-          initSize /= SIZE_MULT;
-          initColIndex = (initColIndex + cols.length - 1) % cols.length;
-        }
+      if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
+        initSize /= SIZE_MULT;
+        initColIndex = (initColIndex + cols.length - 1) % cols.length;
       }
     }
 
-    function enterFullscreen() {
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) { /* Safari */
-        elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) { /* IE11 */
-        elem.msRequestFullscreen();
+    function createCols(_url) {
+      let slash_index = _url.lastIndexOf('/');
+      let palette_str = _url.slice(slash_index + 1);
+      let arr = palette_str.split('-');
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = '#' + arr[i];
       }
-
-      // Скрываем overlay
-      document.getElementById('overlay').style.display = 'none';
-      isFullscreen = true;
+      return arr;
     }
 
+    // Возвращение при движении мыши
     function mouseMoved() {
-      // При движении мыши — показываем overlay (для выхода)
-      if (isFullscreen && (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)) {
-        return;
-      }
-      showExitHint();
+      document.body.style.cursor = 'default';
+      document.getElementById('info').style.display = 'block';
+      document.getElementById('info').classList.remove('hide');
+      setTimeout(() => {
+        document.getElementById('info').classList.add('hide');
+        setTimeout(() => {
+          document.getElementById('info').style.display = 'none';
+        }, 1000);
+      }, 3000);
     }
 
+    // Выход из "режима погружения" по Esc
     function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) { // Esc или пробел
-        exitFullscreen();
+      if (keyCode === ESC) {
+        document.getElementById('info').style.display = 'block';
+        document.getElementById('info').classList.remove('hide');
       }
-    }
-
-    function showExitHint() {
-      const overlay = document.getElementById('overlay');
-      overlay.innerHTML = `
-        <h2>Выход из режима погружения</h2>
-        <p>Нажмите ESC или пробел, чтобы выйти</p>
-        <button onclick="exitFullscreen()">Выйти</button>
-      `;
-      overlay.style.display = 'flex';
-      overlay.classList.remove('hide');
-    }
-
-    function exitFullscreen() {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      } else if (document.webkitExitFullscreen) {
-        document.webkitExitFullscreen();
-      } else if (document.msExitFullscreen) {
-        document.msExitFullscreen();
-      }
-      document.getElementById('overlay').style.display = 'none';
-      isFullscreen = false;
     }
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
       MAX_INIT_SIZE = max(width, height) * 0.35;
     }
-
-    // Закрыть overlay при загрузке (если JS работает)
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        const overlay = document.getElementById('overlay');
-        if (!isFullscreen) return;
-        overlay.classList.add('hide');
-      }, 5000);
-    });
   </script>
 </body>
 </html>
