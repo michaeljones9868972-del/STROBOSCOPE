@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Анимация</title>
+  <title>Анимация с палитрой Coolors</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <style>
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
-      background: #000;
+      background-color: #111;
     }
     canvas {
       display: block;
@@ -26,16 +26,13 @@
       padding: 10px;
       border-radius: 5px;
     }
-    /* Скрытие при полноэкранном режиме */
-    .hide {
-      opacity: 0;
-      transition: opacity 1s ease;
-    }
   </style>
 </head>
 <body>
 
-  <div class="info" id="info">Анимация начнётся через 3 секунды...</div>
+  <div class="info">
+    Анимация с цветами с Coolors: #223C20, #4C8D26, #D5FB00, #DE60CA, #882380
+  </div>
 
   <script>
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
@@ -48,51 +45,45 @@
       rectMode(CENTER);
       noStroke();
       cols = createCols(url);
-
+      
+      // Инициализация параметров
       MAX_INIT_SIZE = max(width, height) * 0.35;
       MAX_ANGLE_STEP = PI / 20;
       SIZE_MULT = 0.88;
       MIN_SIZE = 12;
-
+      
       initSize = MAX_INIT_SIZE;
       initAngle = 0;
       initColIndex = 0;
-
-      // Через 3 секунды скрываем всё, кроме canvas
-      setTimeout(() => {
-        document.getElementById('info').classList.add('hide');
-        setTimeout(() => {
-          document.getElementById('info').style.display = 'none';
-        }, 1000);
-      }, 3000);
     }
 
     function draw() {
       background(0);
-
+      
       let count = sin(frameCount / 150);
       let angleStep = MAX_ANGLE_STEP * count;
       let colIndex = initColIndex;
       let size = initSize;
       let angle = initAngle;
-
+      
       while (size > MIN_SIZE) {
         push();
         translate(width / 2, height / 2);
         rotate(angle);
         fill(cols[colIndex % cols.length]);
-        // Рисуем круги (овальные формы) вместо прямоугольников
-        ellipse(0, 0, size, size * 0.7); // круги в центре
+        rect(0, 0, size, size, size * 1.5);
         pop();
-
+        
         angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
         size *= SIZE_MULT;
         colIndex++;
       }
-
+      
+      // Постепенное уменьшение начального размера
       initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
       initAngle += angleStep * 0.1;
-
+      
+      // Сброс, когда становится слишком маленьким
       if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
         initSize /= SIZE_MULT;
         initColIndex = (initColIndex + cols.length - 1) % cols.length;
@@ -107,27 +98,6 @@
         arr[i] = '#' + arr[i];
       }
       return arr;
-    }
-
-    // Возвращение при движении мыши
-    function mouseMoved() {
-      document.body.style.cursor = 'default';
-      document.getElementById('info').style.display = 'block';
-      document.getElementById('info').classList.remove('hide');
-      setTimeout(() => {
-        document.getElementById('info').classList.add('hide');
-        setTimeout(() => {
-          document.getElementById('info').style.display = 'none';
-        }, 1000);
-      }, 3000);
-    }
-
-    // Выход из "режима погружения" по Esc
-    function keyPressed() {
-      if (keyCode === ESC) {
-        document.getElementById('info').style.display = 'block';
-        document.getElementById('info').classList.remove('hide');
-      }
     }
 
     function windowResized() {
