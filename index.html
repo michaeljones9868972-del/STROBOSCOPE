@@ -3,35 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Анимация с палитрой Coolors</title>
+  <title>EXCITE ME</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <style>
     body {
       margin: 0;
       padding: 0;
+      background: #000;
       overflow: hidden;
-      background-color: #111;
+      font-family: 'Arial Black', sans-serif;
+    }
+    .splash {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      pointer-events: all;
+    }
+    .text {
+      font-size: 64px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      color: white;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .drop {
+      position: absolute;
+      width: 2px;
+      height: 10px;
+      background: white;
+      opacity: 0.8;
+      transform-origin: bottom;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      0% { transform: translateY(-100vh) rotate(0deg); }
+      100% { transform: translateY(100vh) rotate(360deg); }
     }
     canvas {
-      display: block;
-    }
-    .info {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      color: white;
-      font-family: Arial, sans-serif;
-      font-size: 14px;
-      background-color: rgba(0, 0, 0, 0.5);
-      padding: 10px;
-      border-radius: 5px;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <div class="info">
-    Colors: #223C20, #4C8D26, #D5FB00, #DE60CA, #882380
+  <div class="splash" id="splash">
+    <div class="text" id="text">EXCITE ME</div>
   </div>
 
   <script>
@@ -39,55 +61,142 @@
     let initSize, initAngle, initColIndex;
     let url = "https://coolors.co/app/223C20-4C8D26-D5FB00-DE60CA-882380";
     let cols;
+    let music;
+    let isPlaying = false;
+
+    function preload() {
+      const musicURL = "https://cdn.pixabay.com/audio/2022/04/01/audio_669157382.mp3";
+      music = loadSound(musicURL, () => console.log("Музыка загружена"));
+    }
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER);
       noStroke();
       cols = createCols(url);
-      
-      // Инициализация параметров
-      MAX_INIT_SIZE = max(width, height) * 0.35;
-      MAX_ANGLE_STEP = PI / 20;
-      SIZE_MULT = 0.88;
-      MIN_SIZE = 12;
-      
+
+      MAX_INIT_SIZE = max(width, height) * 0.6;
+      MAX_ANGLE_STEP = PI / 30;
+      SIZE_MULT = 0.92;
+      MIN_SIZE = 5;
+
       initSize = MAX_INIT_SIZE;
       initAngle = 0;
       initColIndex = 0;
+
+      // Создаём капли дождя
+      createRaindrops();
+
+      // Активация при клике
+      document.getElementById('splash').addEventListener('click', activateExperience);
     }
 
     function draw() {
+      if (!isPlaying) return;
+
       background(0);
-      
-      let count = sin(frameCount / 150);
-      let angleStep = MAX_ANGLE_STEP * count;
+      let count = sin(frameCount / 180);
+      let angleStep = MAX_ANGLE_STEP * (0.8 + 0.2 * cos(frameCount * 0.01));
       let colIndex = initColIndex;
       let size = initSize;
       let angle = initAngle;
-      
-      while (size > MIN_SIZE) {
+
+      while (size > MIN_SIZE * 0.5) {
         push();
         translate(width / 2, height / 2);
         rotate(angle);
-        fill(cols[colIndex % cols.length]);
-        rect(0, 0, size, size, size * 1.5);
+        stroke(cols[colIndex % cols.length]);
+        strokeWeight(1.5);
+        noFill();
+        ellipse(0, 0, size, size * 0.8);
         pop();
-        
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
+
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0.1, true);
         size *= SIZE_MULT;
         colIndex++;
       }
-      
-      // Постепенное уменьшение начального размера
-      initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
-      initAngle += angleStep * 0.1;
-      
-      // Сброс, когда становится слишком маленьким
-      if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
-        initSize /= SIZE_MULT;
-        initColIndex = (initColIndex + cols.length - 1) % cols.length;
+
+      initSize += random(-0.3, 0.3);
+      initSize = constrain(initSize, MAX_INIT_SIZE * 0.9, MAX_INIT_SIZE * 1.1);
+      initAngle += angleStep * 0.05;
+    }
+
+    function createRaindrops() {
+      const dropCount = 100;
+      for (let i = 0; i < dropCount; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'drop';
+        drop.style.left = `${Math.random() * 100}%`;
+        drop.style.animationDelay = `${Math.random() * 3}s`;
+        drop.style.opacity = Math.random() * 0.5 + 0.3;
+        document.querySelector('.splash').appendChild(drop);
       }
+    }
+
+    function activateExperience() {
+      // Убираем заставку
+      document.getElementById('splash').remove();
+
+      // Включаем полноэкранный режим
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+
+      // Показываем canvas
+      document.querySelector('canvas').style.display = 'block';
+
+      // Запускаем музыку
+      if (music && !music.isPlaying()) {
+        music.setVolume(0.7);
+        music.loop();
+      }
+
+      isPlaying = true;
+    }
+
+    function keyPressed() {
+      if (keyCode === ESC || keyCode === 32) {
+        if (isPlaying) exitExperience();
+      }
+    }
+
+    function mouseMoved() {
+      if (isPlaying && (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)) return;
+      showExitHint();
+    }
+
+    function showExitHint() {
+      const exitBtn = document.createElement('button');
+      exitBtn.innerText = "⏹ Выйти";
+      exitBtn.style.position = 'fixed';
+      exitBtn.style.top = '20px';
+      exitBtn.style.right = '20px';
+      exitBtn.style.padding = '10px 20px';
+      exitBtn.style.background = '#882380';
+      exitBtn.style.color = 'white';
+      exitBtn.style.border = 'none';
+      exitBtn.style.borderRadius = '5px';
+      exitBtn.style.cursor = 'pointer';
+      exitBtn.onclick = exitExperience;
+      if (!document.querySelector('button[onclick="exitExperience"]')) {
+        document.body.appendChild(exitBtn);
+        setTimeout(() => document.body.removeChild(exitBtn), 3000);
+      }
+    }
+
+    function exitExperience() {
+      if (document.exitFullscreen) document.exitFullscreen();
+      if (music) music.stop();
+      isPlaying = false;
+    }
+
+    function windowResized() {
+      if (isPlaying) resizeCanvas(windowWidth, windowHeight);
     }
 
     function createCols(_url) {
@@ -100,10 +209,12 @@
       return arr;
     }
 
-    function windowResized() {
-      resizeCanvas(windowWidth, windowHeight);
-      MAX_INIT_SIZE = max(width, height) * 0.35;
-    }
+    // Показываем текст после 1 секунды
+    window.onload = () => {
+      setTimeout(() => {
+        document.getElementById('text').style.opacity = 1;
+      }, 1000);
+    };
   </script>
 </body>
 </html>
