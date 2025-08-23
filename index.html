@@ -15,12 +15,14 @@
     }
     .splash {
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000; /* Гарантированно поверх всего */
+      z-index: 9999; /* Максимальный слой */
       cursor: pointer;
+      pointer-events: auto; /* Гарантированно принимает клики */
     }
     .text {
       font-size: 64px;
@@ -29,52 +31,40 @@
       letter-spacing: 6px;
       color: #D5FB00;
       text-shadow: 
-        0 0 10px rgba(213, 251, 0, 0.8),
-        0 0 30px rgba(213, 251, 0, 0.6);
+        0 0 15px rgba(213, 251, 0, 0.8),
+        0 0 30px rgba(213, 251, 0, 0.6),
+        0 10px 40px rgba(222, 96, 202, 0.7);
       animation: drip 3s infinite alternate, glow 2s ease-in-out infinite alternate;
-      white-space: nowrap;
     }
     @keyframes drip {
-      0% {
-        transform: translateY(0) scale(1);
-        text-shadow: 
-          0 0 10px #D5FB00,
-          0 10px 30px #D5FB00,
-          0 20px 50px #D5FB00;
-      }
-      100% {
-        transform: translateY(10px) scale(1.05);
-        text-shadow: 
-          0 0 15px #D5FB00,
-          0 15px 40px #D5FB00,
-          0 30px 70px #DE60CA;
-      }
+      0% { transform: translateY(0); opacity: 0.8; }
+      100% { transform: translateY(8px); opacity: 1; }
     }
     @keyframes glow {
-      0% { opacity: 0.8; }
-      100% { opacity: 1; }
+      0% { text-shadow: 0 0 15px #D5FB00; }
+      100% { text-shadow: 0 0 30px #D5FB00, 0 0 50px #DE60CA; }
     }
     .drop {
       position: absolute;
       width: 2px;
-      height: 15px;
+      height: 12px;
       background: #D5FB00;
-      opacity: 0.6;
-      transform-origin: bottom;
+      opacity: 0.5;
       animation: fall linear infinite;
     }
     @keyframes fall {
-      0% { transform: translateY(-100vh) rotate(0deg); opacity: 0.6; }
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 0.5; }
       100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
     }
     canvas {
-      display: none;
+      display: block;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
 
-  <!-- Заставка -->
+  <!-- Заставка поверх всего -->
   <div class="splash" id="splash">
     <div class="text">EXCITE ME</div>
   </div>
@@ -88,12 +78,12 @@
     let isPlaying = false;
 
     function preload() {
-      // Загружаем музыку (можно заменить на свою ссылку)
       const musicURL = "https://cdn.pixabay.com/audio/2022/04/01/audio_669157382.mp3";
-      music = loadSound(musicURL, () => console.log("Музыка загружена"));
+      music = loadSound(musicURL);
     }
 
     function setup() {
+      // Создаём canvas, но он НЕ должен блокировать клик по заставке
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER);
       noStroke();
@@ -111,12 +101,19 @@
       // Генерация капель
       createDrops();
 
-      // Клик по заставке — активация
-      document.getElementById('splash').addEventListener('click', activateExperience);
+      // Убедимся, что клик работает
+      const splash = document.getElementById('splash');
+      splash.addEventListener('click', activateExperience);
+
+      // На всякий случай — делаем canvas "прозрачным" для кликов, пока не стартуем
+      document.querySelector('canvas').style.pointerEvents = 'none';
     }
 
     function draw() {
       if (!isPlaying) return;
+
+      // После старта разрешаем canvas принимать события
+      document.querySelector('canvas').style.pointerEvents = 'auto';
 
       background(0);
       let count = sin(frameCount / 180);
@@ -147,7 +144,7 @@
 
     function createDrops() {
       const splash = document.getElementById('splash');
-      for (let i = 0; i < 80; i++) {
+      for (let i = 0; i < 60; i++) {
         const drop = document.createElement('div');
         drop.className = 'drop';
         drop.style.left = Math.random() * 100 + '%';
@@ -164,15 +161,10 @@
       // Полноэкранный режим
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(e => console.log("Полноэкранный режим заблокирован:", e));
+        elem.requestFullscreen().catch(e => console.log("Ошибка:", e));
       } else if (elem.webkitRequestFullscreen) {
         elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
-        elem.msRequestFullscreen();
       }
-
-      // Показываем анимацию
-      document.querySelector('canvas').style.display = 'block';
 
       // Запускаем музыку
       if (music && !music.isPlaying()) {
@@ -185,8 +177,7 @@
 
     function keyPressed() {
       if (keyCode === ESC || keyCode === 32) {
-        // При нажатии Esc или пробела — просто перезагружаем, чтобы выйти
-        location.reload();
+        location.reload(); // Перезагрузка = выход
       }
     }
 
