@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Погружение в бесконечность</title>
+  <title>Погружение</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <style>
     body {
@@ -28,7 +28,7 @@
       font-size: 24px;
       text-align: center;
       z-index: 10;
-      transition: opacity 1s ease;
+      transition: opacity 1s ease, visibility 0s 1s;
     }
     .overlay.hide {
       opacity: 0;
@@ -53,10 +53,11 @@
 </head>
 <body>
 
+  <!-- Всплывающее окно -->
   <div class="overlay" id="overlay">
-    <h2>🌀 Погрузиться в бесконечность</h2>
-    <p>Через 3 секунды активируется полноэкранный режим</p>
-    <button id="fullscreenBtn" disabled>Погрузиться</button>
+    <h2>Погрузиться в анимацию</h2>
+    <p>Через 3 секунды вы сможете войти в полноэкранный режим</p>
+    <button id="fullscreenBtn" disabled>Войти в полноэкранный режим</button>
   </div>
 
   <script>
@@ -65,19 +66,6 @@
     let url = "https://coolors.co/app/223C20-4C8D26-D5FB00-DE60CA-882380";
     let cols;
     let isFullscreen = false;
-    let music; // переменная для аудио
-    let breathFactor = 0; // для эффекта "дыхания"
-
-    function preload() {
-      // Загружаем музыку (используем внешнюю ссылку на атмосферный трек)
-      // Пример: тихая медитативная музыка (не забудь заменить на свою!)
-      const musicURL = "https://cdn.pixabay.com/audio/2022/04/01/audio_669157382.mp3"; // бесплатная атмосфера
-      music = loadSound(musicURL, () => {
-        console.log("Музыка загружена");
-      }, () => {
-        console.log("Не удалось загрузить музыку (возможно, блокировка)");
-      });
-    }
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -85,68 +73,56 @@
       noStroke();
       cols = createCols(url);
 
-      MAX_INIT_SIZE = max(width, height) * 0.6; // больше — уходит за края
-      MAX_ANGLE_STEP = PI / 30;
-      SIZE_MULT = 0.92; // медленнее уменьшение — дольше "дышит"
-      MIN_SIZE = 5;
+      MAX_INIT_SIZE = max(width, height) * 0.35;
+      MAX_ANGLE_STEP = PI / 20;
+      SIZE_MULT = 0.88;
+      MIN_SIZE = 12;
 
       initSize = MAX_INIT_SIZE;
       initAngle = 0;
       initColIndex = 0;
 
-      // Включаем музыку при клике (обход автовоспроизведения)
-      document.getElementById('fullscreenBtn').addEventListener('click', () => {
-        if (music && !music.isPlaying()) {
-          music.setVolume(0.7);
-          music.loop(); // зациклить
-        }
-      });
-
+      // Активация кнопки через 3 секунды
       setTimeout(() => {
         document.getElementById('fullscreenBtn').disabled = false;
-        document.getElementById('fullscreenBtn').innerText = "▶ Погрузиться";
+        document.getElementById('fullscreenBtn').innerText = "Погрузиться в анимацию";
       }, 3000);
+
+      // Кнопка на весь экран
+      document.getElementById('fullscreenBtn').addEventListener('click', enterFullscreen);
     }
 
     function draw() {
       background(0);
 
-      // Эффект "дыхания" — плавное изменение размера
-      breathFactor = 0.95 + 0.05 * sin(frameCount * 0.02); // 0.95 → 1.0
-
-      if (document.getElementById('overlay').style.display === 'none' || !document.getElementById('overlay').offsetParent) {
-        let count = sin(frameCount / 180);
-        let angleStep = MAX_ANGLE_STEP * (0.8 + 0.2 * cos(frameCount * 0.01));
+      // Показываем overlay только в начале
+      if (isFullscreen || document.querySelector('.overlay').style.display === 'none') {
+        let count = sin(frameCount / 150);
+        let angleStep = MAX_ANGLE_STEP * count;
         let colIndex = initColIndex;
-        let size = initSize * breathFactor; // дыхание на старте
+        let size = initSize;
         let angle = initAngle;
 
-        // Рисуем круги, выходящие за пределы экрана
-        while (size > MIN_SIZE * 0.5) {
+        while (size > MIN_SIZE) {
           push();
           translate(width / 2, height / 2);
           rotate(angle);
-
-          // Цвет с плавным сдвигом
           fill(cols[colIndex % cols.length]);
-          noFill(); // только контур
-          stroke(cols[colIndex % cols.length]);
-          strokeWeight(1.2);
-          
-          // Круги больше экрана
-          ellipse(0, 0, size, size * 0.8);
-
+          ellipse(0, 0, size, size * 0.7); // круги
           pop();
 
-          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0.1, true);
+          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
           size *= SIZE_MULT;
           colIndex++;
         }
 
-        // Плавное изменение параметров
-        initSize += random(-0.3, 0.3); // лёгкая нестабильность — как дыхание вселенной
-        initSize = constrain(initSize, MAX_INIT_SIZE * 0.9, MAX_INIT_SIZE * 1.1);
-        initAngle += angleStep * 0.05;
+        initSize -= MAX_INIT_SIZE * 0.0015 * (10 + abs(count));
+        initAngle += angleStep * 0.1;
+
+        if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
+          initSize /= SIZE_MULT;
+          initColIndex = (initColIndex + cols.length - 1) % cols.length;
+        }
       }
     }
 
@@ -154,61 +130,67 @@
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
+      } else if (elem.webkitRequestFullscreen) { /* Safari */
         elem.webkitRequestFullscreen();
-      } else if (elem.msRequestFullscreen) {
+      } else if (elem.msRequestFullscreen) { /* IE11 */
         elem.msRequestFullscreen();
       }
 
+      // Скрываем overlay
       document.getElementById('overlay').style.display = 'none';
       isFullscreen = true;
-
-      // Запускаем музыку после взаимодействия
-      if (music) music.loop();
     }
 
     function mouseMoved() {
-      if (isFullscreen) showExitHint();
+      // При движении мыши — показываем overlay (для выхода)
+      if (isFullscreen && (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height)) {
+        return;
+      }
+      showExitHint();
     }
 
     function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) exitFullscreen();
+      if (keyCode === ESC || keyCode === 32) { // Esc или пробел
+        exitFullscreen();
+      }
     }
 
     function showExitHint() {
       const overlay = document.getElementById('overlay');
       overlay.innerHTML = `
-        <h2>🌀 Выход из погружения</h2>
-        <p>Нажмите ESC или пробел</p>
+        <h2>Выход из режима погружения</h2>
+        <p>Нажмите ESC или пробел, чтобы выйти</p>
         <button onclick="exitFullscreen()">Выйти</button>
       `;
       overlay.style.display = 'flex';
+      overlay.classList.remove('hide');
     }
 
     function exitFullscreen() {
-      if (document.exitFullscreen) document.exitFullscreen();
-      else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-      else if (document.msExitFullscreen) document.msExitFullscreen();
-
-      if (music) music.stop();
-      document.getElementById('overlay').style.display = 'flex';
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      document.getElementById('overlay').style.display = 'none';
       isFullscreen = false;
     }
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
-      MAX_INIT_SIZE = max(width, height) * 0.6;
+      MAX_INIT_SIZE = max(width, height) * 0.35;
     }
 
-    function createCols(_url) {
-      let slash_index = _url.lastIndexOf('/');
-      let palette_str = _url.slice(slash_index + 1);
-      let arr = palette_str.split('-');
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] = '#' + arr[i];
-      }
-      return arr;
-    }
+    // Закрыть overlay при загрузке (если JS работает)
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const overlay = document.getElementById('overlay');
+        if (!isFullscreen) return;
+        overlay.classList.add('hide');
+      }, 5000);
+    });
   </script>
 </body>
 </html>
