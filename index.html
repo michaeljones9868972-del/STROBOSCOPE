@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🌀</title>
+  <title>(´♡‿♡`)</title>
+  <!-- Подключаем p5.sound -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -40,7 +42,7 @@
 
   <!-- Заставка -->
   <div class="splash" id="splash">
-    <div>(◕‿◕)<br><span style="font-size:18px;color:#aaa"></span></div>
+    <div>(´♡‿♡`)<br><span style="font-size:18px;color:#aaa">0x...MUSIC</span></div>
   </div>
 
   <script>
@@ -49,7 +51,9 @@
     let url = "https://coolors.co/app/9AA8A8-466A44-E0D5BE-E0908D-C7495C-ffffff-680003-BC0000-F5704A-EFB9AD-828D00";
     let cols;
     let isPlaying = false;
-    let audio; // переменная для аудио
+    let song; // аудио
+    let amplitude; // анализ громкости
+    let level; // текущий уровень громкости
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -57,7 +61,6 @@
       noStroke();
       cols = createCols(url);
 
-      // Размер как ты хотел
       MAX_INIT_SIZE = max(width, height) * 0.48;
       MAX_ANGLE_STEP = PI / 20;
       SIZE_MULT = 0.88;
@@ -67,11 +70,14 @@
       initAngle = 0;
       initColIndex = 0;
 
-      // Создаём аудио (без автовоспроизведения)
-      audio = new Audio();
-      audio.src = "https://ice4.somafm.com/beatblender-128-mp3"; // потоковое радио
-      audio.type = "audio/mpeg";
-      audio.loop = true; // можно убрать, если не нужно
+      // 🔊 Загружаем и анализируем звук
+      song = loadSound('m3.mp3', () => {
+        console.log('Трек загружен');
+      });
+
+      amplitude = new p5.Amplitude(); // измеряет громкость
+      amplitude.setInput(song);
+      level = 0;
 
       // Клик по заставке
       document.getElementById('splash').addEventListener('click', startExperience);
@@ -81,10 +87,18 @@
       if (!isPlaying) return;
 
       background(0);
+
+      // Получаем текущую громкость (0.0 до 1.0+)
+      level = amplitude.getLevel();
+
+      // Усиливаем эффект
+      let beat = map(level, 0, 0.5, 1, 1.3); // пульсация при ударе
+      beat = constrain(beat, 1, 1.5);
+
       let count = sin(frameCount / 150);
       let angleStep = MAX_ANGLE_STEP * count;
       let colIndex = initColIndex;
-      let size = initSize;
+      let size = initSize * beat; // круги "дышат" под бит
       let angle = initAngle;
 
       while (size > MIN_SIZE) {
@@ -92,10 +106,10 @@
         translate(width / 2, height / 2);
         rotate(angle);
         fill(cols[colIndex % cols.length]);
-        ellipse(0, 0, size, size); // круг
+        ellipse(0, 0, size, size);
         pop();
 
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE, 1, 0, false);
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
         size *= SIZE_MULT;
         colIndex++;
       }
@@ -114,27 +128,21 @@
       splash.style.opacity = 0;
       setTimeout(() => splash.remove(), 500);
 
-      // Включаем полноэкранный режим
+      // Полноэкранный режим
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
       }
 
-      // Запускаем аудио (только после клика!)
-      audio.play().catch(e => {
-        console.log("Автовоспроизведение заблокировано:", e);
-        alert("Пожалуйста, разрешите автовоспроизведение в браузере.");
-      });
-
+      // Запускаем музыку
+      song.loop(); // играет циклично
       isPlaying = true;
     }
 
     function keyPressed() {
       if (keyCode === ESC || keyCode === 32) {
-        if (audio) audio.pause();
-        location.reload(); // выход
+        if (song.isPlaying()) song.pause();
+        location.reload();
       }
     }
 
