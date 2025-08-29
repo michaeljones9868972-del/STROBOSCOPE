@@ -55,7 +55,12 @@
     let lastLevel = 0;
     let particles = [];
     let lastBurstTime = 0;
-    let minBurstInterval = 300; // мс (не чаще чем раз в 0.3 сек)
+    let minBurstInterval = 300;
+
+    // Переменные для динамического фона
+    let w = 255;
+    let s = 0;
+    let img;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -72,7 +77,10 @@
       initAngle = 0;
       initColIndex = 0;
 
-      // Загружаем и анализируем звук
+      // Создаём изображение для фона
+      img = createImage(255, 255);
+
+      // Аудио
       song = loadSound('m3.mp3', () => {
         console.log('Трек загружен и готов к воспроизведению');
       }, (err) => {
@@ -82,27 +90,39 @@
 
       amplitude = new p5.Amplitude();
       amplitude.setInput(song);
-      amplitude.smooth(0.8); // сглаживание для стабильности
+      amplitude.smooth(0.8);
 
-      // Клик по заставке
       document.getElementById('splash').addEventListener('click', startExperience);
     }
 
     function draw() {
       if (!isPlaying) return;
 
-      background(0);
+      // Динамический фон
+      s++;
+      img.loadPixels();
+      for (let y = 0; y < w; y++) {
+        let q = y - w/2;
+        for (let x = 0; x < w; x++) {
+          let r = x - w/2;
+          let v = int(w * atan2(q, r) / PI);
+          let u = int(w * 32 / sqrt(r*r + q*q));
+          let c = (u + s + v ^ u*2 - v) & w;
+          img.set(x, y, color(c, c*0.5, c*0.2)); // Цветной эффект
+        }
+      }
+      img.updatePixels();
+      // Масштабируем фон на весь экран
+      image(img, 0, 0, width, height);
 
       // Получаем уровень громкости
       level = amplitude.getLevel();
-
-      // Вычисляем резкость изменения
       let delta = abs(level - lastLevel);
       let now = millis();
 
-      // Условие: резкий рост + не слишком часто
+      // Взрыв частиц
       if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        particles = []; // чистим предыдущие частицы
+        particles = [];
         createBurst(initSize, cols[initColIndex % cols.length]);
         lastBurstTime = now;
       }
@@ -164,23 +184,20 @@
         this.color = col;
         this.size = random(2, 4);
       }
-
       update() {
         this.vel.add(this.acc);
         this.pos.add(this.vel);
         this.lifespan--;
       }
-
       show() {
         let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
         if (this.lifespan < 15) {
-          alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5; // мерцание
+          alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
         }
         noStroke();
         fill(red(this.color), green(this.color), blue(this.color), alpha);
         ellipse(this.pos.x, this.pos.y, this.size);
       }
-
       isDead() {
         return this.lifespan < 0;
       }
@@ -191,13 +208,11 @@
       splash.style.opacity = 0;
       setTimeout(() => splash.remove(), 500);
 
-      // Полноэкранный режим
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
         elem.requestFullscreen();
       }
 
-      // Запускаем музыку
       song.loop();
       isPlaying = true;
     }
