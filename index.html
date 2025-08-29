@@ -4,8 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>(´♡‿♡`)</title>
+  <!-- Иконка страницы -->
+  <link rel="icon" href="favicon.png" type="image/png">
+
+  <!-- Подключаем p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+
   <style>
     body {
       margin: 0;
@@ -44,10 +49,19 @@
   </div>
 
   <script>
+    // Палитра Coolors: 223C20-4C8D26-D5FB00-DE60CA-882380
+    let cols = [
+      '#223C20', '#4C8D26', '#D5FB00', '#DE60CA', '#882380'
+    ];
+
+    // Переменные для динамического фона
+    let w = 255;
+    let s = 0;
+    let img;
+
+    // Анимация кругов
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
-    let url = "https://coolors.co/app/012E4A-036280-378BA4-81BECE-E8EDE7-ffffff-012E4A-036280-378BA4-81BECE-E8EDE7";
-    let cols;
     let isPlaying = false;
     let song;
     let amplitude;
@@ -57,32 +71,17 @@
     let lastBurstTime = 0;
     let minBurstInterval = 300;
 
-    // Переменные для динамического фона
-    let w = 255;
-    let s = 0;
-    let img;
-
     function setup() {
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER);
       noStroke();
-      cols = createCols(url);
-
-      MAX_INIT_SIZE = max(width, height) * 0.48;
-      MAX_ANGLE_STEP = PI / 20;
-      SIZE_MULT = 0.88;
-      MIN_SIZE = 8;
-
-      initSize = MAX_INIT_SIZE;
-      initAngle = 0;
-      initColIndex = 0;
 
       // Создаём изображение для фона
       img = createImage(255, 255);
 
       // Аудио
       song = loadSound('m3.mp3', () => {
-        console.log('Трек загружен и готов к воспроизведению');
+        console.log('Трек загружен');
       }, (err) => {
         console.error('Ошибка загрузки m3.mp3:', err);
         alert('Не удалось загрузить m3.mp3. Проверь имя файла и загрузи его в репозиторий.');
@@ -92,28 +91,34 @@
       amplitude.setInput(song);
       amplitude.smooth(0.8);
 
+      // Клик по заставке
       document.getElementById('splash').addEventListener('click', startExperience);
     }
 
     function draw() {
-      if (!isPlaying) return;
-
-      // Динамический фон
-      s++;
-      img.loadPixels();
-      for (let y = 0; y < w; y++) {
-        let q = y - w/2;
-        for (let x = 0; x < w; x++) {
-          let r = x - w/2;
-          let v = int(w * atan2(q, r) / PI);
-          let u = int(w * 32 / sqrt(r*r + q*q));
-          let c = (u + s + v ^ u*2 - v) & w;
-          img.set(x, y, color(c, c*0.5, c*0.2)); // Цветной эффект
+      if (!isPlaying) {
+        // Динамический фон — работает всегда, пока не нажали
+        s++;
+        img.loadPixels();
+        for (let y = 0; y < w; y++) {
+          let q = y - w/2;
+          for (let x = 0; x < w; x++) {
+            let r = x - w/2;
+            let v = int(w * atan2(q, r) / PI);
+            let u = int(w * 32 / sqrt(r*r + q*q));
+            let c = (u + s + v ^ u*2 - v) & w;
+            // Цвета из твоей палитры
+            let col = cols[Math.floor(c % cols.length)];
+            img.set(x, y, color(col));
+          }
         }
+        img.updatePixels();
+        image(img, 0, 0, width, height);
+        return;
       }
-      img.updatePixels();
-      // Масштабируем фон на весь экран
-      image(img, 0, 0, width, height);
+
+      // После клика — только чёрный экран и анимация кругов
+      background(0);
 
       // Получаем уровень громкости
       level = amplitude.getLevel();
@@ -139,7 +144,7 @@
 
       // Анимация кругов
       let count = sin(frameCount / 150);
-      let angleStep = MAX_ANGLE_STEP * count;
+      let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
       let size = initSize;
       let angle = initAngle;
@@ -153,15 +158,15 @@
         pop();
 
         angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
-        size *= SIZE_MULT;
+        size *= 0.88;
         colIndex++;
       }
 
       initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
       initAngle += angleStep * 0.1;
 
-      if (initSize < MAX_INIT_SIZE * SIZE_MULT) {
-        initSize /= SIZE_MULT;
+      if (initSize < MAX_INIT_SIZE * 0.88) {
+        initSize /= 0.88;
         initColIndex = (initColIndex + cols.length - 1) % cols.length;
       }
     }
@@ -215,6 +220,15 @@
 
       song.loop();
       isPlaying = true;
+
+      // Устанавливаем параметры анимации
+      MAX_INIT_SIZE = max(width, height) * 0.48;
+      MAX_ANGLE_STEP = PI / 20;
+      SIZE_MULT = 0.88;
+      MIN_SIZE = 8;
+      initSize = MAX_INIT_SIZE;
+      initAngle = 0;
+      initColIndex = 0;
     }
 
     function keyPressed() {
@@ -226,17 +240,6 @@
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
-      MAX_INIT_SIZE = max(width, height) * 0.48;
-    }
-
-    function createCols(_url) {
-      let slash_index = _url.lastIndexOf('/');
-      let palette_str = _url.slice(slash_index + 1);
-      let arr = palette_str.split('-');
-      for (let i = 0; i < arr.length; i++) {
-        arr[i] = '#' + arr[i];
-      }
-      return arr;
     }
   </script>
 </body>
