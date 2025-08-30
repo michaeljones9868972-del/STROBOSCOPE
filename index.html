@@ -3,14 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>(´♡‿♡`)</title>
-  <!-- Иконка страницы -->
-  <link rel="icon" href="favicon1.png" type="image/png">
-
-  <!-- Подключаем p5.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
-
+  <title>Цвета 9AA8A8-466A44-E0D5BE-E0908D-C7495C-ffffff-680003-BC0000-F5704A-EFB9AD-828D00</title>
   <style>
     body {
       margin: 0;
@@ -21,215 +14,39 @@
     canvas {
       display: block;
     }
-    .splash {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      color: #E0908D;
-      font-family: 'Arial', sans-serif;
-      font-size: 48px;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
-      letter-spacing: 2px;
-    }
-    .splash:hover {
-      color: #F5704A;
-    }
   </style>
 </head>
 <body>
-
-  <div class="splash" id="splash">
-    <div>(´♡‿♡`)<br><span style="font-size:18px;color:#aaa">0x...MUSIC</span></div>
-  </div>
-
+  <canvas id="colorCanvas"></canvas>
   <script>
-    // Палитра Coolors: 223C20-4C8D26-D5FB00-DE60CA-882380
-    let cols = [
-      '#223C20', '#4C8D26', '#D5FB00', '#DE60CA', '#882380'
-    ];
+    const canvas = document.getElementById('colorCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Переменные для динамического фона
-    let w = 255;
-    let s = 0;
-    let img;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    // Анимация кругов
-    let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
-    let initSize, initAngle, initColIndex;
-    let isPlaying = false;
-    let song;
-    let amplitude;
-    let level;
-    let lastLevel = 0;
-    let particles = [];
-    let lastBurstTime = 0;
-    let minBurstInterval = 300;
-
-    function setup() {
-      createCanvas(windowWidth, windowHeight);
-      rectMode(CENTER);
-      noStroke();
-
-      // Создаём изображение для фона
-      img = createImage(255, 255);
-
-      // Аудио
-      song = loadSound('m3.mp3', () => {
-        console.log('Трек загружен');
-      }, (err) => {
-        console.error('Ошибка загрузки m3.mp3:', err);
-        alert('Не удалось загрузить m3.mp3. Проверь имя файла и загрузи его в репозиторий.');
-      });
-
-      amplitude = new p5.Amplitude();
-      amplitude.setInput(song);
-      amplitude.smooth(0.8);
-
-      // Клик по заставке
-      document.getElementById('splash').addEventListener('click', startExperience);
+    const colors = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#FFFFFF', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
+    
+    function drawCircle(x, y, radius, color) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
     }
 
-    function draw() {
-      if (!isPlaying) {
-        // Динамический фон — работает всегда, пока не нажали
-        s++;
-        img.loadPixels();
-        for (let y = 0; y < w; y++) {
-          let q = y - w/2;
-          for (let x = 0; x < w; x++) {
-            let r = x - w/2;
-            let v = int(w * atan2(q, r) / PI);
-            let u = int(w * 32 / sqrt(r*r + q*q));
-            let c = (u + s + v ^ u*2 - v) & w;
-            // Цвета из твоей палитры
-            let col = cols[Math.floor(c % cols.length)];
-            img.set(x, y, color(col));
-          }
-        }
-        img.updatePixels();
-        image(img, 0, 0, width, height);
-        return;
-      }
-
-      // После клика — только чёрный экран и анимация кругов
-      background(0);
-
-      // Получаем уровень громкости
-      level = amplitude.getLevel();
-      let delta = abs(level - lastLevel);
-      let now = millis();
-
-      // Увеличение размера при басе
-      if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        targetScale = 4; // Самый внешний круг увеличивается в 4 раза
-        lastBurstTime = now;
-      }
-      lastLevel = level;
-
-      // Плавное изменение масштаба
-      beatScale += (targetScale - beatScale) * scaleSpeed;
-
-      // Обновляем частицы
-      for (let i = particles.length - 1; i >= 0; i--) {
-        particles[i].update();
-        particles[i].show();
-        if (particles[i].isDead()) {
-          particles.splice(i, 1);
-        }
-      }
-
-      // Анимация кругов
-      let count = sin(frameCount / 150);
-      let angleStep = PI / 20 * count;
-      let colIndex = initColIndex;
-      let size = initSize;
-      let angle = initAngle;
-
-      // Рисуем три наружных круга
-      let outerSizes = [size, size * 0.88, size * 0.88 * 0.88];
-      let scales = [2, 3, 4]; // Увеличение в 2, 3, 4 раза
-
-      for (let i = 0; i < 3; i++) {
-        push();
-        translate(width / 2, height / 2);
-        rotate(angle);
-        fill(cols[colIndex % cols.length]);
-        ellipse(0, 0, outerSizes[i] * scales[i] * beatScale, outerSizes[i] * scales[i] * beatScale);
-        pop();
-        angle += angleStep * map(outerSizes[i], MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
-        colIndex++;
-      }
-
-      // Проверяем, достиг ли самый внешний круг края экрана
-      if (beatScale >= 4) {
-        createBurst(initSize, cols[initColIndex % cols.length]);
-        beatScale = 1; // Сбрасываем масштаб
-      }
-
-      initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
-      initAngle += angleStep * 0.1;
-
-      if (initSize < MAX_INIT_SIZE * 0.88) {
-        initSize /= 0.88;
-        initColIndex = (initColIndex + cols.length - 1) % cols.length;
+    function animate() {
+      requestAnimationFrame(animate);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < 100; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const radius = Math.random() * 10 + 1;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        drawCircle(x, y, radius, color);
       }
     }
 
-    function createBurst(size, color) {
-      const numParticles = 50;
-      const center = { x: width / 2, y: height / 2 };
-      for (let i = 0; i < numParticles; i++) {
-        particles.push(new Particle(center.x, center.y, color));
-      }
-    }
-
-    class Particle {
-      constructor(x, y, col) {
-        this.pos = createVector(x, y);
-        this.vel = p5.Vector.random2D().mult(random(3, 10));
-        this.acc = createVector(0, 0);
-        this.lifespan = 60;
-        this.maxLife = this.lifespan;
-        this.color = col;
-        this.size = random(2, 4);
-      }
-      update() {
-        this.vel.add(this.acc);
-        this.pos.add(this.vel);
-        this.lifespan--;
-      }
-      show() {
-        let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
-        if (this.lifespan < 15) {
-          alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
-        }
-        noStroke();
-        fill(red(this.color), green(this.color), blue(this.color), alpha);
-        ellipse(this.pos.x, this.pos.y, this.size);
-      }
-      isDead() {
-        return this.lifespan < 0;
-      }
-    }
-
-    function startExperience() {
-      const splash = document.getElementById('splash');
-      splash.style.opacity = 0;
-      setTimeout(() => splash.remove(), 500);
-
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      }
-
-      song.loop();
-      isPlaying = true;
-
-      // Устанавливаем параметры анимации
-     
+    animate();
+  </script>
+</body>
+</html>
