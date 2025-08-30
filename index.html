@@ -125,17 +125,15 @@
       let delta = abs(level - lastLevel);
       let now = millis();
 
-      // Взрыв частиц
+      // Увеличение размера при басе
       if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        particles = [];
-        createBurst(initSize, cols[initColIndex % cols.length]);
+        targetScale = 4; // Самый внешний круг увеличивается в 4 раза
         lastBurstTime = now;
       }
       lastLevel = level;
 
-      // Синхронизация движения кругов с музыкой
-      let beat = map(level, 0, 0.5, 1, 1.5); // Пульсация в такт музыке
-      beat = constrain(beat, 1, 1.5);
+      // Плавное изменение масштаба
+      beatScale += (targetScale - beatScale) * scaleSpeed;
 
       // Обновляем частицы
       for (let i = particles.length - 1; i >= 0; i--) {
@@ -150,20 +148,28 @@
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
-      let size = initSize * beat; // Размер кругов меняется в такт музыке
+      let size = initSize;
       let angle = initAngle;
 
-      while (size > MIN_SIZE) {
+      // Рисуем три наружных круга
+      let outerSizes = [size, size * 0.88, size * 0.88 * 0.88];
+      let scales = [2, 3, 4]; // Увеличение в 2, 3, 4 раза
+
+      for (let i = 0; i < 3; i++) {
         push();
         translate(width / 2, height / 2);
         rotate(angle);
         fill(cols[colIndex % cols.length]);
-        ellipse(0, 0, size, size);
+        ellipse(0, 0, outerSizes[i] * scales[i] * beatScale, outerSizes[i] * scales[i] * beatScale);
         pop();
-
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
-        size *= 0.88;
+        angle += angleStep * map(outerSizes[i], MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
         colIndex++;
+      }
+
+      // Проверяем, достиг ли самый внешний круг края экрана
+      if (beatScale >= 4) {
+        createBurst(initSize, cols[initColIndex % cols.length]);
+        beatScale = 1; // Сбрасываем масштаб
       }
 
       initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
@@ -226,25 +232,4 @@
       isPlaying = true;
 
       // Устанавливаем параметры анимации
-      MAX_INIT_SIZE = max(width, height) * 0.45;
-      MAX_ANGLE_STEP = PI / 20;
-      SIZE_MULT = 0.88;
-      MIN_SIZE = 8;
-      initSize = MAX_INIT_SIZE;
-      initAngle = 0;
-      initColIndex = 0;
-    }
-
-    function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) {
-        if (song.isPlaying()) song.pause();
-        location.reload();
-      }
-    }
-
-    function windowResized() {
-      resizeCanvas(windowWidth, windowHeight);
-    }
-  </script>
-</body>
-</html>
+     
