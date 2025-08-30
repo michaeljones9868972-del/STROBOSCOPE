@@ -3,50 +3,76 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Цвета 9AA8A8-466A44-E0D5BE-E0908D-C7495C-ffffff-680003-BC0000-F5704A-EFB9AD-828D00</title>
+  <title>Выбери энергию</title>
+  <!-- Иконка страницы -->
+  <link rel="icon" href="favicon1.png" type="image/png">
   <style>
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: #000;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    canvas {
-      display: block;
+    .title {
+       margin-bottom: 40px;
+       font-size: 32px;
+       opacity: 0.9;
     }
+    .symbols-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 90%;
+    }
+    .symbol {
+      font-size: 60px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      opacity: 0.85;
+      padding: 10px 20px;
+      border-radius: 20px;
+    }
+    .symbol:hover {
+      transform: scale(1.2) rotate(5deg);
+      opacity: 1;
+      text-shadow: 0 0 20px currentColor;
+    }
+    /* Цвета для каждого символа */
+    .symbol:nth-child(1) { color: #E0908D; } /* (´♡‿♡`) */
+    .symbol:nth-child(2) { color: #ffb901; } /* (◕‿◕) */
+    .symbol:nth-child(3) { color: #C8D2D1; } /* (◣_◢) */
+    .symbol:nth-child(4) { color: #F27B57; } /* (^◕ᴥ◕^) */
+    .symbol:nth-child(5) { color: #81BECE; } /* ( ఠ ͟ʖ ఠ) */
   </style>
 </head>
 <body>
-  <canvas id="colorCanvas"></canvas>
+  <h1 class="title">Выбери энергию</h1>
+  <div class="symbols-container">
+    <div class="symbol" data-page="page1.html">(´♡‿♡`)</div>
+    <div class="symbol" data-page="page2.html">(◕‿◕)</div>
+    <div class="symbol" data-page="page3.html">(◣_◢)</div>
+    <div class="symbol" data-page="page4.html">(^◕ᴥ◕^)</div>
+    <div class="symbol" data-page="page5.html">( ఠ ͟ʖ ఠ)</div>
+  </div>
+
   <script>
-    const canvas = document.getElementById('colorCanvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const colors = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#FFFFFF', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
-    
-    function drawCircle(x, y, radius, color) {
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.fill();
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < 100; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const radius = Math.random() * 10 + 1;
-        const color = colors[Math.floor(Math.random() * colors.length)];
-        drawCircle(x, y, radius, color);
-      }
-    }
-
-    animate();
+    document.querySelectorAll('.symbol').forEach(symbol => {
+      symbol.addEventListener('click', () => {
+        const page = symbol.getAttribute('data-page');
+        if (page) {
+          window.location.href = page;
+        }
+      });
+    });
   </script>
 </body>
 </html>
