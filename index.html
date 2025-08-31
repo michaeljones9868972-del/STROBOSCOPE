@@ -3,54 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>(´♡‿♡`)</title>
+  <title>Выбери энергию</title>
   <!-- Иконка страницы -->
   <link rel="icon" href="favicon1.png" type="image/png">
-
-  <!-- Подключаем p5.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
-
   <style>
     body {
       margin: 0;
       padding: 0;
       overflow: hidden;
       background: #000;
-    }
-    canvas {
-      display: block;
-    }
-    .symbols-container {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: #000;
+      color: white;
+      font-family: 'Arial', sans-serif;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
-      color: #E0908D;
-      font-family: 'Arial', sans-serif;
-      font-size: 48px;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
-      letter-spacing: 2px;
+      height: 100vh;
+    }
+    .title {
+       margin-bottom: 40px;
+       font-size: 32px;
+       opacity: 0.9;
+    }
+    .symbols-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 90%;
     }
     .symbol {
-      font-size: 50px;
-      margin: 20px;
+      font-size: 60px;
       cursor: pointer;
+      transition: all 0.3s ease;
+      user-select: none;
+      opacity: 0.85;
+      padding: 10px 20px;
+      border-radius: 20px;
     }
     .symbol:hover {
       transform: scale(1.2) rotate(5deg);
       opacity: 1;
       text-shadow: 0 0 20px currentColor;
     }
+    /* Цвета для каждого символа */
+    .symbol:nth-child(1) { color: #E0908D; } /* (´♡‿♡`) */
+    .symbol:nth-child(2) { color: #ffb901; } /* (◕‿◕) */
+    .symbol:nth-child(3) { color: #C8D2D1; } /* (◣_◢) */
+    .symbol:nth-child(4) { color: #F27B57; } /* (^◕ᴥ◕^) */
+    .symbol:nth-child(5) { color: #81BECE; } /* ( ఠ ͟ʖ ఠ) */
   </style>
 </head>
 <body>
-
+  <h1 class="title">Выбери энергию</h1>
   <div class="symbols-container">
     <div class="symbol" data-page="page1.html">(´♡‿♡`)</div>
     <div class="symbol" data-page="page2.html">(◕‿◕)</div>
@@ -60,146 +65,14 @@
   </div>
 
   <script>
-    // Палитра Coolors: 223C20-4C8D26-D5FB00-DE60CA-882380
-    let cols = [
-      '#223C20', '#4C8D26', '#D5FB00', '#DE60CA', '#882380'
-    ];
-
-    // Переменные для динамического фона
-    let w = 255;
-    let s = 0;
-    let img;
-
-    // Анимация кругов
-    let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
-    let initSize, initAngle, initColIndex;
-    let isPlaying = false;
-    let song;
-    let amplitude;
-    let level;
-    let lastLevel = 0;
-    let particles = [];
-    let lastBurstTime = 0;
-    let minBurstInterval = 300;
-
-    function setup() {
-      createCanvas(windowWidth, windowHeight);
-      rectMode(CENTER);
-      noStroke();
-
-      // Создаём изображение для фона
-      img = createImage(255, 255);
-
-      // Аудио
-      song = loadSound('m3.mp3', () => {
-        console.log('Трек загружен');
-      }, (err) => {
-        console.error('Ошибка загрузки m3.mp3:', err);
-        alert('Не удалось загрузить m3.mp3. Проверь имя файла и загрузи его в репозиторий.');
+    document.querySelectorAll('.symbol').forEach(symbol => {
+      symbol.addEventListener('click', () => {
+        const page = symbol.getAttribute('data-page');
+        if (page) {
+          window.location.href = page;
+        }
       });
-
-      amplitude = new p5.Amplitude();
-      amplitude.setInput(song);
-      amplitude.smooth(0.8);
-
-      // Запускаем музыку и анимацию сразу
-      startExperience();
-    }
-
-    function draw() {
-      if (!isPlaying) return;
-
-      // Динамический фон — работает всегда
-      s++;
-      img.loadPixels();
-      for (let y = 0; y < w; y++) {
-        let q = y - w/2;
-        for (let x = 0; x < w; x++) {
-          let r = x - w/2;
-          let v = int(w * atan2(q, r) / PI);
-          let u = int(w * 32 / sqrt(r*r + q*q));
-          let c = (u + s + v ^ u*2 - v) & w;
-          // Цвета из твоей палитры
-          let col = cols[Math.floor(c % cols.length)];
-          img.set(x, y, color(col));
-        }
-      }
-      img.updatePixels();
-      image(img, 0, 0, width, height);
-      return;
-    }
-
-    function createBurst(size, color) {
-      const numParticles = 50;
-      const center = { x: width / 2, y: height / 2 };
-      for (let i = 0; i < numParticles; i++) {
-        particles.push(new Particle(center.x, center.y, color));
-      }
-    }
-
-    class Particle {
-      constructor(x, y, col) {
-        this.pos = createVector(x, y);
-        this.vel = p5.Vector.random2D().mult(random(3, 10));
-        this.acc = createVector(0, 0);
-        this.lifespan = 60;
-        this.maxLife = this.lifespan;
-        this.color = col;
-        this.size = random(2, 4);
-      }
-      update() {
-        this.vel.add(this.acc);
-        this.pos.add(this.vel);
-        this.lifespan--;
-      }
-      show() {
-        let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
-        if (this.lifespan < 15) {
-          alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
-        }
-        noStroke();
-        fill(red(this.color), green(this.color), blue(this.color), alpha);
-        ellipse(this.pos.x, this.pos.y, this.size);
-      }
-      isDead() {
-        return this.lifespan < 0;
-      }
-    }
-
-    function startExperience() {
-      // Убираем заставку
-      document.querySelector('.symbols-container').style.display = 'none';
-
-      // Полноэкранный режим
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      }
-
-      // Запускаем музыку
-      song.loop();
-      isPlaying = true;
-
-      // Устанавливаем параметры анимации
-      MAX_INIT_SIZE = max(width, height) * 0.45;
-      MAX_ANGLE_STEP = PI / 20;
-      SIZE_MULT = 0.88;
-      MIN_SIZE = 8;
-      initSize = MAX_INIT_SIZE;
-      initAngle = 0;
-      initColIndex = 0;
-    }
-
-    function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) {
-        if (song.isPlaying()) song.pause();
-        location.reload();
-      }
-    }
-
-    function windowResized() {
-      resizeCanvas(windowWidth, windowHeight);
-    }
+    });
   </script>
 </body>
 </html>
