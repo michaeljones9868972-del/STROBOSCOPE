@@ -212,6 +212,62 @@
       });
     }
 
+    // Дата окончания таймера (16 сентября 2025, 17:00 UTC)
+    const targetDate = new Date('2025-09-16T17:00:00Z');
+    
+    // Функция для обновления таймера
+    function updateTimer(element) {
+      const now = new Date();
+      const difference = targetDate - now;
+      
+      if (difference <= 0) {
+        element.textContent = 'Время вышло!';
+        return;
+      }
+      
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+    
+    // Добавляем символы с таймерами
+    for (let copy = 0; copy < 5; copy++) {
+      symbols.forEach((symbol, index) => {
+        // Создаем обертку для символа и таймера
+        const wrapper = document.createElement('div');
+        wrapper.className = 'symbol-wrapper';
+        
+        // Создаем символ
+        const symbolElement = document.createElement('div');
+        symbolElement.className = 'symbol';
+        symbolElement.textContent = symbol.text;
+        symbolElement.addEventListener('click', () => {
+          window.location.href = symbol.page;
+        });
+        
+        // Создаем элемент таймера
+        const timerElement = document.createElement('div');
+        timerElement.className = 'timer';
+        timerElement.id = `timer-${copy}-${index}`;
+        
+        // Добавляем символ и таймер в обертку
+        wrapper.appendChild(symbolElement);
+        wrapper.appendChild(timerElement);
+        
+        // Добавляем обертку в контейнер
+        symbolsContainer.appendChild(wrapper);
+        
+        // Инициализируем таймер
+        updateTimer(timerElement);
+        
+        // Обновляем таймер каждую секунду
+        setInterval(() => updateTimer(timerElement), 1000);
+      });
+    }
+    
     // Дублируем текст для бесшовной прокрутки
     marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
   </script>
