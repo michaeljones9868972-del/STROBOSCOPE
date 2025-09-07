@@ -21,7 +21,7 @@
       top: 50%;
       left: 0;
       width: 100%;
-      height: 150px;
+      height: 100px;
       transform: translateY(-50%);
       display: flex;
       align-items: center;
@@ -35,20 +35,13 @@
       width: max-content;
     }
     
-    .symbol-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 40px;
-    }
-    
     .symbol {
       font-size: 60px;
       cursor: pointer;
       transition: all 0.3s ease;
       user-select: none;
       opacity: 0.85;
-      padding: 10px 20px;
+      padding: 10px 60px;
       border-radius: 20px;
       font-family: monospace;
       text-shadow: 0 0 20px currentColor;
@@ -65,26 +58,17 @@
       animation: float 3s ease-in-out infinite;
     }
     
-    .timer {
-      font-size: 14px;
-      color: #a0d8f1;
-      font-family: monospace;
-      margin-top: 10px;
-      text-align: center;
-      min-width: 120px;
-    }
-    
-    /* Цвета символов из предыдущего кода */
-    .symbol:nth-child(10n+1) { color: #E0908D; } /* (´♡‿♡`) */
-    .symbol:nth-child(10n+2) { color: #ffb901; } /* (◕‿◕) */
-    .symbol:nth-child(10n+3) { color: #C8D2D1; } /* (◣_◢) */
-    .symbol:nth-child(10n+4) { color: #F27B57; } /* (^◕ᴥ◕^) */
-    .symbol:nth-child(10n+5) { color: #81BECE; } /* ( ఠ ͟ʖ ఠ) */
-    .symbol:nth-child(10n+6) { color: #D870D6; } /* \(★ω★)/ */
-    .symbol:nth-child(10n+7) { color: #8FBC8F; } /* („• ᴗ •„) */
-    .symbol:nth-child(10n+8) { color: #CD5C5C; } /* (‡▼益▼) */
-    .symbol:nth-child(10n+9) { color: #A9A9A9; } /* (个_个) */
-    .symbol:nth-child(10n+0) { color: #9370DB; } /* (ʘ ͜ʖ ʘ) */
+    /* Цвета символов */
+    .symbol:nth-child(10n+1) { color: hsl(0, 60%, 80%); }    /* Pink */
+    .symbol:nth-child(10n+2) { color: hsl(43, 100%, 50%); }  /* Yellow */
+    .symbol:nth-child(10n+3) { color: hsl(180, 20%, 80%); }  /* Light gray */
+    .symbol:nth-child(10n+4) { color: hsl(14, 88%, 65%); }   /* Orange */
+    .symbol:nth-child(10n+5) { color: hsl(195, 50%, 65%); }  /* Blue */
+    .symbol:nth-child(10n+6) { color: hsl(320, 65%, 45%); }  /* Purple */
+    .symbol:nth-child(10n+7) { color: hsl(100, 70%, 40%); }  /* Green */
+    .symbol:nth-child(10n+8) { color: hsl(15, 100%, 45%); }  /* Red */
+    .symbol:nth-child(10n+9) { color: hsl(50, 80%, 50%); }   /* Gold */
+    .symbol:nth-child(10n+0) { color: hsl(260, 60%, 50%); }  /* Violet */
     
     /* Анимации */
     @keyframes scroll-right {
@@ -120,7 +104,7 @@
       top: 50%;
       left: 0;
       width: 128px;
-      height: 150px;
+      height: 100px;
       background: linear-gradient(to right, rgba(0,0,0,1), rgba(0,0,0,0));
       pointer-events: none;
       z-index: 10;
@@ -132,7 +116,7 @@
       top: 50%;
       right: 0;
       width: 128px;
-      height: 150px;
+      height: 100px;
       background: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
       pointer-events: none;
       z-index: 10;
@@ -162,15 +146,10 @@
       letter-spacing: 0.5px;
     }
 
-    /* Адаптивность */
     @media (max-width: 768px) {
       .symbol {
         font-size: 48px;
-        padding: 8px 16px;
-      }
-      .timer {
-        font-size: 12px;
-        min-width: 100px;
+        padding: 8px 48px;
       }
       .marquee-content {
         font-size: 14px;
@@ -180,11 +159,7 @@
     @media (min-width: 1024px) {
       .symbol {
         font-size: 72px;
-        padding: 16px 24px;
-      }
-      .timer {
-        font-size: 16px;
-        min-width: 140px;
+        padding: 16px 72px;
       }
       .marquee-content {
         font-size: 18px;
@@ -193,14 +168,14 @@
   </style>
 </head>
 <body>
-  <!-- Центральная бегущая строка -->
+  <!-- Центральная бегущая строка (слева направо) -->
   <div class="symbols-container">
     <div class="symbols-scroll" id="symbolsScroll"></div>
     <div class="gradient-right"></div>
     <div class="gradient-left"></div>
   </div>
 
-  <!-- Нижняя бегущая строка -->
+  <!-- Нижняя бегущая строка (справа налево) -->
   <div class="marquee-container">
     <div class="marquee-content" id="marqueeContent">
       Stroboscopе and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person аnd actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
@@ -224,59 +199,16 @@
     const symbolsContainer = document.getElementById('symbolsScroll');
     const marqueeContent = document.getElementById('marqueeContent');
     
-    // Дата окончания таймера (16 сентября 2025, 17:00 UTC)
-    const targetDate = new Date('2025-09-16T17:00:00Z');
-    
-    // Функция для обновления таймера
-    function updateTimer(element) {
-      const now = new Date();
-      const difference = targetDate - now;
-      
-      if (difference <= 0) {
-        element.textContent = 'Время вышло!';
-        return;
-      }
-      
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-      
-      element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-    
-    // Добавляем символы с таймерами
+    // Добавляем символы
     for (let copy = 0; copy < 5; copy++) {
       symbols.forEach((symbol, index) => {
-        // Создаем обертку для символа и таймера
-        const wrapper = document.createElement('div');
-        wrapper.className = 'symbol-wrapper';
-        
-        // Создаем символ
         const symbolElement = document.createElement('div');
         symbolElement.className = 'symbol';
         symbolElement.textContent = symbol.text;
         symbolElement.addEventListener('click', () => {
           window.location.href = symbol.page;
         });
-        
-        // Создаем элемент таймера
-        const timerElement = document.createElement('div');
-        timerElement.className = 'timer';
-        timerElement.id = `timer-${copy}-${index}`;
-        
-        // Добавляем символ и таймер в обертку
-        wrapper.appendChild(symbolElement);
-        wrapper.appendChild(timerElement);
-        
-        // Добавляем обертку в контейнер
-        symbolsContainer.appendChild(wrapper);
-        
-        // Инициализируем таймер
-        updateTimer(timerElement);
-        
-        // Обновляем таймер каждую секунду
-        setInterval(() => updateTimer(timerElement), 1000);
+        symbolsContainer.appendChild(symbolElement);
       });
     }
 
