@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Symbol Runner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -11,9 +14,74 @@
       overflow: hidden;
       background: #000;
       color: white;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Martian Mono', monospace;
       height: 100vh;
       position: relative;
+    }
+    
+    /* Фоновые элементы */
+    .a-hole {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      overflow: hidden;
+    }
+    
+    .js-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .aura {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, rgba(100, 50, 200, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+      animation: aura-pulse 8s infinite alternate;
+    }
+    
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 20px
+        ),
+        repeating-linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.15),
+          rgba(0, 0, 0, 0.15) 1px,
+          transparent 1px,
+          transparent 20px
+        );
+      pointer-events: none;
+    }
+    
+    @keyframes aura-pulse {
+      0% {
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0.7;
+        transform: scale(1.2);
+      }
     }
     
     .symbols-container {
@@ -21,11 +89,12 @@
       top: 50%;
       left: 0;
       width: 100%;
-      height: 150px;
+      height: 100px;
       transform: translateY(-50%);
       display: flex;
       align-items: center;
       overflow: hidden;
+      z-index: 2;
     }
     
     .symbols-scroll {
@@ -35,43 +104,30 @@
       width: max-content;
     }
     
-    .symbol-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 40px;
-    }
-    
     .symbol {
       font-size: 60px;
       cursor: pointer;
       transition: all 0.3s ease;
       user-select: none;
       opacity: 0.85;
-      padding: 10px 20px;
+      padding: 10px 60px;
       border-radius: 20px;
-      font-family: monospace;
+      font-family: 'Martian Mono', monospace;
       text-shadow: 0 0 20px currentColor;
       filter: brightness(1.1);
       min-width: 1em;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      position: relative;
+      z-index: 3;
     }
     
     .symbol:hover {
       transform: scale(1.1);
       opacity: 1;
       animation: float 3s ease-in-out infinite;
-    }
-    
-    .timer {
-      font-size: 14px;
-      color: #a0d8f1;
-      font-family: monospace;
-      margin-top: 10px;
-      text-align: center;
-      min-width: 120px;
+      z-index: 10;
     }
     
     /* Цвета символов */
@@ -120,7 +176,7 @@
       top: 50%;
       left: 0;
       width: 128px;
-      height: 150px;
+      height: 100px;
       background: linear-gradient(to right, rgba(0,0,0,1), rgba(0,0,0,0));
       pointer-events: none;
       z-index: 10;
@@ -132,7 +188,7 @@
       top: 50%;
       right: 0;
       width: 128px;
-      height: 150px;
+      height: 100px;
       background: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
       pointer-events: none;
       z-index: 10;
@@ -150,6 +206,7 @@
       background: rgba(0, 0, 0, 0.8);
       display: flex;
       align-items: center;
+      z-index: 2;
     }
 
     .marquee-content {
@@ -158,19 +215,14 @@
       font-size: 16px;
       color: #a0d8f1;
       padding: 0 50px;
-      font-family: Arial, sans-serif;
+      font-family: 'Martian Mono', monospace;
       letter-spacing: 0.5px;
     }
 
-    /* Адаптивность */
     @media (max-width: 768px) {
       .symbol {
         font-size: 48px;
-        padding: 8px 16px;
-      }
-      .timer {
-        font-size: 12px;
-        min-width: 100px;
+        padding: 8px 48px;
       }
       .marquee-content {
         font-size: 14px;
@@ -180,11 +232,7 @@
     @media (min-width: 1024px) {
       .symbol {
         font-size: 72px;
-        padding: 16px 24px;
-      }
-      .timer {
-        font-size: 16px;
-        min-width: 140px;
+        padding: 16px 72px;
       }
       .marquee-content {
         font-size: 18px;
@@ -193,14 +241,21 @@
   </style>
 </head>
 <body>
-  <!-- Центральная бегущая строка -->
+  <!-- Фоновые элементы -->
+  <div class="a-hole">
+    <canvas class="js-canvas"></canvas>
+    <div class="aura"></div>
+    <div class="overlay"></div>
+  </div>
+
+  <!-- Центральная бегущая строка (слева направо) -->
   <div class="symbols-container">
     <div class="symbols-scroll" id="symbolsScroll"></div>
     <div class="gradient-right"></div>
     <div class="gradient-left"></div>
   </div>
 
-  <!-- Нижняя бегущая строка -->
+  <!-- Нижняя бегущая строка (справа налево) -->
   <div class="marquee-container">
     <div class="marquee-content" id="marqueeContent">
       Stroboscopе and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person аnd actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
@@ -224,74 +279,78 @@
     const symbolsContainer = document.getElementById('symbolsScroll');
     const marqueeContent = document.getElementById('marqueeContent');
     
-    // Дата окончания таймера (16 сентября 2025, 17:00 UTC)
-    const targetDate = new Date('2025-09-16T17:00:00Z');
-    
-    // Функция для обновления таймера
-    function updateTimer(element) {
-      const now = new Date();
-      const difference = targetDate - now;
-      
-      if (difference <= 0) {
-        element.textContent = 'Время вышло!';
-        return;
-      }
-      
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-      
-      element.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
-    
-    // Добавляем символы с таймерами
+    // Добавляем символы
     for (let copy = 0; copy < 5; copy++) {
       symbols.forEach((symbol, index) => {
-        // Создаем обертку для символа и таймера
-        const wrapper = document.createElement('div');
-        wrapper.className = 'symbol-wrapper';
-        
-        // Создаем символ
         const symbolElement = document.createElement('div');
         symbolElement.className = 'symbol';
         symbolElement.textContent = symbol.text;
         symbolElement.addEventListener('click', () => {
           window.location.href = symbol.page;
         });
-        
-        // Создаем элемент таймера
-        const timerElement = document.createElement('div');
-        timerElement.className = 'timer';
-        timerElement.id = `timer-${copy}-${index}`;
-        
-        // Добавляем символ и таймер в обертку
-        wrapper.appendChild(symbolElement);
-        wrapper.appendChild(timerElement);
-        
-        // Добавляем обертку в контейнер
-        symbolsContainer.appendChild(wrapper);
-        
-        // Инициализируем таймер
-        updateTimer(timerElement);
-        
-        // Обновляем таймер каждую секунду
-        setInterval(() => updateTimer(timerElement), 1000);
+        symbolsContainer.appendChild(symbolElement);
       });
     }
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
-
-<a-hole>
-  <canvas class="js-canvas"></canvas>
-  <div class="aura"></div>
-  <div class="overlay"></div>
-</a-hole><!-- .a-hole -->
-    
     // Дублируем текст для бесшовной прокрутки
     marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
+    
+    // Добавляем анимацию для фона
+    document.addEventListener('DOMContentLoaded', function() {
+      const canvas = document.querySelector('.js-canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Устанавливаем размеры canvas
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Простая анимация частиц
+      const particles = [];
+      const particleCount = 100;
+      
+      // Создаем частицы
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2 + 1,
+          speed: Math.random() * 0.5 + 0.1,
+          angle: Math.random() * Math.PI * 2,
+          color: `hsl(${Math.random() * 360}, 70%, 60%)`
+        });
+      }
+      
+      // Анимация частиц
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        particles.forEach(p => {
+          // Двигаем частицу
+          p.x += Math.cos(p.angle) * p.speed;
+          p.y += Math.sin(p.angle) * p.speed;
+          
+          // Отскок от краев
+          if (p.x < 0 || p.x > canvas.width) p.angle = Math.PI - p.angle;
+          if (p.y < 0 || p.y > canvas.height) p.angle = -p.angle;
+          
+          // Рисуем частицу
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = 0.6;
+          ctx.fill();
+        });
+        
+        requestAnimationFrame(animateParticles);
+      }
+      
+      animateParticles();
+    });
   </script>
 </body>
 </html>
