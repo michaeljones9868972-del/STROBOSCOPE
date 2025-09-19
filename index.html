@@ -105,6 +105,11 @@
       white-space: nowrap;
       animation: scroll-right 120s linear infinite;
       width: max-content;
+      transition: animation-play-state 0.3s ease;
+    }
+    
+    .symbols-scroll.paused {
+      animation-play-state: paused;
     }
     
     .symbol {
@@ -241,6 +246,26 @@
         font-size: 18px;
       }
     }
+    
+    /* Эффект EXCITE */
+    .excite-text {
+      position: absolute;
+      color: #ff6b6b;
+      font-size: 24px;
+      font-weight: bold;
+      font-family: 'Martian Mono', monospace;
+      text-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: scale(0.5);
+    }
+    
+    .excite-text.show {
+      opacity: 1;
+      transform: scale(1);
+    }
   </style>
 </head>
 <body>
@@ -291,6 +316,45 @@
         symbolElement.addEventListener('click', () => {
           window.location.href = symbol.page;
         });
+        
+        // Добавляем обработчики для hover эффекта EXCITE
+        symbolElement.addEventListener('mouseenter', (e) => {
+          // Останавливаем анимацию бегущей строки
+          symbolsContainer.classList.add('paused');
+          
+          // Создаем текст EXCITE
+          const exciteText = document.createElement('div');
+          exciteText.className = 'excite-text';
+          exciteText.textContent = 'EXCITE';
+          
+          // Позиционируем текст по курсору
+          exciteText.style.left = (e.clientX - 40) + 'px';
+          exciteText.style.top = (e.clientY - 20) + 'px';
+          
+          // Добавляем в документ
+          document.body.appendChild(exciteText);
+          
+          // Задержка для появления
+          setTimeout(() => {
+            exciteText.classList.add('show');
+          }, 10);
+          
+          // Удаляем текст через 1.5 секунды
+          setTimeout(() => {
+            exciteText.classList.remove('show');
+            setTimeout(() => {
+              if (exciteText.parentNode) {
+                exciteText.parentNode.removeChild(exciteText);
+              }
+            }, 300);
+          }, 1500);
+        });
+        
+        // Восстанавливаем анимацию при уходе мыши
+        symbolElement.addEventListener('mouseleave', () => {
+          symbolsContainer.classList.remove('paused');
+        });
+        
         symbolsContainer.appendChild(symbolElement);
       });
     }
