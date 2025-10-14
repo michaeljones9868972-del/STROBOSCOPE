@@ -27,7 +27,7 @@
       cursor: pointer;
       text-align: center;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .contract {
       font-size: 18px;
@@ -50,13 +50,17 @@
       background: rgba(0,0,0,0.7);
       padding: 4px 8px;
       border-radius: 4px;
+      white-space: nowrap;
     }
   </style>
 </head>
 <body>
   <div class="splash" id="splash">
     <div id="main-icon">(´♡‿♡`)</div>
-    <span class="contract" id="contract">0xd82544bf0dfe8385ef8fa34d67e6e4940cc63e16<span class="copy-feedback" id="copy-feedback">COPY</span></span>
+    <span class="contract" id="contract" data-address="0xd82544bf0dfe8385ef8fa34d67e6e4940cc63e16">
+      0xd82544bf0dfe8385ef8fa34d67e6e4940cc63e16
+      <span class="copy-feedback" id="copy-feedback">COPY</span>
+    </span>
   </div>
   <script>
     let cols = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
@@ -94,9 +98,9 @@
       const feedbackEl = document.getElementById('copy-feedback');
 
       contractEl.addEventListener('mouseenter', async () => {
-        const text = contractEl.textContent.trim().split('\n')[0]; // Берём только текст без "COPY"
+        const address = contractEl.dataset.address;
         try {
-          await navigator.clipboard.writeText(text);
+          await navigator.clipboard.writeText(address);
           feedbackEl.style.opacity = '1';
           setTimeout(() => {
             feedbackEl.style.opacity = '0';
