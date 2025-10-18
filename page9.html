@@ -4,20 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>(个_个) - Цвета 9</title>
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
+  <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
     canvas { display: block; }
-    .splash { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; display: flex; justify-content: center; align-items: center; z-index: 1000; color: #81BECE; font-family: 'Arial', sans-serif; font-size: 48px; font-weight: bold; cursor: pointer; text-align: center; }
+    .splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      color: hsl(50, 80%, 50%);
+      font-family: 'Arial', sans-serif;
+      font-size: 48px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .contract {
+      font-size: 18px;
+      color: #aaa;
+      cursor: pointer;
+      position: relative;
+      display: inline-block;
+      user-select: none;
+    }
+    .copy-feedback {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #fff;
+      font-size: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
   <div class="splash" id="splash">
-    <div>(个_个)<br><span style="font-size:18px;color:#aaa">0x...MUSIC</span></div>
+    <div id="main-icon">(个_个)</div>
+    <span class="contract" id="contract" data-address="0xd82544bf0dfe8385ef8fa34d67e6e4940cc69999">
+      0xd82544bf0dfe8385ef8fa34d67e6e4940cc69999
+      <span class="copy-feedback" id="copy-feedback">COPY</span>
+    </span>
   </div>
   <script>
-    let cols = ['#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61', '#ffffff', '#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61'];
+    let cols = ['#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61', '#ffffff', '#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61'];'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
@@ -33,7 +82,7 @@
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER);
       noStroke();
-      MAX_INIT_SIZE = max(width, height) * 0.45;
+      MAX_INIT_SIZE = max(width, height) * 0.4;
       MAX_ANGLE_STEP = PI / 20;
       SIZE_MULT = 0.88;
       MIN_SIZE = 8;
@@ -45,7 +94,24 @@
       amplitude = new p5.Amplitude();
       amplitude.setInput(song);
       amplitude.smooth(0.8);
-      document.getElementById('splash').addEventListener('click', startExperience);
+
+      // Обработчики событий
+      document.getElementById('main-icon').addEventListener('click', startExperience);
+      const contractEl = document.getElementById('contract');
+      const feedbackEl = document.getElementById('copy-feedback');
+
+      contractEl.addEventListener('mouseenter', async () => {
+        const address = contractEl.dataset.address;
+        try {
+          await navigator.clipboard.writeText(address);
+          feedbackEl.style.opacity = '1';
+          setTimeout(() => {
+            feedbackEl.style.opacity = '0';
+          }, 2000);
+        } catch (err) {
+          console.error('Не удалось скопировать:', err);
+        }
+      });
     }
 
     function draw() {
@@ -55,50 +121,94 @@
       let delta = abs(level - lastLevel);
       let now = millis();
       if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        particles = []; createBurst(initSize, cols[initColIndex % cols.length]); lastBurstTime = now;
+        particles = [];
+        createBurst(initSize, cols[initColIndex % cols.length]);
+        lastBurstTime = now;
       }
       lastLevel = level;
-      for (let i = particles.length - 1; i >= 0; i--) { particles[i].update(); particles[i].show(); if (particles[i].isDead()) particles.splice(i, 1); }
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].show();
+        if (particles[i].isDead()) particles.splice(i, 1);
+      }
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
       let size = initSize * map(level, 0, 0.5, 1, 1.5);
       let angle = initAngle;
       while (size > MIN_SIZE) {
-        push(); translate(width / 2, height / 2); rotate(angle); fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false); size *= 0.88; colIndex++;
+        push();
+        translate(width / 2, height / 2);
+        rotate(angle);
+        fill(cols[colIndex % cols.length]);
+        ellipse(0, 0, size, size);
+        pop();
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+        size *= 0.88;
+        colIndex++;
       }
-      initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count)); initAngle += angleStep * 0.1;
-      if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
+      initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
+      initAngle += angleStep * 0.1;
+      if (initSize < MAX_INIT_SIZE * 0.88) {
+        initSize /= 0.88;
+        initColIndex = (initColIndex + cols.length - 1) % cols.length;
+      }
     }
 
     function createBurst(size, color) {
-      const numParticles = 50; const center = { x: width / 2, y: height / 2 };
-      for (let i = 0; i < numParticles; i++) { particles.push(new Particle(center.x, center.y, color)); }
+      const numParticles = 50;
+      const center = { x: width / 2, y: height / 2 };
+      for (let i = 0; i < numParticles; i++) {
+        particles.push(new Particle(center.x, center.y, color));
+      }
     }
 
     class Particle {
       constructor(x, y, col) {
-        this.pos = createVector(x, y); this.vel = p5.Vector.random2D().mult(random(3, 10)); this.acc = createVector(0, 0);
-        this.lifespan = 60; this.maxLife = this.lifespan; this.color = col; this.size = random(2, 4);
+        this.pos = createVector(x, y);
+        this.vel = p5.Vector.random2D().mult(random(3, 10));
+        this.acc = createVector(0, 0);
+        this.lifespan = 60;
+        this.maxLife = this.lifespan;
+        this.color = col;
+        this.size = random(2, 4);
       }
-      update() { this.vel.add(this.acc); this.pos.add(this.vel); this.lifespan--; }
+      update() {
+        this.vel.add(this.acc);
+        this.pos.add(this.vel);
+        this.lifespan--;
+      }
       show() {
         let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
         if (this.lifespan < 15) alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
-        noStroke(); fill(red(this.color), green(this.color), blue(this.color), alpha); ellipse(this.pos.x, this.pos.y, this.size);
+        noStroke();
+        fill(red(this.color), green(this.color), blue(this.color), alpha);
+        ellipse(this.pos.x, this.pos.y, this.size);
       }
-      isDead() { return this.lifespan < 0; }
+      isDead() {
+        return this.lifespan < 0;
+      }
     }
 
     function startExperience() {
-      document.getElementById('splash').style.opacity = 0; setTimeout(() => document.getElementById('splash').remove(), 500);
-      const elem = document.documentElement; if (elem.requestFullscreen) elem.requestFullscreen();
-      song.loop(); isPlaying = true;
+      document.getElementById('splash').style.opacity = 0;
+      setTimeout(() => document.getElementById('splash').remove(), 500);
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      song.loop();
+      isPlaying = true;
     }
 
-    function keyPressed() { if (keyCode === ESC || keyCode === 32) { if (song && song.isPlaying()) song.pause(); location.reload(); } }
-    function windowResized() { resizeCanvas(windowWidth, windowHeight); }
+    function keyPressed() {
+      if (keyCode === ESC || keyCode === 32) {
+        if (song && song.isPlaying()) song.pause();
+        location.reload();
+      }
+    }
+
+    function windowResized() {
+      resizeCanvas(windowWidth, windowHeight);
+    }
   </script>
 </body>
 </html>
