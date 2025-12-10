@@ -78,6 +78,10 @@
     let lastBurstTime = 0;
     let minBurstInterval = 300;
 
+    let isSongLoaded = false;
+    let shouldStartOnLoad = false;
+    let mainIconEl, splashEl;
+
     function setup() {
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER);
@@ -90,28 +94,63 @@
       initAngle = 0;
       initColIndex = 0;
 
-      song = loadSound('m4.mp3', () => console.log('m4.mp3 загружен'), (err) => { console.error('Ошибка m4.mp3:', err); alert('Ошибка загрузки m4.mp3'); });
       amplitude = new p5.Amplitude();
-      amplitude.setInput(song);
       amplitude.smooth(0.8);
 
-      // Обработчики событий
-      document.getElementById('main-icon').addEventListener('click', startExperience);
+      // Загрузка аудиофайла
+      song = loadSound('m4.mp3', () => {
+        console.log('m4.mp3 загружен');
+        isSongLoaded = true;
+        amplitude.setInput(song);
+        if (shouldStartOnLoad) {
+          startExperienceNow();
+        }
+      }, (err) => {
+        console.error('Ошибка загрузки m4.mp3:', err);
+        alert('Не удалось загрузить аудиофайл m4.mp3. Убедитесь, что он находится в той же папке.');
+      });
+
+      // Элементы интерфейса
+      splashEl = document.getElementById('splash');
+      mainIconEl = document.getElementById('main-icon');
+
+      // Клик по иконке
+      mainIconEl.addEventListener('click', () => {
+        if (isSongLoaded) {
+          startExperienceNow();
+        } else {
+          mainIconEl.textContent = "Loading";
+          mainIconEl.style.pointerEvents = "none";
+          shouldStartOnLoad = true;
+        }
+      });
+
+      // Копирование адреса
       const contractEl = document.getElementById('contract');
       const feedbackEl = document.getElementById('copy-feedback');
-
       contractEl.addEventListener('mouseenter', async () => {
         const address = contractEl.dataset.address;
         try {
           await navigator.clipboard.writeText(address);
           feedbackEl.style.opacity = '1';
-          setTimeout(() => {
-            feedbackEl.style.opacity = '0';
-          }, 2000);
+          setTimeout(() => feedbackEl.style.opacity = '0', 2000);
         } catch (err) {
           console.error('Не удалось скопировать:', err);
         }
       });
+    }
+
+    function startExperienceNow() {
+      splashEl.style.opacity = 0;
+      setTimeout(() => {
+        if (splashEl.parentNode) splashEl.remove();
+      }, 500);
+
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) elem.requestFullscreen();
+
+      song.loop();
+      isPlaying = true;
     }
 
     function draw() {
@@ -126,16 +165,19 @@
         lastBurstTime = now;
       }
       lastLevel = level;
+
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update();
         particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
+
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
       let size = initSize * map(level, 0, 0.5, 1, 1.5);
       let angle = initAngle;
+
       while (size > MIN_SIZE) {
         push();
         translate(width / 2, height / 2);
@@ -147,8 +189,10 @@
         size *= 0.88;
         colIndex++;
       }
+
       initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
       initAngle += angleStep * 0.1;
+
       if (initSize < MAX_INIT_SIZE * 0.88) {
         initSize /= 0.88;
         initColIndex = (initColIndex + cols.length - 1) % cols.length;
@@ -188,15 +232,6 @@
       isDead() {
         return this.lifespan < 0;
       }
-    }
-
-    function startExperience() {
-      document.getElementById('splash').style.opacity = 0;
-      setTimeout(() => document.getElementById('splash').remove(), 500);
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen();
-      song.loop();
-      isPlaying = true;
     }
 
     function keyPressed() {
