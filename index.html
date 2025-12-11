@@ -111,6 +111,7 @@
       scale: 0;
       z-index: 1;
       overflow: hidden;
+      cursor: pointer; /* визуальная подсказка */
     }
 
     .cards li img {
@@ -198,7 +199,7 @@
     for (let i = 1; i <= 10; i++) {
       const li = document.createElement('li');
       if (i === 1) {
-        const img = document.createElement('img'); // ✅ Переменная img ОБЪЯВЛЕНА здесь!
+        const img = document.createElement('img');
         img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/1krug.png';
         img.alt = '';
         li.appendChild(img);
@@ -208,11 +209,20 @@
       cardsList.appendChild(li);
     }
 
+    // Добавляем обработчики кликов на карточки
+    const cards = document.querySelectorAll('.cards li');
+    cards.forEach((card, index) => {
+      card.addEventListener('click', () => {
+        const pageNumber = index + 1;
+        window.location.href = `страница${pageNumber}.html`;
+      });
+    });
+
     // GSAP — без изменений
     gsap.registerPlugin(ScrollTrigger, Draggable);
     let iteration = 0;
-    const cards = gsap.utils.toArray('.cards li');
-    gsap.set(cards, { xPercent: 400, opacity: 0, scale: 0 });
+    const gsapCards = gsap.utils.toArray('.cards li');
+    gsap.set(gsapCards, { xPercent: 400, opacity: 0, scale: 0 });
     const spacing = 0.1;
     const snapTime = gsap.utils.snap(spacing);
 
@@ -223,7 +233,7 @@
       return tl;
     };
 
-    const seamlessLoop = buildSeamlessLoop(cards, spacing, animateFunc);
+    const seamlessLoop = buildSeamlessLoop(gsapCards, spacing, animateFunc);
     const playhead = { offset: 0 };
     const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
 
