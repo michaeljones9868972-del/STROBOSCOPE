@@ -219,7 +219,8 @@
     cards.forEach((card, index) => {
       card.addEventListener('click', () => {
         const pageNumber = index + 1;
-        window.location.href = `страница${pageNumber}.html`;
+        // Используем латинские имена файлов для надежности
+        window.location.href = `page${pageNumber}.html`;
       });
     });
 
