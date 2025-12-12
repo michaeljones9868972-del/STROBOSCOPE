@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Symbol Runner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
-  <!-- Фавикон -->
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com  ">
+  <link rel="preconnect" href="https://fonts.gstatic.com  " crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono  :wght@100..800&display=swap" rel="stylesheet">
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
       margin: 0;
       padding: 0;
@@ -22,7 +23,7 @@
       position: relative;
     }
     
-    /* Фоновые элементы */
+    /* Фон */
     .a-hole {
       position: fixed;
       top: 0;
@@ -59,151 +60,74 @@
       width: 100%;
       height: 100%;
       background: 
-        repeating-linear-gradient(
-          0deg,
-          rgba(0, 0, 0, 0.15),
-          rgba(0, 0, 0, 0.15) 1px,
-          transparent 1px,
-          transparent 20px
-        ),
-        repeating-linear-gradient(
-          90deg,
-          rgba(0, 0, 0, 0.15),
-          rgba(0, 0, 0, 0.15) 1px,
-          transparent 1px,
-          transparent 20px
-        );
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px);
       pointer-events: none;
     }
     
     @keyframes aura-pulse {
-      0% {
-        opacity: 0.3;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0.7;
-        transform: scale(1.2);
-      }
-    }
-    
-    .symbols-container {
-      position: fixed;
-      top: 50%;
-      left: 0;
-      width: 100%;
-      height: 100px;
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      z-index: 2;
-    }
-    
-    .symbols-scroll {
-      display: flex;
-      white-space: nowrap;
-      animation: scroll-right 120s linear infinite;
-      width: max-content;
-      transition: animation-play-state 0.3s ease;
-    }
-    
-    .symbols-scroll.paused {
-      animation-play-state: paused;
-    }
-    
-    .symbol {
-      font-size: 60px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      user-select: none;
-      opacity: 0.85;
-      padding: 10px 60px;
-      border-radius: 20px;
-      font-family: 'Martian Mono', monospace;
-      text-shadow: 0 0 20px currentColor;
-      filter: brightness(1.1);
-      min-width: 1em;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 3;
-    }
-    
-    .symbol:hover {
-      transform: scale(1.1);
-      opacity: 1;
-      animation: float 3s ease-in-out infinite;
-      z-index: 10;
-    }
-    
-    /* Цвета символов */
-    .symbol:nth-child(10n+1) { color: hsl(0, 60%, 80%); }    /* Pink */
-    .symbol:nth-child(10n+2) { color: hsl(43, 100%, 50%); }  /* Yellow */
-    .symbol:nth-child(10n+3) { color: hsl(180, 20%, 80%); }  /* Light gray */
-    .symbol:nth-child(10n+4) { color: hsl(14, 88%, 65%); }   /* Orange */
-    .symbol:nth-child(10n+5) { color: hsl(195, 50%, 65%); }  /* Blue */
-    .symbol:nth-child(10n+6) { color: hsl(320, 65%, 45%); }  /* Purple */
-    .symbol:nth-child(10n+7) { color: hsl(100, 70%, 40%); }  /* Green */
-    .symbol:nth-child(10n+8) { color: hsl(15, 100%, 45%); }  /* Red */
-    .symbol:nth-child(10n+9) { color: hsl(50, 80%, 50%); }   /* Gold */
-    .symbol:nth-child(10n+0) { color: hsl(260, 60%, 50%); }  /* Violet */
-    
-    /* Анимации */
-    @keyframes scroll-right {
-      0% {
-        transform: translateX(-100%);
-      }
-      100% {
-        transform: translateX(100vw);
-      }
-    }
-    
-    @keyframes scroll-left {
-      0% {
-        transform: translateX(100vw);
-      }
-      100% {
-        transform: translateX(-100%);
-      }
-    }
-    
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0px) scale(1.1);
-      }
-      50% {
-        transform: translateY(-10px) scale(1.1);
-      }
-    }
-    
-    /* Градиентные края */
-    .gradient-left {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 128px;
-      height: 100px;
-      background: linear-gradient(to right, rgba(0,0,0,1), rgba(0,0,0,0));
-      pointer-events: none;
-      z-index: 10;
-      transform: translateY(-50%);
-    }
-    
-    .gradient-right {
-      position: absolute;
-      top: 50%;
-      right: 0;
-      width: 128px;
-      height: 100px;
-      background: linear-gradient(to left, rgba(0,0,0,1), rgba(0,0,0,0));
-      pointer-events: none;
-      z-index: 10;
-      transform: translateY(-50%);
+      0% { opacity: 0.3; transform: scale(1); }
+      100% { opacity: 0.7; transform: scale(1.2); }
     }
 
-    /* Бегущая строка внизу */
+    /* Галерея */
+    .gallery {
+      position: absolute;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .cards {
+      position: absolute;
+      width: 14rem;
+      height: 18rem;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .cards li {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 14rem;
+      aspect-ratio: 9 / 16;
+      position: absolute;
+      background: rgba(20, 20, 30, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.8rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 3rem;
+      font-weight: bold;
+      color: #a0d8f1;
+      text-shadow: 0 0 10px rgba(160, 216, 241, 0.7);
+      opacity: 0;
+      scale: 0;
+      z-index: 1;
+      overflow: hidden;
+      cursor: pointer; /* визуальная подсказка */
+    }
+
+    .cards li img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0.8rem;
+      display: block;
+    }
+
+    .drag-proxy {
+      visibility: hidden;
+      position: absolute;
+    }
+
+    /* Нижняя строка */
     .marquee-container {
       position: fixed;
       bottom: 0;
@@ -227,195 +151,216 @@
       letter-spacing: 0.5px;
     }
 
+    @keyframes scroll-left {
+      0% { transform: translateX(100vw); }
+      100% { transform: translateX(-100%); }
+    }
+
     @media (max-width: 768px) {
-      .symbol {
-        font-size: 48px;
-        padding: 8px 48px;
-      }
-      .marquee-content {
-        font-size: 14px;
-      }
+      .cards li { font-size: 2.2rem; }
+      .marquee-content { font-size: 14px; }
     }
     
     @media (min-width: 1024px) {
-      .symbol {
-        font-size: 72px;
-        padding: 16px 72px;
-      }
-      .marquee-content {
-        font-size: 18px;
-      }
-    }
-    
-    /* Эффект EXCITE */
-    .excite-text {
-      position: absolute;
-      color: #ff6b6b;
-      font-size: 24px;
-      font-weight: bold;
-      font-family: 'Martian Mono', monospace;
-      text-shadow: 0 0 10px rgba(255, 107, 107, 0.8);
-      pointer-events: none;
-      z-index: 100;
-      opacity: 0;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      transform: scale(0.5);
-    }
-    
-    .excite-text.show {
-      opacity: 1;
-      transform: scale(1);
+      .cards li { font-size: 3.5rem; }
+      .marquee-content { font-size: 18px; }
     }
   </style>
 </head>
 <body>
-  <!-- Фоновые элементы -->
   <div class="a-hole">
     <canvas class="js-canvas"></canvas>
     <div class="aura"></div>
     <div class="overlay"></div>
   </div>
 
-  <!-- Центральная бегущая строка (слева направо) -->
-  <div class="symbols-container">
-    <div class="symbols-scroll" id="symbolsScroll"></div>
-    <div class="gradient-right"></div>
-    <div class="gradient-left"></div>
+  <div class="gallery">
+    <ul class="cards" id="cardsList"></ul>
   </div>
+  <div class="drag-proxy"></div>
 
-  <!-- Нижняя бегущая строка (справа налево) -->
   <div class="marquee-container">
     <div class="marquee-content" id="marqueeContent">
-      Stroboscopе and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person аnd actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
+      Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js  "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js  "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js  "></script>
+
   <script>
-    const symbols = [
-      { text: '(´♡‿♡`)', page: 'page1.html' },
-      { text: '(◕‿◕)', page: 'page2.html' },
-      { text: '(◣_◢)', page: 'page3.html' },
-      { text: '(^◕ᴥ◕^)', page: 'page4.html' },
-      { text: '( ఠ ͟ʖ ఠ)', page: 'page5.html' },
-      { text: '\\(★ω★)/', page: 'page6.html' },
-      { text: '(„• ᴗ •„)', page: 'page7.html' },
-      { text: '(‡▼益▼)', page: 'page8.html' },
-      { text: '(个_个)', page: 'page9.html' },
-      { text: '(ʘ ͜ʖ ʘ)', page: 'page10.html' }
-    ];
-    
-    const symbolsContainer = document.getElementById('symbolsScroll');
+    // Бегущая строка
     const marqueeContent = document.getElementById('marqueeContent');
-    
-    // Добавляем символы
-    for (let copy = 0; copy < 5; copy++) {
-      symbols.forEach((symbol, index) => {
-        const symbolElement = document.createElement('div');
-        symbolElement.className = 'symbol';
-        symbolElement.textContent = symbol.text;
-        symbolElement.addEventListener('click', () => {
-          window.location.href = symbol.page;
-        });
-        
-        // Добавляем обработчики для hover эффекта EXCITE
-        symbolElement.addEventListener('mouseenter', (e) => {
-          // Останавливаем анимацию бегущей строки
-          symbolsContainer.classList.add('paused');
-          
-          // Создаем текст EXCITE
-          const exciteText = document.createElement('div');
-          exciteText.className = 'excite-text';
-          exciteText.textContent = 'EXCITE';
-          
-          // Позиционируем текст по курсору
-          exciteText.style.left = (e.clientX - 40) + 'px';
-          exciteText.style.top = (e.clientY - 20) + 'px';
-          
-          // Добавляем в документ
-          document.body.appendChild(exciteText);
-          
-          // Задержка для появления
-          setTimeout(() => {
-            exciteText.classList.add('show');
-          }, 10);
-          
-          // Удаляем текст через 1.5 секунды
-          setTimeout(() => {
-            exciteText.classList.remove('show');
-            setTimeout(() => {
-              if (exciteText.parentNode) {
-                exciteText.parentNode.removeChild(exciteText);
-              }
-            }, 300);
-          }, 1500);
-        });
-        
-        // Восстанавливаем анимацию при уходе мыши
-        symbolElement.addEventListener('mouseleave', () => {
-          symbolsContainer.classList.remove('paused');
-        });
-        
-        symbolsContainer.appendChild(symbolElement);
-      });
+    marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
+
+    // Создание карточек
+    const cardsList = document.getElementById('cardsList');
+    for (let i = 1; i <= 10; i++) {
+      const li = document.createElement('li');
+      if (i === 1) {
+        const img = document.createElement('img');
+        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/1krug.png  ';
+        img.alt = '';
+        li.appendChild(img);
+      } else if (i === 2) { // Добавляем изображение для карточки 2
+        const img = document.createElement('img');
+        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/2krug.png  ';
+        img.alt = '';
+        li.appendChild(img);
+      } else {
+        li.textContent = i;
+      }
+      cardsList.appendChild(li);
     }
 
-    // Дублируем текст для бесшовной прокрутки
-    marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
-    
-    // Добавляем анимацию для фона
-    document.addEventListener('DOMContentLoaded', function() {
+    // Добавляем обработчики кликов на карточки
+    const cards = document.querySelectorAll('.cards li');
+    cards.forEach((card, index) => {
+      card.addEventListener('click', () => {
+        const pageNumber = index + 1;
+        window.location.href = `страница${pageNumber}.html`;
+      });
+    });
+
+    // GSAP — без изменений
+    gsap.registerPlugin(ScrollTrigger, Draggable);
+    let iteration = 0;
+    const gsapCards = gsap.utils.toArray('.cards li');
+    gsap.set(gsapCards, { xPercent: 400, opacity: 0, scale: 0 });
+    const spacing = 0.1;
+    const snapTime = gsap.utils.snap(spacing);
+
+    const animateFunc = element => {
+      const tl = gsap.timeline();
+      tl.fromTo(element, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, zIndex: 100, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.in", immediateRender: false })
+        .fromTo(element, { xPercent: 400 }, { xPercent: -400, duration: 1, ease: "none", immediateRender: false }, 0);
+      return tl;
+    };
+
+    const seamlessLoop = buildSeamlessLoop(gsapCards, spacing, animateFunc);
+    const playhead = { offset: 0 };
+    const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
+
+    const scrub = gsap.to(playhead, {
+      offset: 0,
+      onUpdate() {
+        seamlessLoop.time(wrapTime(playhead.offset));
+      },
+      duration: 0.5,
+      ease: "power3",
+      paused: true
+    });
+
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      onUpdate(self) {
+        let scroll = self.scroll();
+        if (scroll > self.end - 1) {
+          wrap(1, 2);
+        } else if (scroll < 1 && self.direction < 0) {
+          wrap(-1, self.end - 2);
+        } else {
+          scrub.vars.offset = (iteration + self.progress) * seamlessLoop.duration();
+          scrub.invalidate().restart();
+        }
+      },
+      end: "+=3000",
+      pin: ".gallery"
+    });
+
+    const progressToScroll = progress => gsap.utils.clamp(1, trigger.end - 1, gsap.utils.wrap(0, 1, progress) * trigger.end);
+    const wrap = (iterationDelta, scrollTo) => {
+      iteration += iterationDelta;
+      trigger.scroll(scrollTo);
+      trigger.update();
+    };
+
+    ScrollTrigger.addEventListener("scrollEnd", () => scrollToOffset(scrub.vars.offset));
+    function scrollToOffset(offset) {
+      let snappedTime = snapTime(offset),
+          progress = (snappedTime - seamlessLoop.duration() * iteration) / seamlessLoop.duration(),
+          scroll = progressToScroll(progress);
+      if (progress >= 1 || progress < 0) return wrap(Math.floor(progress), scroll);
+      trigger.scroll(scroll);
+    }
+
+    Draggable.create(".drag-proxy", {
+      type: "x",
+      trigger: ".cards",
+      onPress() { this.startOffset = scrub.vars.offset; },
+      onDrag() { scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001; scrub.invalidate().restart(); },
+      onDragEnd() { scrollToOffset(scrub.vars.offset); }
+    });
+
+    function buildSeamlessLoop(items, spacing, animateFunc) {
+      let overlap = Math.ceil(1 / spacing),
+          startTime = items.length * spacing + 0.5,
+          loopTime = (items.length + overlap) * spacing + 1,
+          rawSequence = gsap.timeline({ paused: true }),
+          seamlessLoop = gsap.timeline({
+            paused: true,
+            repeat: -1,
+            onRepeat() {
+              this._time === this._dur && (this._tTime += this._dur - 0.01);
+            }
+          }),
+          l = items.length + overlap * 2;
+
+      for (let i = 0; i < l; i++) {
+        const index = i % items.length;
+        const time = i * spacing;
+        rawSequence.add(animateFunc(items[index]), time);
+      }
+
+      rawSequence.time(startTime);
+      seamlessLoop
+        .to(rawSequence, { time: loopTime, duration: loopTime - startTime, ease: "none" })
+        .fromTo(rawSequence, { time: overlap * spacing + 1 }, {
+          time: startTime,
+          duration: startTime - (overlap * spacing + 1),
+          immediateRender: false,
+          ease: "none"
+        });
+      return seamlessLoop;
+    }
+
+    // Частицы
+    document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.querySelector('.js-canvas');
       const ctx = canvas.getContext('2d');
-      
-      // Устанавливаем размеры canvas
-      function resizeCanvas() {
+
+      const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-      }
-      
+      };
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
-      
-      // Простая анимация частиц
-      const particles = [];
-      const particleCount = 100;
-      
-      // Создаем частицы
-      for (let i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          radius: Math.random() * 2 + 1,
-          speed: Math.random() * 0.5 + 0.1,
-          angle: Math.random() * Math.PI * 2,
-          color: `hsl(${Math.random() * 360}, 70%, 60%)`
-        });
-      }
-      
-      // Анимация частиц
-      function animateParticles() {
+
+      const particles = Array.from({ length: 100 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        speed: Math.random() * 0.5 + 0.1,
+        angle: Math.random() * Math.PI * 2,
+        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+      }));
+
+      const animateParticles = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
         particles.forEach(p => {
-          // Двигаем частицу
           p.x += Math.cos(p.angle) * p.speed;
           p.y += Math.sin(p.angle) * p.speed;
-          
-          // Отскок от краев
           if (p.x < 0 || p.x > canvas.width) p.angle = Math.PI - p.angle;
           if (p.y < 0 || p.y > canvas.height) p.angle = -p.angle;
-          
-          // Рисуем частицу
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
           ctx.globalAlpha = 0.6;
           ctx.fill();
         });
-        
         requestAnimationFrame(animateParticles);
-      }
-      
+      };
       animateParticles();
     });
   </script>
