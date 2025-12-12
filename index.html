@@ -76,15 +76,18 @@
       width: 100%;
       height: 100vh;
       overflow: hidden;
+      /* Центрируем содержимое галереи по вертикали и горизонтали */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .cards {
       position: absolute;
-      width: 14rem;
-      height: 18rem;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      /* Увеличиваем размер карточки в 3 раза */
+      width: 42rem; /* 14rem * 3 */
+      height: 54rem; /* 18rem * 3 */
+      /* Убираем top, left и transform, так как галерея теперь центрирует через flex */
       margin: 0;
       padding: 0;
       list-style: none;
@@ -94,16 +97,19 @@
       list-style: none;
       padding: 0;
       margin: 0;
-      width: 14rem;
+      width: 42rem; /* 14rem * 3 */
       aspect-ratio: 9 / 16;
       position: absolute;
-      background: rgba(20, 20, 30, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 0.8rem;
+      /* Убираем фон и границу */
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      /* Центрируем содержимое по вертикали и горизонтали */
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 3rem;
+      /* Увеличиваем шрифт в 3 раза */
+      font-size: 9rem; /* 3 * 3rem */
       font-weight: bold;
       color: #a0d8f1;
       text-shadow: 0 0 10px rgba(160, 216, 241, 0.7);
@@ -111,14 +117,15 @@
       scale: 0;
       z-index: 1;
       overflow: hidden;
-      cursor: pointer; /* визуальная подсказка */
+      cursor: pointer;
     }
 
     .cards li img {
       width: 100%;
       height: 100%;
       object-fit: contain;
-      border-radius: 0.8rem;
+      /* Убираем границу у изображения */
+      border-radius: 0;
       display: block;
     }
 
@@ -157,12 +164,12 @@
     }
 
     @media (max-width: 768px) {
-      .cards li { font-size: 2.2rem; }
+      .cards li { font-size: 6.6rem; } /* 3 * 2.2rem */
       .marquee-content { font-size: 14px; }
     }
     
     @media (min-width: 1024px) {
-      .cards li { font-size: 3.5rem; }
+      .cards li { font-size: 10.5rem; } /* 3 * 3.5rem */
       .marquee-content { font-size: 18px; }
     }
   </style>
@@ -219,7 +226,6 @@
     cards.forEach((card, index) => {
       card.addEventListener('click', () => {
         const pageNumber = index + 1;
-        // Используем латинские имена файлов для надежности
         window.location.href = `page${pageNumber}.html`;
       });
     });
@@ -292,6 +298,15 @@
       onPress() { this.startOffset = scrub.vars.offset; },
       onDrag() { scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001; scrub.invalidate().restart(); },
       onDragEnd() { scrollToOffset(scrub.vars.offset); }
+    });
+
+    // Добавляем прокрутку колесиком мыши
+    document.addEventListener('wheel', (e) => {
+      e.preventDefault(); // Предотвращаем стандартное поведение
+      const delta = e.deltaY > 0 ? 1 : -1; // Определяем направление прокрутки
+      const newScroll = trigger.scroll() + delta * 100; // Прокручиваем на 100 пикселей
+      trigger.scroll(newScroll);
+      trigger.update(); // Обновляем триггер
     });
 
     function buildSeamlessLoop(items, spacing, animateFunc) {
