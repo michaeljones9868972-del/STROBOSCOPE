@@ -83,11 +83,13 @@
     }
 
     .cards {
-      position: absolute;
+      position: relative; /* Изменено с absolute на relative */
       /* Увеличиваем размер карточки в 3 раза */
       width: 42rem; /* 14rem * 3 */
       height: 54rem; /* 18rem * 3 */
-      /* Убираем top, left и transform, так как галерея теперь центрирует через flex */
+      /* Центрируем карточки по вертикали внутри .cards */
+      display: flex;
+      align-items: center;
       margin: 0;
       padding: 0;
       list-style: none;
@@ -99,7 +101,7 @@
       margin: 0;
       width: 42rem; /* 14rem * 3 */
       aspect-ratio: 9 / 16;
-      position: absolute;
+      position: absolute; /* Оставляем absolute для GSAP анимации */
       /* Убираем фон и границу */
       background: transparent;
       border: none;
