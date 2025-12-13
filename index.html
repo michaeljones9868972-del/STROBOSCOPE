@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Symbol Runner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com    ">
-  <link rel="preconnect" href="https://fonts.gstatic.com    " crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono    :wght@100..800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -76,18 +76,15 @@
       width: 100%;
       height: 100vh;
       overflow: hidden;
-      /* Центрируем содержимое галереи по вертикали и горизонтали */
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
     .cards {
-      position: relative; /* Изменено с absolute на relative */
-      /* Увеличиваем размер карточки в 3 раза */
-      width: 42rem; /* 14rem * 3 */
-      height: 54rem; /* 18rem * 3 */
-      /* Центрируем карточки по вертикали внутри .cards */
+      position: relative;
+      width: 42rem;
+      height: 54rem;
       display: flex;
       align-items: center;
       margin: 0;
@@ -99,19 +96,16 @@
       list-style: none;
       padding: 0;
       margin: 0;
-      width: 42rem; /* 14rem * 3 */
+      width: 42rem;
       aspect-ratio: 9 / 16;
-      position: absolute; /* Оставляем absolute для GSAP анимации */
-      /* Убираем фон и границу */
+      position: absolute;
       background: transparent;
       border: none;
       border-radius: 0;
-      /* Центрируем содержимое по вертикали и горизонтали */
       display: flex;
       justify-content: center;
       align-items: center;
-      /* Увеличиваем шрифт в 3 раза */
-      font-size: 9rem; /* 3 * 3rem */
+      font-size: 9rem;
       font-weight: bold;
       color: #a0d8f1;
       text-shadow: 0 0 10px rgba(160, 216, 241, 0.7);
@@ -126,7 +120,6 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      /* Убираем границу у изображения */
       border-radius: 0;
       display: block;
     }
@@ -166,12 +159,12 @@
     }
 
     @media (max-width: 768px) {
-      .cards li { font-size: 6.6rem; } /* 3 * 2.2rem */
+      .cards li { font-size: 6.6rem; }
       .marquee-content { font-size: 14px; }
     }
     
     @media (min-width: 1024px) {
-      .cards li { font-size: 10.5rem; } /* 3 * 3.5rem */
+      .cards li { font-size: 10.5rem; }
       .marquee-content { font-size: 18px; }
     }
   </style>
@@ -194,9 +187,9 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js    "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js    "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js    "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
 
   <script>
     // Бегущая строка
@@ -207,15 +200,15 @@
     const cardsList = document.getElementById('cardsList');
     for (let i = 1; i <= 10; i++) {
       const li = document.createElement('li');
-      // Добавляем изображение для каждой карточки
       const img = document.createElement('img');
+      // Убраны лишние пробелы в URL
       img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${i}krug.png`;
       img.alt = '';
       li.appendChild(img);
       cardsList.appendChild(li);
     }
 
-    // Добавляем обработчики кликов на карточки
+    // Клик по карточке → переход
     const cards = document.querySelectorAll('.cards li');
     cards.forEach((card, index) => {
       card.addEventListener('click', () => {
@@ -224,18 +217,32 @@
       });
     });
 
-    // GSAP — без изменений
+    // GSAP setup
     gsap.registerPlugin(ScrollTrigger, Draggable);
     let iteration = 0;
     const gsapCards = gsap.utils.toArray('.cards li');
     gsap.set(gsapCards, { xPercent: 400, opacity: 0, scale: 0 });
-    const spacing = 0.1;
+    const spacing = 0.1; // шаг между карточками в GSAP timeline
     const snapTime = gsap.utils.snap(spacing);
 
     const animateFunc = element => {
       const tl = gsap.timeline();
-      tl.fromTo(element, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, zIndex: 100, duration: 0.5, yoyo: true, repeat: 1, ease: "power1.in", immediateRender: false })
-        .fromTo(element, { xPercent: 400 }, { xPercent: -400, duration: 1, ease: "none", immediateRender: false }, 0);
+      tl.fromTo(element, { scale: 0, opacity: 0 }, { 
+        scale: 1, 
+        opacity: 1, 
+        zIndex: 100, 
+        duration: 0.5, 
+        yoyo: true, 
+        repeat: 1, 
+        ease: "power1.in", 
+        immediateRender: false 
+      })
+      .fromTo(element, { xPercent: 400 }, { 
+        xPercent: -400, 
+        duration: 1, 
+        ease: "none", 
+        immediateRender: false 
+      }, 0);
       return tl;
     };
 
@@ -278,6 +285,7 @@
     };
 
     ScrollTrigger.addEventListener("scrollEnd", () => scrollToOffset(scrub.vars.offset));
+    
     function scrollToOffset(offset) {
       let snappedTime = snapTime(offset),
           progress = (snappedTime - seamlessLoop.duration() * iteration) / seamlessLoop.duration(),
@@ -290,18 +298,38 @@
       type: "x",
       trigger: ".cards",
       onPress() { this.startOffset = scrub.vars.offset; },
-      onDrag() { scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001; scrub.invalidate().restart(); },
-      onDragEnd() { scrollToOffset(scrub.vars.offset); }
+      onDrag() { 
+        scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001; 
+        scrub.invalidate().restart(); 
+      },
+      onDragEnd() { 
+        scrollToOffset(scrub.vars.offset); 
+      }
     });
 
-    // Добавляем прокрутку колесиком мыши
+    // ✅ Исправленная плавная прокрутка колёсиком
+    let isWheeling = false;
+    let wheelTimeout;
+
     document.addEventListener('wheel', (e) => {
-      e.preventDefault(); // Предотвращаем стандартное поведение
-      const delta = e.deltaY > 0 ? 1 : -1; // Определяем направление прокрутки
-      const newScroll = trigger.scroll() + delta * 100; // Прокручиваем на 100 пикселей
-      trigger.scroll(newScroll);
-      trigger.update(); // Обновляем триггер
-    });
+      e.preventDefault();
+      if (isWheeling) return;
+
+      const direction = e.deltaY > 0 ? 1 : -1; // вниз = вперёд
+      const currentStep = Math.round(scrub.vars.offset / spacing);
+      const targetStep = currentStep + direction;
+
+      scrub.vars.offset = targetStep * spacing;
+      scrub.invalidate().restart();
+
+      clearTimeout(wheelTimeout);
+      wheelTimeout = setTimeout(() => {
+        scrollToOffset(scrub.vars.offset);
+        isWheeling = false;
+      }, 150);
+
+      isWheeling = true;
+    }, { passive: false });
 
     function buildSeamlessLoop(items, spacing, animateFunc) {
       let overlap = Math.ceil(1 / spacing),
