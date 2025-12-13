@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Symbol Runner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com  ">
-  <link rel="preconnect" href="https://fonts.gstatic.com  " crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono  :wght@100..800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com    ">
+  <link rel="preconnect" href="https://fonts.gstatic.com    " crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono    :wght@100..800&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -194,9 +194,9 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js  "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js  "></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js  "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js    "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js    "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js    "></script>
 
   <script>
     // Бегущая строка
@@ -207,29 +207,11 @@
     const cardsList = document.getElementById('cardsList');
     for (let i = 1; i <= 10; i++) {
       const li = document.createElement('li');
-      if (i === 1) {
-        const img = document.createElement('img');
-        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/1krug.png  ';
-        img.alt = '';
-        li.appendChild(img);
-      } else if (i === 2) { // Добавляем изображение для карточки 2
-        const img = document.createElement('img');
-        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/2krug.png  ';
-        img.alt = '';
-        li.appendChild(img);
-      } else if (i === 3) { // Добавляем изображение для карточки 3
-        const img = document.createElement('img');
-        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/3krug.png  ';
-        img.alt = '';
-        li.appendChild(img);
-      } else if (i === 4) { // Добавляем изображение для карточки 4
-        const img = document.createElement('img');
-        img.src = 'https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/4krug.png  ';
-        img.alt = '';
-        li.appendChild(img);
-      } else {
-        li.textContent = i;
-      }
+      // Добавляем изображение для каждой карточки
+      const img = document.createElement('img');
+      img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${i}krug.png`;
+      img.alt = '';
+      li.appendChild(img);
       cardsList.appendChild(li);
     }
 
