@@ -89,7 +89,7 @@
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
-    let isPaused = false; // ← Новая переменная для отслеживания паузы
+    let isPaused = false;
     let song;
     let amplitude;
     let level;
@@ -100,7 +100,7 @@
 
     let isSongLoaded = false;
     let shouldStartOnLoad = false;
-    let mainIconEl, splashEl, pauseIndicatorEl; // ← Добавляем ссылку на индикатор
+    let mainIconEl, splashEl, pauseIndicatorEl;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -117,7 +117,6 @@
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      // Загружаем звук
       song = loadSound('m1.mp3', () => {
         console.log('m1.mp3 загружен');
         isSongLoaded = true;
@@ -130,12 +129,10 @@
         alert('Не удалось загрузить аудиофайл. Проверьте, что файл m1.mp3 находится в той же папке.');
       });
 
-      // Подготовка элементов
       splashEl = document.getElementById('splash');
       mainIconEl = document.getElementById('main-icon');
-      pauseIndicatorEl = document.getElementById('pause-indicator'); // ← Получаем индикатор
+      pauseIndicatorEl = document.getElementById('pause-indicator');
 
-      // Обработчик клика на иконку
       mainIconEl.addEventListener('click', () => {
         if (isSongLoaded) {
           startExperienceNow();
@@ -146,7 +143,6 @@
         }
       });
 
-      // Обработчик копирования
       const contractEl = document.getElementById('contract');
       const feedbackEl = document.getElementById('copy-feedback');
       contractEl.addEventListener('mouseenter', async () => {
@@ -160,18 +156,16 @@
         }
       });
 
-      // ← НОВЫЙ ОБРАБОТЧИК: пауза/воспроизведение по клику на канвас
       const canvasEl = document.querySelector('canvas');
       canvasEl.addEventListener('click', togglePause);
       canvasEl.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // предотвращаем зум на мобильных
+        e.preventDefault();
         togglePause();
       }, { passive: false });
     }
 
-    // ← Функция переключения паузы
     function togglePause() {
-      if (!isPlaying || !song) return; // игнорируем, если опыт ещё не запущен
+      if (!isPlaying || !song) return;
       
       isPaused = !isPaused;
       
@@ -181,10 +175,10 @@
       } else {
         song.loop();
         hidePauseIndicator();
+        lastBurstTime = millis();
       }
     }
 
-    // ← Показ индикатора паузы
     function showPauseIndicator() {
       if (pauseIndicatorEl) {
         pauseIndicatorEl.textContent = '⏸ PAUSED';
@@ -192,7 +186,6 @@
       }
     }
 
-    // ← Скрытие индикатора
     function hidePauseIndicator() {
       if (pauseIndicatorEl) {
         pauseIndicatorEl.classList.remove('visible');
@@ -210,21 +203,44 @@
 
       song.loop();
       isPlaying = true;
-      isPaused = false; // сбрасываем паузу при новом запуске
+      isPaused = false;
     }
 
     function draw() {
       if (!isPlaying) return;
       
-      // Если на паузе — не обновляем анимацию, но продолжаем отрисовывать последний кадр
+      // Очищаем фон всегда
+      background(0);
+      
+      // Если на паузе — просто отрисовываем текущее состояние без обновлений
       if (isPaused) {
-        // Можно добавить лёгкий эффект "заморозки", например, затемнение
-        fill(0, 30);
-        rect(width/2, height/2, width, height);
-        return;
+        // Рисуем частицы в их текущем положении (без обновления)
+        for (let particle of particles) {
+          particle.show();
+        }
+        
+        // Рисуем круги в статичном состоянии
+        let count = sin(frameCount / 150);
+        let angleStep = PI / 20 * count;
+        let colIndex = initColIndex;
+        let size = initSize;
+        let angle = initAngle;
+
+        while (size > MIN_SIZE) {
+          push();
+          translate(width / 2, height / 2);
+          rotate(angle);
+          fill(cols[colIndex % cols.length]);
+          ellipse(0, 0, size, size);
+          pop();
+          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+          size *= 0.88;
+          colIndex++;
+        }
+        return; // Выходим из функции, не обновляя переменные
       }
       
-      background(0);
+      // Обычная анимация (когда не на паузе)
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
@@ -308,7 +324,6 @@
         if (song && song.isPlaying()) song.pause();
         location.reload();
       }
-      // ← Дополнительно: пробел или P тоже переключают паузу
       if (key === ' ' || key === 'p' || key === 'P') {
         togglePause();
       }
