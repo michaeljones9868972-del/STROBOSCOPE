@@ -90,6 +90,7 @@
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
     let isPaused = false;
+    let pausedLevel = 0; // ← Сохраняем уровень громкости при паузе
     let song;
     let amplitude;
     let level;
@@ -170,6 +171,7 @@
       isPaused = !isPaused;
       
       if (isPaused) {
+        pausedLevel = level; // ← Сохраняем текущий уровень громкости
         song.pause();
         showPauseIndicator();
       } else {
@@ -209,21 +211,20 @@
     function draw() {
       if (!isPlaying) return;
       
-      // Очищаем фон всегда
       background(0);
       
-      // Если на паузе — просто отрисовываем текущее состояние без обновлений
+      // Если на паузе — рисуем статичное состояние с сохранённым уровнем
       if (isPaused) {
-        // Рисуем частицы в их текущем положении (без обновления)
+        // Рисуем частицы без обновления
         for (let particle of particles) {
           particle.show();
         }
         
-        // Рисуем круги в статичном состоянии
+        // Рисуем круги с сохранённым уровнем громкости
         let count = sin(frameCount / 150);
         let angleStep = PI / 20 * count;
         let colIndex = initColIndex;
-        let size = initSize;
+        let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5); // ← Используем pausedLevel
         let angle = initAngle;
 
         while (size > MIN_SIZE) {
@@ -237,10 +238,10 @@
           size *= 0.88;
           colIndex++;
         }
-        return; // Выходим из функции, не обновляя переменные
+        return;
       }
       
-      // Обычная анимация (когда не на паузе)
+      // Обычная анимация
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
