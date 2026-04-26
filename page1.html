@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; }
+    canvas { display: block; cursor: pointer; }
     .splash {
       position: fixed;
       top: 0;
@@ -55,6 +55,22 @@
       border-radius: 4px;
       white-space: nowrap;
     }
+    /* Индикатор паузы */
+    .pause-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      color: #E0908D;
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .pause-indicator.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
@@ -65,11 +81,15 @@
       <span class="copy-feedback" id="copy-feedback">COPY</span>
     </span>
   </div>
+  <!-- Индикатор паузы -->
+  <div class="pause-indicator" id="pause-indicator">⏸ PAUSED</div>
+  
   <script>
     let cols = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
+    let isPaused = false; // ← Новая переменная для отслеживания паузы
     let song;
     let amplitude;
     let level;
@@ -80,7 +100,7 @@
 
     let isSongLoaded = false;
     let shouldStartOnLoad = false;
-    let mainIconEl, splashEl;
+    let mainIconEl, splashEl, pauseIndicatorEl; // ← Добавляем ссылку на индикатор
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -102,7 +122,6 @@
         console.log('m1.mp3 загружен');
         isSongLoaded = true;
         amplitude.setInput(song);
-        // Если пользователь уже кликнул — сразу запускаем
         if (shouldStartOnLoad) {
           startExperienceNow();
         }
@@ -114,15 +133,15 @@
       // Подготовка элементов
       splashEl = document.getElementById('splash');
       mainIconEl = document.getElementById('main-icon');
+      pauseIndicatorEl = document.getElementById('pause-indicator'); // ← Получаем индикатор
 
       // Обработчик клика на иконку
       mainIconEl.addEventListener('click', () => {
         if (isSongLoaded) {
           startExperienceNow();
         } else {
-          // Показываем "Loading..."
           mainIconEl.textContent = "Loading...";
-          mainIconEl.style.pointerEvents = "none"; // блокируем повторные клики
+          mainIconEl.style.pointerEvents = "none";
           shouldStartOnLoad = true;
         }
       });
@@ -140,26 +159,71 @@
           console.error('Не удалось скопировать:', err);
         }
       });
+
+      // ← НОВЫЙ ОБРАБОТЧИК: пауза/воспроизведение по клику на канвас
+      const canvasEl = document.querySelector('canvas');
+      canvasEl.addEventListener('click', togglePause);
+      canvasEl.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // предотвращаем зум на мобильных
+        togglePause();
+      }, { passive: false });
+    }
+
+    // ← Функция переключения паузы
+    function togglePause() {
+      if (!isPlaying || !song) return; // игнорируем, если опыт ещё не запущен
+      
+      isPaused = !isPaused;
+      
+      if (isPaused) {
+        song.pause();
+        showPauseIndicator();
+      } else {
+        song.loop();
+        hidePauseIndicator();
+      }
+    }
+
+    // ← Показ индикатора паузы
+    function showPauseIndicator() {
+      if (pauseIndicatorEl) {
+        pauseIndicatorEl.textContent = '⏸ PAUSED';
+        pauseIndicatorEl.classList.add('visible');
+      }
+    }
+
+    // ← Скрытие индикатора
+    function hidePauseIndicator() {
+      if (pauseIndicatorEl) {
+        pauseIndicatorEl.classList.remove('visible');
+      }
     }
 
     function startExperienceNow() {
-      // Убираем splash
       splashEl.style.opacity = 0;
       setTimeout(() => {
         if (splashEl.parentNode) splashEl.remove();
       }, 500);
 
-      // Fullscreen
       const elem = document.documentElement;
       if (elem.requestFullscreen) elem.requestFullscreen();
 
-      // Запускаем звук и анимацию
       song.loop();
       isPlaying = true;
+      isPaused = false; // сбрасываем паузу при новом запуске
     }
 
     function draw() {
       if (!isPlaying) return;
+      
+      // Если на паузе — не обновляем анимацию, но продолжаем отрисовывать последний кадр
+      if (isPaused) {
+        // Можно добавить лёгкий эффект "заморозки", например, затемнение
+        fill(0, 30);
+        rect(width/2, height/2, width, height);
+        return;
+      }
+      
       background(0);
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
@@ -243,6 +307,10 @@
       if (keyCode === ESC || keyCode === 32) {
         if (song && song.isPlaying()) song.pause();
         location.reload();
+      }
+      // ← Дополнительно: пробел или P тоже переключают паузу
+      if (key === ' ' || key === 'p' || key === 'P') {
+        togglePause();
       }
     }
 
