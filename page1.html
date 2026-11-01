@@ -3,15 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>(´♡‿♡`) - Цвета 1</title>
+  <title>Stroboscope - Цвета 1</title>
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
+  
+  <!-- Шрифты -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
+  
   <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+  
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; cursor: pointer; }
+    body { 
+      margin: 0; 
+      padding: 0; 
+      overflow: hidden; 
+      background: #000; 
+    }
+    canvas { 
+      display: block; 
+      cursor: pointer; 
+    }
+    
+    /* Экран загрузки / старта */
     .splash {
       position: fixed;
       top: 0;
@@ -23,45 +40,24 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      color: #E0908D;
-      font-family: 'Arial', sans-serif;
+      color: #a0d8f1;
+      font-family: 'Martian Mono', monospace;
       font-size: 48px;
       font-weight: bold;
       cursor: pointer;
       text-align: center;
       flex-direction: column;
       gap: 12px;
+      transition: opacity 0.5s ease;
     }
-    .contract {
-      font-size: 18px;
-      color: #aaa;
-      cursor: pointer;
-      position: relative;
-      display: inline-block;
-      user-select: none;
-    }
-    .copy-feedback {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-size: 14px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-      background: rgba(0,0,0,0.7);
-      padding: 4px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-    }
+    
     /* Индикатор паузы */
     .pause-indicator {
       position: fixed;
       top: 20px;
       right: 20px;
-      color: #E0908D;
-      font-family: 'Arial', sans-serif;
+      color: #a0d8f1;
+      font-family: 'Martian Mono', monospace;
       font-size: 14px;
       opacity: 0;
       transition: opacity 0.3s;
@@ -74,13 +70,11 @@
   </style>
 </head>
 <body>
+  <!-- Минималистичный экран загрузки без смайликов и "SOON" -->
   <div class="splash" id="splash">
-    <div id="main-icon">(´♡‿♡`)</div>
-    <span class="contract" id="contract" data-address="......SOON........SOON........SOON........">
-      ......SOON........SOON........SOON........
-      <span class="copy-feedback" id="copy-feedback">COPY</span>
-    </span>
+    <div id="main-icon">Loading...</div>
   </div>
+  
   <!-- Индикатор паузы -->
   <div class="pause-indicator" id="pause-indicator">⏸ PAUSED</div>
   
@@ -90,7 +84,7 @@
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
     let isPaused = false;
-    let pausedLevel = 0; // ← Сохраняем уровень громкости при паузе
+    let pausedLevel = 0;
     let song;
     let amplitude;
     let level;
@@ -127,13 +121,13 @@
         }
       }, (err) => {
         console.error('Ошибка загрузки m1.mp3:', err);
-        alert('Не удалось загрузить аудиофайл. Проверьте, что файл m1.mp3 находится в той же папке.');
       });
 
       splashEl = document.getElementById('splash');
       mainIconEl = document.getElementById('main-icon');
       pauseIndicatorEl = document.getElementById('pause-indicator');
 
+      // Обработка клика для старта
       mainIconEl.addEventListener('click', () => {
         if (isSongLoaded) {
           startExperienceNow();
@@ -144,19 +138,7 @@
         }
       });
 
-      const contractEl = document.getElementById('contract');
-      const feedbackEl = document.getElementById('copy-feedback');
-      contractEl.addEventListener('mouseenter', async () => {
-        const address = contractEl.dataset.address;
-        try {
-          await navigator.clipboard.writeText(address);
-          feedbackEl.style.opacity = '1';
-          setTimeout(() => feedbackEl.style.opacity = '0', 2000);
-        } catch (err) {
-          console.error('Не удалось скопировать:', err);
-        }
-      });
-
+      // Пауза по клику на холст
       const canvasEl = document.querySelector('canvas');
       canvasEl.addEventListener('click', togglePause);
       canvasEl.addEventListener('touchstart', (e) => {
@@ -171,7 +153,7 @@
       isPaused = !isPaused;
       
       if (isPaused) {
-        pausedLevel = level; // ← Сохраняем текущий уровень громкости
+        pausedLevel = level;
         song.pause();
         showPauseIndicator();
       } else {
@@ -201,7 +183,11 @@
       }, 500);
 
       const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen();
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => {
+          console.log('Fullscreen request failed:', err);
+        });
+      }
 
       song.loop();
       isPlaying = true;
@@ -215,16 +201,14 @@
       
       // Если на паузе — рисуем статичное состояние с сохранённым уровнем
       if (isPaused) {
-        // Рисуем частицы без обновления
         for (let particle of particles) {
           particle.show();
         }
         
-        // Рисуем круги с сохранённым уровнем громкости
         let count = sin(frameCount / 150);
         let angleStep = PI / 20 * count;
         let colIndex = initColIndex;
-        let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5); // ← Используем pausedLevel
+        let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5);
         let angle = initAngle;
 
         while (size > MIN_SIZE) {
