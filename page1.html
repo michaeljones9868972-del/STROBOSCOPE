@@ -6,10 +6,6 @@
   <title>Stroboscope - Цвета 1</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
   
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   
@@ -24,27 +20,9 @@
       display: block; 
       cursor: pointer; 
     }
-    
-    .pause-indicator {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      color: #a0d8f1;
-      font-family: 'Martian Mono', monospace;
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 100;
-    }
-    .pause-indicator.visible {
-      opacity: 1;
-    }
   </style>
 </head>
 <body>
-  <div class="pause-indicator" id="pause-indicator">⏸ PAUSED</div>
-  
   <script>
     let cols = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
@@ -61,7 +39,6 @@
     let minBurstInterval = 300;
 
     let isSongLoaded = false;
-    let pauseIndicatorEl;
     let audioLoadTimeout;
 
     function setup() {
@@ -79,9 +56,6 @@
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      pauseIndicatorEl = document.getElementById('pause-indicator');
-
-      // Пытаемся загрузить звук
       try {
         song = loadSound('m1.mp3', () => {
           console.log('m1.mp3 загружен');
@@ -90,27 +64,22 @@
           startExperience();
         }, (err) => {
           console.error('Ошибка загрузки m1.mp3:', err);
-          // Продолжаем без звука
           isSongLoaded = true;
           startExperience();
         });
         
-        // Таймаут на случай если загрузка зависла
         audioLoadTimeout = setTimeout(() => {
           if (!isSongLoaded) {
-            console.log('Загрузка звука превысила время, продолжаем без него');
             isSongLoaded = true;
             startExperience();
           }
         }, 5000);
         
       } catch(e) {
-        console.error('Ошибка:', e);
         isSongLoaded = true;
         startExperience();
       }
 
-      // Пауза по клику на холст
       const canvasEl = document.querySelector('canvas');
       canvasEl.addEventListener('click', togglePause);
       canvasEl.addEventListener('touchstart', (e) => {
@@ -124,9 +93,7 @@
       
       const elem = document.documentElement;
       if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => {
-          console.log('Fullscreen failed:', err);
-        });
+        elem.requestFullscreen().catch(err => {});
       }
 
       if (song && isSongLoaded) {
@@ -145,24 +112,9 @@
       if (isPaused) {
         pausedLevel = level;
         if (song) song.pause();
-        showPauseIndicator();
       } else {
         if (song) song.loop();
-        hidePauseIndicator();
         lastBurstTime = millis();
-      }
-    }
-
-    function showPauseIndicator() {
-      if (pauseIndicatorEl) {
-        pauseIndicatorEl.textContent = '⏸ PAUSED';
-        pauseIndicatorEl.classList.add('visible');
-      }
-    }
-
-    function hidePauseIndicator() {
-      if (pauseIndicatorEl) {
-        pauseIndicatorEl.classList.remove('visible');
       }
     }
 
