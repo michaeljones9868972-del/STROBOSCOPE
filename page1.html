@@ -4,15 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Stroboscope - Цвета 1</title>
-  <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
   
-  <!-- Шрифты -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
   
-  <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   
@@ -28,7 +25,6 @@
       cursor: pointer; 
     }
     
-    /* Экран загрузки / старта */
     .splash {
       position: fixed;
       top: 0;
@@ -47,11 +43,21 @@
       cursor: pointer;
       text-align: center;
       flex-direction: column;
-      gap: 12px;
+      gap: 20px;
       transition: opacity 0.5s ease;
     }
     
-    /* Индикатор паузы */
+    .splash-hint {
+      font-size: 18px;
+      color: #666;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    
     .pause-indicator {
       position: fixed;
       top: 20px;
@@ -70,12 +76,11 @@
   </style>
 </head>
 <body>
-  <!-- Минималистичный экран загрузки без смайликов и "SOON" -->
   <div class="splash" id="splash">
-    <div id="main-icon">Loading...</div>
+    <div id="main-text">Loading...</div>
+    <div class="splash-hint">Click anywhere to start</div>
   </div>
   
-  <!-- Индикатор паузы -->
   <div class="pause-indicator" id="pause-indicator">⏸ PAUSED</div>
   
   <script>
@@ -94,8 +99,8 @@
     let minBurstInterval = 300;
 
     let isSongLoaded = false;
-    let shouldStartOnLoad = false;
-    let mainIconEl, splashEl, pauseIndicatorEl;
+    let splashEl, pauseIndicatorEl;
+    let audioLoadTimeout;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -112,52 +117,81 @@
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      song = loadSound('m1.mp3', () => {
-        console.log('m1.mp3 загружен');
-        isSongLoaded = true;
-        amplitude.setInput(song);
-        if (shouldStartOnLoad) {
-          startExperienceNow();
-        }
-      }, (err) => {
-        console.error('Ошибка загрузки m1.mp3:', err);
-      });
-
       splashEl = document.getElementById('splash');
-      mainIconEl = document.getElementById('main-icon');
       pauseIndicatorEl = document.getElementById('pause-indicator');
 
-      // Обработка клика для старта
-      mainIconEl.addEventListener('click', () => {
-        if (isSongLoaded) {
-          startExperienceNow();
-        } else {
-          mainIconEl.textContent = "Loading...";
-          mainIconEl.style.pointerEvents = "none";
-          shouldStartOnLoad = true;
-        }
-      });
+      // Пытаемся загрузить звук
+      try {
+        song = loadSound('m1.mp3', () => {
+          console.log('m1.mp3 загружен');
+          isSongLoaded = true;
+          amplitude.setInput(song);
+          document.getElementById('main-text').textContent = "Click to Start";
+        }, (err) => {
+          console.error('Ошибка загрузки m1.mp3:', err);
+          document.getElementById('main-text').textContent = "Click to Start";
+          // Продолжаем без звука
+          isSongLoaded = true;
+        });
+        
+        // Таймаут на случай если загрузка зависла
+        audioLoadTimeout = setTimeout(() => {
+          if (!isSongLoaded) {
+            console.log('Загрузка звука превысила время, продолжаем без него');
+            isSongLoaded = true;
+            document.getElementById('main-text').textContent = "Click to Start";
+          }
+        }, 5000);
+        
+      } catch(e) {
+        console.error('Ошибка:', e);
+        isSongLoaded = true;
+        document.getElementById('main-text').textContent = "Click to Start";
+      }
 
-      // Пауза по клику на холст
-      const canvasEl = document.querySelector('canvas');
-      canvasEl.addEventListener('click', togglePause);
-      canvasEl.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        togglePause();
-      }, { passive: false });
+      // Клик в любом месте для старта
+      document.addEventListener('click', startExperience);
+      document.addEventListener('touchstart', startExperience);
+    }
+
+    function startExperience() {
+      if (isPlaying) return;
+      
+      clearTimeout(audioLoadTimeout);
+      
+      if (splashEl && splashEl.style.display !== 'none') {
+        splashEl.style.opacity = 0;
+        setTimeout(() => {
+          if (splashEl.parentNode) splashEl.remove();
+        }, 500);
+
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(err => {
+            console.log('Fullscreen failed:', err);
+          });
+        }
+
+        if (song && isSongLoaded) {
+          song.loop();
+        }
+        
+        isPlaying = true;
+        isPaused = false;
+      }
     }
 
     function togglePause() {
-      if (!isPlaying || !song) return;
+      if (!isPlaying) return;
       
       isPaused = !isPaused;
       
       if (isPaused) {
         pausedLevel = level;
-        song.pause();
+        if (song) song.pause();
         showPauseIndicator();
       } else {
-        song.loop();
+        if (song) song.loop();
         hidePauseIndicator();
         lastBurstTime = millis();
       }
@@ -176,30 +210,11 @@
       }
     }
 
-    function startExperienceNow() {
-      splashEl.style.opacity = 0;
-      setTimeout(() => {
-        if (splashEl.parentNode) splashEl.remove();
-      }, 500);
-
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => {
-          console.log('Fullscreen request failed:', err);
-        });
-      }
-
-      song.loop();
-      isPlaying = true;
-      isPaused = false;
-    }
-
     function draw() {
       if (!isPlaying) return;
       
       background(0);
       
-      // Если на паузе — рисуем статичное состояние с сохранённым уровнем
       if (isPaused) {
         for (let particle of particles) {
           particle.show();
@@ -225,7 +240,6 @@
         return;
       }
       
-      // Обычная анимация
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
