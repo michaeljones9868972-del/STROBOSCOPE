@@ -39,7 +39,7 @@
       transition: opacity 0.5s ease;
       cursor: pointer;
       flex-direction: column;
-      gap: 20px;
+      gap: 80px;
     }
     
     .start-screen.hidden {
@@ -47,53 +47,57 @@
       pointer-events: none;
     }
     
-    /* Ember — рукописный шрифт со звездочками */
+    /* Ember — рукописный шрифт со звездочками (увеличен в 3 раза) */
     .ember-text {
       font-family: 'Dancing Script', cursive;
-      font-size: 80px;
+      font-size: 220px;
       font-weight: 700;
       color: #ffffff;
-      letter-spacing: 2px;
+      letter-spacing: 4px;
       user-select: none;
       text-shadow:
-        0 0 10px rgba(255, 255, 255, 0.8),
-        0 0 20px rgba(255, 255, 255, 0.5),
-        0 0 30px rgba(255, 255, 255, 0.3);
+        0 0 20px rgba(255, 255, 255, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.7),
+        0 0 60px rgba(255, 255, 255, 0.5),
+        0 0 80px rgba(255, 255, 255, 0.3);
       animation: ember-glow 3s ease-in-out infinite alternate;
     }
     
     .stars {
-      font-size: 30px;
+      font-size: 60px;
       color: #ffffff;
-      opacity: 0.6;
+      opacity: 0.7;
       animation: star-twinkle 2s ease-in-out infinite;
+      margin: 0 20px;
     }
     
     @keyframes ember-glow {
       0% {
         text-shadow:
-          0 0 10px rgba(255, 255, 255, 0.6),
-          0 0 20px rgba(255, 255, 255, 0.4);
+          0 0 20px rgba(255, 255, 255, 0.7),
+          0 0 40px rgba(255, 255, 255, 0.5),
+          0 0 60px rgba(255, 255, 255, 0.3);
         transform: scale(1);
       }
       100% {
         text-shadow:
-          0 0 20px rgba(255, 255, 255, 1),
-          0 0 40px rgba(255, 255, 255, 0.7),
-          0 0 60px rgba(255, 255, 255, 0.5);
-        transform: scale(1.05);
+          0 0 30px rgba(255, 255, 255, 1),
+          0 0 60px rgba(255, 255, 255, 0.8),
+          0 0 90px rgba(255, 255, 255, 0.6),
+          0 0 120px rgba(255, 255, 255, 0.4);
+        transform: scale(1.03);
       }
     }
     
     @keyframes star-twinkle {
-      0%, 100% { opacity: 0.4; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); }
     }
     
     /* START — разноцветные буквы с неоновым свечением */
     .start-text {
       font-family: 'Martian Mono', monospace;
-      font-size: 110px;
+      font-size: 100px;
       font-weight: 800;
       letter-spacing: 10px;
       user-select: none;
