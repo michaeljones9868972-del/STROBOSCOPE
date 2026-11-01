@@ -3,16 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>(^◕ᴥ◕^) - Цвета 4</title>
+  <title>Stroboscope - Цвета 4</title>
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
+  
+  <!-- Шрифты -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
+  
   <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
+  
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; }
-    .splash {
+    body { 
+      margin: 0; 
+      padding: 0; 
+      overflow: hidden; 
+      background: #000; 
+    }
+    canvas { 
+      display: block; 
+      cursor: pointer; 
+    }
+    
+    /* Экран запуска */
+    .start-screen {
       position: fixed;
       top: 0;
       left: 0;
@@ -23,53 +40,134 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      color: hsl(14, 88%, 65%);
-      font-family: 'Arial', sans-serif;
-      font-size: 48px;
-      font-weight: bold;
+      transition: opacity 0.5s ease;
       cursor: pointer;
-      text-align: center;
       flex-direction: column;
-      gap: 12px;
+      gap: 30px;
     }
-    .contract {
-      font-size: 18px;
-      color: #aaa;
-      cursor: pointer;
-      position: relative;
-      display: inline-block;
-      user-select: none;
-    }
-    .copy-feedback {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #fff;
-      font-size: 14px;
+    
+    .start-screen.hidden {
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.2s;
-      background: rgba(0,0,0,0.7);
-      padding: 4px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
+    }
+    
+    /* PRESS — пепельно-белый, пульсирующий */
+    .press-text {
+      font-family: 'Martian Mono', monospace;
+      font-size: 90px;
+      font-weight: 300;
+      letter-spacing: 30px;
+      user-select: none;
+      color: #c8c8c8;
+      text-shadow:
+        0 0 8px rgba(200, 200, 200, 0.6),
+        0 0 20px rgba(180, 180, 180, 0.3),
+        0 0 40px rgba(150, 150, 150, 0.2);
+      animation: press-glow 4s ease-in-out infinite alternate;
+    }
+    
+    @keyframes press-glow {
+      0% {
+        color: #a8a8a8;
+        text-shadow: 0 0 8px rgba(168, 168, 168, 0.5), 0 0 20px rgba(140, 140, 140, 0.3);
+      }
+      50% {
+        color: #e0e0e0;
+        text-shadow: 0 0 12px rgba(224, 224, 224, 0.7), 0 0 30px rgba(200, 200, 200, 0.4), 0 0 50px rgba(180, 180, 180, 0.2);
+      }
+      100% {
+        color: #b8b8b8;
+        text-shadow: 0 0 10px rgba(184, 184, 184, 0.6), 0 0 25px rgba(160, 160, 160, 0.35);
+      }
+    }
+    
+    /* START — разноцветные буквы с 3D flip */
+    .start-text {
+      font-family: 'Martian Mono', monospace;
+      font-size: 110px;
+      font-weight: 800;
+      letter-spacing: 15px;
+      user-select: none;
+      display: flex;
+      gap: 5px;
+      perspective: 1000px;
+    }
+    
+    .start-letter {
+      display: inline-block;
+      transform-style: preserve-3d;
+    }
+    
+    /* Уникальные анимации для каждой буквы для создания волнового эффекта */
+    .start-letter:nth-child(1) { animation: flip 6s ease-in-out infinite, color1 8s ease-in-out infinite; }
+    .start-letter:nth-child(2) { animation: flip 6s ease-in-out 0.3s infinite, color2 8s ease-in-out infinite; }
+    .start-letter:nth-child(3) { animation: flip 6s ease-in-out 0.6s infinite, color3 8s ease-in-out infinite; }
+    .start-letter:nth-child(4) { animation: flip 6s ease-in-out 0.9s infinite, color4 8s ease-in-out infinite; }
+    .start-letter:nth-child(5) { animation: flip 6s ease-in-out 1.2s infinite, color5 8s ease-in-out infinite; }
+    
+    @keyframes flip {
+      0%, 100% { transform: rotateY(0deg); }
+      50% { transform: rotateY(360deg); }
+    }
+    
+    @keyframes color1 {
+      0%, 100% { color: #091B1A; text-shadow: 0 0 20px #091B1A, 0 0 40px #091B1A; }
+      20% { color: #5D4A39; text-shadow: 0 0 20px #5D4A39, 0 0 40px #5D4A39; }
+      40% { color: #A96F47; text-shadow: 0 0 20px #A96F47, 0 0 40px #A96F47; }
+      60% { color: #FBCE02; text-shadow: 0 0 20px #FBCE02, 0 0 40px #FBCE02; }
+      80% { color: #F27B57; text-shadow: 0 0 20px #F27B57, 0 0 40px #F27B57; }
+    }
+    @keyframes color2 {
+      0%, 100% { color: #5D4A39; text-shadow: 0 0 20px #5D4A39, 0 0 40px #5D4A39; }
+      20% { color: #A96F47; text-shadow: 0 0 20px #A96F47, 0 0 40px #A96F47; }
+      40% { color: #FBCE02; text-shadow: 0 0 20px #FBCE02, 0 0 40px #FBCE02; }
+      60% { color: #F27B57; text-shadow: 0 0 20px #F27B57, 0 0 40px #F27B57; }
+      80% { color: #091B1A; text-shadow: 0 0 20px #091B1A, 0 0 40px #091B1A; }
+    }
+    @keyframes color3 {
+      0%, 100% { color: #A96F47; text-shadow: 0 0 20px #A96F47, 0 0 40px #A96F47; }
+      20% { color: #FBCE02; text-shadow: 0 0 20px #FBCE02, 0 0 40px #FBCE02; }
+      40% { color: #F27B57; text-shadow: 0 0 20px #F27B57, 0 0 40px #F27B57; }
+      60% { color: #091B1A; text-shadow: 0 0 20px #091B1A, 0 0 40px #091B1A; }
+      80% { color: #5D4A39; text-shadow: 0 0 20px #5D4A39, 0 0 40px #5D4A39; }
+    }
+    @keyframes color4 {
+      0%, 100% { color: #FBCE02; text-shadow: 0 0 20px #FBCE02, 0 0 40px #FBCE02; }
+      20% { color: #F27B57; text-shadow: 0 0 20px #F27B57, 0 0 40px #F27B57; }
+      40% { color: #091B1A; text-shadow: 0 0 20px #091B1A, 0 0 40px #091B1A; }
+      60% { color: #5D4A39; text-shadow: 0 0 20px #5D4A39, 0 0 40px #5D4A39; }
+      80% { color: #A96F47; text-shadow: 0 0 20px #A96F47, 0 0 40px #A96F47; }
+    }
+    @keyframes color5 {
+      0%, 100% { color: #F27B57; text-shadow: 0 0 20px #F27B57, 0 0 40px #F27B57; }
+      20% { color: #091B1A; text-shadow: 0 0 20px #091B1A, 0 0 40px #091B1A; }
+      40% { color: #5D4A39; text-shadow: 0 0 20px #5D4A39, 0 0 40px #5D4A39; }
+      60% { color: #A96F47; text-shadow: 0 0 20px #A96F47, 0 0 40px #A96F47; }
+      80% { color: #FBCE02; text-shadow: 0 0 20px #FBCE02, 0 0 40px #FBCE02; }
     }
   </style>
 </head>
 <body>
-  <div class="splash" id="splash">
-    <div id="main-icon">(^◕ᴥ◕^)</div>
-    <span class="contract" id="contract" data-address="......SOON........SOON........SOON........">
-      ......SOON........SOON........SOON........
-      <span class="copy-feedback" id="copy-feedback">COPY</span>
-    </span>
+  <!-- Экран запуска -->
+  <div class="start-screen" id="startScreen">
+    <div class="press-text">PRESS</div>
+    <div class="start-text">
+      <span class="start-letter">S</span>
+      <span class="start-letter">T</span>
+      <span class="start-letter">A</span>
+      <span class="start-letter">R</span>
+      <span class="start-letter">T</span>
+    </div>
   </div>
+  
   <script>
+    // Оригинальная палитра для Цвета 4
     let cols = ['#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57', '#ffffff', '#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
+    let isPaused = false;
+    let pausedLevel = 0;
     let song;
     let amplitude;
     let level;
@@ -80,7 +178,7 @@
 
     let isSongLoaded = false;
     let shouldStartOnLoad = false;
-    let mainIconEl, splashEl;
+    let startScreen;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -97,65 +195,128 @@
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      // Загрузка аудиофайла
+      startScreen = document.getElementById('startScreen');
+
+      // Загрузка аудиофайла m4.mp3
       song = loadSound('m4.mp3', () => {
         console.log('m4.mp3 загружен');
         isSongLoaded = true;
         amplitude.setInput(song);
         if (shouldStartOnLoad) {
-          startExperienceNow();
+          startExperience();
         }
       }, (err) => {
         console.error('Ошибка загрузки m4.mp3:', err);
-        alert('Не удалось загрузить аудиофайл m4.mp3. Убедитесь, что он находится в той же папке.');
+        // Даже при ошибке разрешаем запуск визуализации без звука
+        isSongLoaded = true;
+        if (shouldStartOnLoad) {
+          startExperience();
+        }
       });
 
-      // Элементы интерфейса
-      splashEl = document.getElementById('splash');
-      mainIconEl = document.getElementById('main-icon');
-
-      // Клик по иконке
-      mainIconEl.addEventListener('click', () => {
+      // Клик по экрану запускает или ставит на паузу
+      startScreen.addEventListener('click', () => {
         if (isSongLoaded) {
-          startExperienceNow();
+          startExperience();
         } else {
-          mainIconEl.textContent = "Loading";
-          mainIconEl.style.pointerEvents = "none";
           shouldStartOnLoad = true;
         }
       });
 
-      // Копирование адреса
-      const contractEl = document.getElementById('contract');
-      const feedbackEl = document.getElementById('copy-feedback');
-      contractEl.addEventListener('mouseenter', async () => {
-        const address = contractEl.dataset.address;
-        try {
-          await navigator.clipboard.writeText(address);
-          feedbackEl.style.opacity = '1';
-          setTimeout(() => feedbackEl.style.opacity = '0', 2000);
-        } catch (err) {
-          console.error('Не удалось скопировать:', err);
+      // Клик/тап по холсту ставит на паузу / продолжает
+      const canvasEl = document.querySelector('canvas');
+      canvasEl.addEventListener('click', togglePause);
+      canvasEl.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        togglePause();
+      }, { passive: false });
+
+      // Пробел: запуск (если не запущено) или пауза/продолжение (если запущено)
+      document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+          e.preventDefault(); // Предотвращаем прокрутку страницы
+          if (!isPlaying) {
+            if (isSongLoaded) {
+              startExperience();
+            } else {
+              shouldStartOnLoad = true;
+            }
+          } else {
+            togglePause();
+          }
         }
       });
     }
 
-    function startExperienceNow() {
-      splashEl.style.opacity = 0;
+    function startExperience() {
+      startScreen.classList.add('hidden');
       setTimeout(() => {
-        if (splashEl.parentNode) splashEl.remove();
+        if (startScreen.parentNode) startScreen.remove();
       }, 500);
 
       const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen();
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => {});
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
 
-      song.loop();
+      if (song && isSongLoaded) {
+        song.loop();
+      }
+      
       isPlaying = true;
+      isPaused = false;
+    }
+
+    function togglePause() {
+      if (!isPlaying) return;
+      
+      isPaused = !isPaused;
+      
+      if (isPaused) {
+        pausedLevel = level;
+        if (song) song.pause();
+      } else {
+        if (song) song.loop();
+        lastBurstTime = millis();
+      }
     }
 
     function draw() {
       if (!isPlaying) return;
+      
       background(0);
+      
+      // Если на паузе — рисуем статичное состояние
+      if (isPaused) {
+        for (let particle of particles) {
+          particle.show();
+        }
+        
+        let count = sin(frameCount / 150);
+        let angleStep = PI / 20 * count;
+        let colIndex = initColIndex;
+        let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5);
+        let angle = initAngle;
+
+        while (size > MIN_SIZE) {
+          push();
+          translate(width / 2, height / 2);
+          rotate(angle);
+          fill(cols[colIndex % cols.length]);
+          ellipse(0, 0, size, size);
+          pop();
+          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+          size *= 0.88;
+          colIndex++;
+        }
+        return;
+      }
+      
+      // Обычная анимация
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
@@ -235,9 +396,12 @@
     }
 
     function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) {
+      if (keyCode === ESC) {
         if (song && song.isPlaying()) song.pause();
         location.reload();
+      }
+      if (key === 'p' || key === 'P') {
+        togglePause();
       }
     }
 
