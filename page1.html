@@ -25,39 +25,6 @@
       cursor: pointer; 
     }
     
-    .splash {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      color: #a0d8f1;
-      font-family: 'Martian Mono', monospace;
-      font-size: 48px;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
-      flex-direction: column;
-      gap: 20px;
-      transition: opacity 0.5s ease;
-    }
-    
-    .splash-hint {
-      font-size: 18px;
-      color: #666;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-    
     .pause-indicator {
       position: fixed;
       top: 20px;
@@ -76,11 +43,6 @@
   </style>
 </head>
 <body>
-  <div class="splash" id="splash">
-    <div id="main-text">Loading...</div>
-    <div class="splash-hint">Click anywhere to start</div>
-  </div>
-  
   <div class="pause-indicator" id="pause-indicator">⏸ PAUSED</div>
   
   <script>
@@ -99,7 +61,7 @@
     let minBurstInterval = 300;
 
     let isSongLoaded = false;
-    let splashEl, pauseIndicatorEl;
+    let pauseIndicatorEl;
     let audioLoadTimeout;
 
     function setup() {
@@ -117,7 +79,6 @@
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      splashEl = document.getElementById('splash');
       pauseIndicatorEl = document.getElementById('pause-indicator');
 
       // Пытаемся загрузить звук
@@ -126,12 +87,12 @@
           console.log('m1.mp3 загружен');
           isSongLoaded = true;
           amplitude.setInput(song);
-          document.getElementById('main-text').textContent = "Click to Start";
+          startExperience();
         }, (err) => {
           console.error('Ошибка загрузки m1.mp3:', err);
-          document.getElementById('main-text').textContent = "Click to Start";
           // Продолжаем без звука
           isSongLoaded = true;
+          startExperience();
         });
         
         // Таймаут на случай если загрузка зависла
@@ -139,46 +100,41 @@
           if (!isSongLoaded) {
             console.log('Загрузка звука превысила время, продолжаем без него');
             isSongLoaded = true;
-            document.getElementById('main-text').textContent = "Click to Start";
+            startExperience();
           }
         }, 5000);
         
       } catch(e) {
         console.error('Ошибка:', e);
         isSongLoaded = true;
-        document.getElementById('main-text').textContent = "Click to Start";
+        startExperience();
       }
 
-      // Клик в любом месте для старта
-      document.addEventListener('click', startExperience);
-      document.addEventListener('touchstart', startExperience);
+      // Пауза по клику на холст
+      const canvasEl = document.querySelector('canvas');
+      canvasEl.addEventListener('click', togglePause);
+      canvasEl.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        togglePause();
+      }, { passive: false });
     }
 
     function startExperience() {
-      if (isPlaying) return;
-      
       clearTimeout(audioLoadTimeout);
       
-      if (splashEl && splashEl.style.display !== 'none') {
-        splashEl.style.opacity = 0;
-        setTimeout(() => {
-          if (splashEl.parentNode) splashEl.remove();
-        }, 500);
-
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen().catch(err => {
-            console.log('Fullscreen failed:', err);
-          });
-        }
-
-        if (song && isSongLoaded) {
-          song.loop();
-        }
-        
-        isPlaying = true;
-        isPaused = false;
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => {
+          console.log('Fullscreen failed:', err);
+        });
       }
+
+      if (song && isSongLoaded) {
+        song.loop();
+      }
+      
+      isPlaying = true;
+      isPaused = false;
     }
 
     function togglePause() {
