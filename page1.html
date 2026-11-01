@@ -40,6 +40,7 @@
 
     let isSongLoaded = false;
     let audioLoadTimeout;
+    let fullscreenActivated = false;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -81,20 +82,35 @@
       }
 
       const canvasEl = document.querySelector('canvas');
-      canvasEl.addEventListener('click', togglePause);
+      canvasEl.addEventListener('click', handleCanvasClick);
       canvasEl.addEventListener('touchstart', (e) => {
         e.preventDefault();
-        togglePause();
+        handleCanvasClick();
       }, { passive: false });
+    }
+
+    function handleCanvasClick() {
+      // Первый клик — активируем fullscreen
+      if (!fullscreenActivated) {
+        fullscreenActivated = true;
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen().catch(err => {
+            console.log('Fullscreen failed:', err);
+          });
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        }
+      } else {
+        // Последующие клики — пауза
+        togglePause();
+      }
     }
 
     function startExperience() {
       clearTimeout(audioLoadTimeout);
-      
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(err => {});
-      }
 
       if (song && isSongLoaded) {
         song.loop();
