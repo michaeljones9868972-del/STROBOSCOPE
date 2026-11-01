@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Stroboscope - Цвета 2</title>
-  <!-- Favicon -->
+  <title>Stroboscope - Prism</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
   
   <!-- Шрифты -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
+  <!-- Martian Mono для START, Pacifico для названия (яркий, летящий шрифт) -->
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Pacifico&display=swap" rel="stylesheet">
   
   <!-- p5.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
@@ -43,7 +43,7 @@
       transition: opacity 0.5s ease;
       cursor: pointer;
       flex-direction: column;
-      gap: 30px;
+      gap: 80px; /* Большой отступ между названием и кнопкой */
     }
     
     .start-screen.hidden {
@@ -51,118 +51,92 @@
       pointer-events: none;
     }
     
-    /* PRESS — пепельно-белый, пульсирующий */
-    .press-text {
-      font-family: 'Martian Mono', monospace;
-      font-size: 90px;
-      font-weight: 300;
-      letter-spacing: 30px;
+    /* PRISM — яркий рукописный стиль */
+    .main-title {
+      font-family: 'Pacifico', cursive;
+      font-size: 240px; /* Очень крупно */
+      color: #ffffff;
+      text-shadow: 
+        0 0 20px rgba(255, 255, 255, 0.8),
+        0 0 40px #ffb901,
+        0 0 60px #d13e1b,
+        0 0 80px #47c9dd;
+      animation: title-float 4s ease-in-out infinite alternate;
       user-select: none;
-      color: #c8c8c8;
-      text-shadow:
-        0 0 8px rgba(200, 200, 200, 0.6),
-        0 0 20px rgba(180, 180, 180, 0.3),
-        0 0 40px rgba(150, 150, 150, 0.2);
-      animation: press-glow 4s ease-in-out infinite alternate;
+      line-height: 1;
+    }
+
+    @keyframes title-float {
+      0% { transform: translateY(-10px) scale(1); filter: hue-rotate(0deg); }
+      100% { transform: translateY(10px) scale(1.02); filter: hue-rotate(20deg); }
     }
     
-    @keyframes press-glow {
-      0% {
-        color: #a8a8a8;
-        text-shadow: 0 0 8px rgba(168, 168, 168, 0.5), 0 0 20px rgba(140, 140, 140, 0.3);
-      }
-      50% {
-        color: #e0e0e0;
-        text-shadow: 0 0 12px rgba(224, 224, 224, 0.7), 0 0 30px rgba(200, 200, 200, 0.4), 0 0 50px rgba(180, 180, 180, 0.2);
-      }
-      100% {
-        color: #b8b8b8;
-        text-shadow: 0 0 10px rgba(184, 184, 184, 0.6), 0 0 25px rgba(160, 160, 160, 0.35);
-      }
-    }
-    
-    /* START — разноцветные буквы с 3D flip */
+    /* START — разноцветные буквы с неоновым свечением */
     .start-text {
       font-family: 'Martian Mono', monospace;
-      font-size: 110px;
+      font-size: 90px;
       font-weight: 800;
-      letter-spacing: 15px;
+      letter-spacing: 10px;
       user-select: none;
       display: flex;
-      gap: 5px;
-      perspective: 1000px;
+      gap: 8px;
     }
     
     .start-letter {
       display: inline-block;
-      transform-style: preserve-3d;
+      animation: neon-pulse 2s ease-in-out infinite;
     }
     
-    /* Уникальные анимации для каждой буквы для создания волнового эффекта */
-    .start-letter:nth-child(1) { animation: flip 6s ease-in-out infinite, color1 8s ease-in-out infinite; }
-    .start-letter:nth-child(2) { animation: flip 6s ease-in-out 0.3s infinite, color2 8s ease-in-out infinite; }
-    .start-letter:nth-child(3) { animation: flip 6s ease-in-out 0.6s infinite, color3 8s ease-in-out infinite; }
-    .start-letter:nth-child(4) { animation: flip 6s ease-in-out 0.9s infinite, color4 8s ease-in-out infinite; }
-    .start-letter:nth-child(5) { animation: flip 6s ease-in-out 1.2s infinite, color5 8s ease-in-out infinite; }
-    
-    @keyframes flip {
-      0%, 100% { transform: rotateY(0deg); }
-      50% { transform: rotateY(360deg); }
+    /* Цвета соответствуют кругу: Желтый -> Оранжевый -> Малиновый -> Розовый -> Голубой */
+    .start-letter:nth-child(1) { /* P */
+      color: #ffb901;
+      text-shadow: 0 0 15px #ffb901, 0 0 30px #ffb901;
+      animation-delay: 0s;
+    }
+    .start-letter:nth-child(2) { /* R */
+      color: #d13e1b;
+      text-shadow: 0 0 15px #d13e1b, 0 0 30px #d13e1b;
+      animation-delay: 0.2s;
+    }
+    .start-letter:nth-child(3) { /* I */
+      color: #9f124a;
+      text-shadow: 0 0 15px #9f124a, 0 0 30px #9f124a;
+      animation-delay: 0.4s;
+    }
+    .start-letter:nth-child(4) { /* S */
+      color: #e591b2;
+      text-shadow: 0 0 15px #e591b2, 0 0 30px #e591b2;
+      animation-delay: 0.6s;
+    }
+    .start-letter:nth-child(5) { /* M */
+      color: #47c9dd;
+      text-shadow: 0 0 15px #47c9dd, 0 0 30px #47c9dd;
+      animation-delay: 0.8s;
     }
     
-    @keyframes color1 {
-      0%, 100% { color: #ffb901; text-shadow: 0 0 20px #ffb901, 0 0 40px #ffb901; }
-      20% { color: #d13e1b; text-shadow: 0 0 20px #d13e1b, 0 0 40px #d13e1b; }
-      40% { color: #e591b2; text-shadow: 0 0 20px #e591b2, 0 0 40px #e591b2; }
-      60% { color: #47c9dd; text-shadow: 0 0 20px #47c9dd, 0 0 40px #47c9dd; }
-      80% { color: #9f124a; text-shadow: 0 0 20px #9f124a, 0 0 40px #9f124a; }
-    }
-    @keyframes color2 {
-      0%, 100% { color: #d13e1b; text-shadow: 0 0 20px #d13e1b, 0 0 40px #d13e1b; }
-      20% { color: #9f124a; text-shadow: 0 0 20px #9f124a, 0 0 40px #9f124a; }
-      40% { color: #47c9dd; text-shadow: 0 0 20px #47c9dd, 0 0 40px #47c9dd; }
-      60% { color: #ffb901; text-shadow: 0 0 20px #ffb901, 0 0 40px #ffb901; }
-      80% { color: #e591b2; text-shadow: 0 0 20px #e591b2, 0 0 40px #e591b2; }
-    }
-    @keyframes color3 {
-      0%, 100% { color: #9f124a; text-shadow: 0 0 20px #9f124a, 0 0 40px #9f124a; }
-      20% { color: #e591b2; text-shadow: 0 0 20px #e591b2, 0 0 40px #e591b2; }
-      40% { color: #ffb901; text-shadow: 0 0 20px #ffb901, 0 0 40px #ffb901; }
-      60% { color: #d13e1b; text-shadow: 0 0 20px #d13e1b, 0 0 40px #d13e1b; }
-      80% { color: #47c9dd; text-shadow: 0 0 20px #47c9dd, 0 0 40px #47c9dd; }
-    }
-    @keyframes color4 {
-      0%, 100% { color: #e591b2; text-shadow: 0 0 20px #e591b2, 0 0 40px #e591b2; }
-      20% { color: #47c9dd; text-shadow: 0 0 20px #47c9dd, 0 0 40px #47c9dd; }
-      40% { color: #d13e1b; text-shadow: 0 0 20px #d13e1b, 0 0 40px #d13e1b; }
-      60% { color: #9f124a; text-shadow: 0 0 20px #9f124a, 0 0 40px #9f124a; }
-      80% { color: #ffb901; text-shadow: 0 0 20px #ffb901, 0 0 40px #ffb901; }
-    }
-    @keyframes color5 {
-      0%, 100% { color: #47c9dd; text-shadow: 0 0 20px #47c9dd, 0 0 40px #47c9dd; }
-      20% { color: #ffb901; text-shadow: 0 0 20px #ffb901, 0 0 40px #ffb901; }
-      40% { color: #e591b2; text-shadow: 0 0 20px #e591b2, 0 0 40px #e591b2; }
-      60% { color: #d13e1b; text-shadow: 0 0 20px #d13e1b, 0 0 40px #d13e1b; }
-      80% { color: #9f124a; text-shadow: 0 0 20px #9f124a, 0 0 40px #9f124a; }
+    @keyframes neon-pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
     }
   </style>
 </head>
 <body>
   <!-- Экран запуска -->
   <div class="start-screen" id="startScreen">
-    <div class="press-text">PRESS</div>
+    <div class="main-title">Prism</div>
     <div class="start-text">
-      <span class="start-letter">S</span>
-      <span class="start-letter">T</span>
-      <span class="start-letter">A</span>
+      <span class="start-letter">P</span>
       <span class="start-letter">R</span>
-      <span class="start-letter">T</span>
+      <span class="start-letter">I</span>
+      <span class="start-letter">S</span>
+      <span class="start-letter">M</span>
     </div>
   </div>
   
   <script>
-    // Оригинальная палитра для Цвета 2
-    let cols = ['#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd', '#ffffff', '#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd'];
+    // Палитра из твоего второго изображения (Круг)
+    let cols = ['#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd', '#ffffff']; 
+    
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = false;
@@ -207,14 +181,12 @@
         }
       }, (err) => {
         console.error('Ошибка загрузки m2.mp3:', err);
-        // Даже при ошибке разрешаем запуск визуализации без звука
-        isSongLoaded = true;
+        isSongLoaded = true; // Разрешаем запуск без звука при ошибке
         if (shouldStartOnLoad) {
           startExperience();
         }
       });
 
-      // Клик по экрану запускает или ставит на паузу
       startScreen.addEventListener('click', () => {
         if (isSongLoaded) {
           startExperience();
@@ -223,7 +195,6 @@
         }
       });
 
-      // Клик/тап по холсту ставит на паузу / продолжает
       const canvasEl = document.querySelector('canvas');
       canvasEl.addEventListener('click', togglePause);
       canvasEl.addEventListener('touchstart', (e) => {
@@ -231,10 +202,9 @@
         togglePause();
       }, { passive: false });
 
-      // Пробел: запуск (если не запущено) или пауза/продолжение (если запущено)
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
-          e.preventDefault(); // Предотвращаем прокрутку страницы
+          e.preventDefault();
           if (!isPlaying) {
             if (isSongLoaded) {
               startExperience();
@@ -290,7 +260,6 @@
       
       background(0);
       
-      // Если на паузе — рисуем статичное состояние
       if (isPaused) {
         for (let particle of particles) {
           particle.show();
@@ -316,7 +285,6 @@
         return;
       }
       
-      // Обычная анимация
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
@@ -396,7 +364,7 @@
     }
 
     function keyPressed() {
-      if (keyCode === ESC) {
+      if (keyCode === ESC || keyCode === 32) {
         if (song && song.isPlaying()) song.pause();
         location.reload();
       }
