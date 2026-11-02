@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Symbol Runner</title>
+  <title>Stroboscope Gallery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -15,12 +15,12 @@
     body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       background: #000;
       color: white;
       font-family: 'Martian Mono', monospace;
-      height: 100vh;
+      min-height: 100vh;
       position: relative;
+      overflow-x: hidden;
     }
     
     /* Фон */
@@ -70,63 +70,128 @@
       100% { opacity: 0.7; transform: scale(1.2); }
     }
 
+    /* Поиск */
+    .search-container {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(160, 216, 241, 0.3);
+    }
+
+    .search-container input {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(160, 216, 241, 0.5);
+      color: #a0d8f1;
+      padding: 10px 15px;
+      font-family: 'Martian Mono', monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      width: 350px;
+      max-width: 45ch;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .search-container input:focus {
+      border-color: #a0d8f1;
+      box-shadow: 0 0 10px rgba(160, 216, 241, 0.3);
+    }
+
+    .search-container input::placeholder {
+      color: rgba(160, 216, 241, 0.5);
+    }
+
     /* Галерея */
     .gallery {
-      position: absolute;
+      padding: 120px 20px 120px;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1800px;
+      margin: 0 auto;
       width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
     }
 
-    .cards {
-      position: relative;
-      width: 42rem;
-      height: 54rem;
+    .stroboscope-item {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-    }
-
-    .cards li {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: 42rem;
-      aspect-ratio: 9 / 16;
-      position: absolute;
-      background: transparent;
-      border: none;
-      border-radius: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 9rem;
-      font-weight: bold;
-      color: #a0d8f1;
-      text-shadow: 0 0 10px rgba(160, 216, 241, 0.7);
-      opacity: 0;
-      scale: 0;
-      z-index: 1;
-      overflow: hidden;
       cursor: pointer;
+      transition: transform 0.3s;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeIn 0.8s forwards;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
 
-    .cards li img {
+    .stroboscope-item:hover {
+      transform: translateY(-10px) scale(1.02);
+    }
+
+    .stroboscope-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 56px;
+      margin-bottom: 15px;
+      color: #ffffff;
+      text-shadow: 
+        0 0 20px rgba(255, 255, 255, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.7),
+        0 0 80px rgba(255, 255, 255, 0.5);
+      text-align: center;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stroboscope-circle {
+      width: 520px;
+      height: 520px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 5px solid rgba(160, 216, 241, 0.5);
+      box-shadow: 
+        0 0 50px rgba(160, 216, 241, 0.4),
+        0 0 100px rgba(160, 216, 241, 0.2);
+      transition: all 0.3s;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+    }
+
+    .stroboscope-item:hover .stroboscope-circle {
+      border-color: rgba(160, 216, 241, 1);
+      box-shadow: 
+        0 0 80px rgba(160, 216, 241, 0.6),
+        0 0 150px rgba(160, 216, 241, 0.3);
+    }
+
+    .stroboscope-circle img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      border-radius: 0;
+      object-fit: cover;
       display: block;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-select: none;
     }
 
-    .drag-proxy {
-      visibility: hidden;
-      position: absolute;
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Нижняя строка */
@@ -158,14 +223,41 @@
       100% { transform: translateX(-100%); }
     }
 
-    @media (max-width: 768px) {
-      .cards li { font-size: 6.6rem; }
-      .marquee-content { font-size: 14px; }
+    @media (max-width: 1600px) {
+      .stroboscope-circle {
+        width: 420px;
+        height: 420px;
+      }
+      .stroboscope-name {
+        font-size: 48px;
+      }
     }
-    
-    @media (min-width: 1024px) {
-      .cards li { font-size: 10.5rem; }
-      .marquee-content { font-size: 18px; }
+
+    @media (max-width: 1300px) {
+      .stroboscope-circle {
+        width: 350px;
+        height: 350px;
+      }
+      .stroboscope-name {
+        font-size: 42px;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 60px;
+      }
+      .stroboscope-circle {
+        width: 400px;
+        height: 400px;
+      }
+      .stroboscope-name {
+        font-size: 48px;
+      }
+      .search-container input {
+        width: 250px;
+      }
     }
   </style>
 </head>
@@ -176,10 +268,15 @@
     <div class="overlay"></div>
   </div>
 
-  <div class="gallery">
-    <ul class="cards" id="cardsList"></ul>
+  <!-- Поиск -->
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="ПОИСК ПО НАЗВАНИЮ" maxlength="45">
   </div>
-  <div class="drag-proxy"></div>
+
+  <!-- Галерея -->
+  <div class="gallery">
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
 
   <div class="marquee-container">
     <div class="marquee-content" id="marqueeContent">
@@ -187,181 +284,82 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
-
   <script>
+    // Данные стробоскопов с названиями
+    const stroboscopes = [
+      { id: 1, name: "Ember", image: "1krug.png" },
+      { id: 2, name: "Prism", image: "2krug.png" },
+      { id: 3, name: "Roots", image: "3krug.png" },
+      { id: 4, name: "Eclipse", image: "4krug.png" },
+      { id: 5, name: "Tide", image: "5krug.png" },
+      { id: 6, name: "Neon", image: "6krug.png" },
+      { id: 7, name: "Sunset", image: "7krug.png" },
+      { id: 8, name: "Overdrive", image: "8krug.png" },
+      { id: 9, name: "Flux", image: "9krug.png" },
+      { id: 10, name: "Hypnosis", image: "10krug.png" }
+    ];
+
+    let filteredStroboscopes = [...stroboscopes];
+
     // Бегущая строка
     const marqueeContent = document.getElementById('marqueeContent');
     marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
 
-    // Создание карточек
-    const cardsList = document.getElementById('cardsList');
-    for (let i = 1; i <= 10; i++) {
-      const li = document.createElement('li');
+    // Создание элемента стробоскопа
+    function createStroboscopeItem(item, index) {
+      const div = document.createElement('div');
+      div.className = 'stroboscope-item';
+      div.style.animationDelay = `${index * 0.1}s`;
+      div.dataset.id = item.id;
+      div.dataset.name = item.name.toLowerCase();
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'stroboscope-name';
+      nameDiv.textContent = item.name;
+      
+      const circleDiv = document.createElement('div');
+      circleDiv.className = 'stroboscope-circle';
+      
       const img = document.createElement('img');
-      // Убраны лишние пробелы в URL
-      img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${i}krug.png`;
-      img.alt = '';
-      li.appendChild(img);
-      cardsList.appendChild(li);
-    }
-
-    // Клик по карточке → переход
-    const cards = document.querySelectorAll('.cards li');
-    cards.forEach((card, index) => {
-      card.addEventListener('click', () => {
-        const pageNumber = index + 1;
-        window.location.href = `page${pageNumber}.html`;
+      img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
+      img.alt = item.name;
+      
+      circleDiv.appendChild(img);
+      div.appendChild(nameDiv);
+      div.appendChild(circleDiv);
+      
+      // Клик по элементу
+      div.addEventListener('click', () => {
+        window.location.href = `page${item.id}.html`;
       });
-    });
-
-    // GSAP setup
-    gsap.registerPlugin(ScrollTrigger, Draggable);
-    let iteration = 0;
-    const gsapCards = gsap.utils.toArray('.cards li');
-    gsap.set(gsapCards, { xPercent: 400, opacity: 0, scale: 0 });
-    const spacing = 0.1; // шаг между карточками в GSAP timeline
-    const snapTime = gsap.utils.snap(spacing);
-
-    const animateFunc = element => {
-      const tl = gsap.timeline();
-      tl.fromTo(element, { scale: 0, opacity: 0 }, { 
-        scale: 1, 
-        opacity: 1, 
-        zIndex: 100, 
-        duration: 0.5, 
-        yoyo: true, 
-        repeat: 1, 
-        ease: "power1.in", 
-        immediateRender: false 
-      })
-      .fromTo(element, { xPercent: 400 }, { 
-        xPercent: -400, 
-        duration: 1, 
-        ease: "none", 
-        immediateRender: false 
-      }, 0);
-      return tl;
-    };
-
-    const seamlessLoop = buildSeamlessLoop(gsapCards, spacing, animateFunc);
-    const playhead = { offset: 0 };
-    const wrapTime = gsap.utils.wrap(0, seamlessLoop.duration());
-
-    const scrub = gsap.to(playhead, {
-      offset: 0,
-      onUpdate() {
-        seamlessLoop.time(wrapTime(playhead.offset));
-      },
-      duration: 0.5,
-      ease: "power3",
-      paused: true
-    });
-
-    const trigger = ScrollTrigger.create({
-      start: 0,
-      onUpdate(self) {
-        let scroll = self.scroll();
-        if (scroll > self.end - 1) {
-          wrap(1, 2);
-        } else if (scroll < 1 && self.direction < 0) {
-          wrap(-1, self.end - 2);
-        } else {
-          scrub.vars.offset = (iteration + self.progress) * seamlessLoop.duration();
-          scrub.invalidate().restart();
-        }
-      },
-      end: "+=3000",
-      pin: ".gallery"
-    });
-
-    const progressToScroll = progress => gsap.utils.clamp(1, trigger.end - 1, gsap.utils.wrap(0, 1, progress) * trigger.end);
-    const wrap = (iterationDelta, scrollTo) => {
-      iteration += iterationDelta;
-      trigger.scroll(scrollTo);
-      trigger.update();
-    };
-
-    ScrollTrigger.addEventListener("scrollEnd", () => scrollToOffset(scrub.vars.offset));
-    
-    function scrollToOffset(offset) {
-      let snappedTime = snapTime(offset),
-          progress = (snappedTime - seamlessLoop.duration() * iteration) / seamlessLoop.duration(),
-          scroll = progressToScroll(progress);
-      if (progress >= 1 || progress < 0) return wrap(Math.floor(progress), scroll);
-      trigger.scroll(scroll);
+      
+      return div;
     }
 
-    Draggable.create(".drag-proxy", {
-      type: "x",
-      trigger: ".cards",
-      onPress() { this.startOffset = scrub.vars.offset; },
-      onDrag() { 
-        scrub.vars.offset = this.startOffset + (this.startX - this.x) * 0.001; 
-        scrub.invalidate().restart(); 
-      },
-      onDragEnd() { 
-        scrollToOffset(scrub.vars.offset); 
-      }
-    });
-
-    // ✅ Исправленная плавная прокрутка колёсиком
-    let isWheeling = false;
-    let wheelTimeout;
-
-    document.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      if (isWheeling) return;
-
-      const direction = e.deltaY > 0 ? 1 : -1; // вниз = вперёд
-      const currentStep = Math.round(scrub.vars.offset / spacing);
-      const targetStep = currentStep + direction;
-
-      scrub.vars.offset = targetStep * spacing;
-      scrub.invalidate().restart();
-
-      clearTimeout(wheelTimeout);
-      wheelTimeout = setTimeout(() => {
-        scrollToOffset(scrub.vars.offset);
-        isWheeling = false;
-      }, 150);
-
-      isWheeling = true;
-    }, { passive: false });
-
-    function buildSeamlessLoop(items, spacing, animateFunc) {
-      let overlap = Math.ceil(1 / spacing),
-          startTime = items.length * spacing + 0.5,
-          loopTime = (items.length + overlap) * spacing + 1,
-          rawSequence = gsap.timeline({ paused: true }),
-          seamlessLoop = gsap.timeline({
-            paused: true,
-            repeat: -1,
-            onRepeat() {
-              this._time === this._dur && (this._tTime += this._dur - 0.01);
-            }
-          }),
-          l = items.length + overlap * 2;
-
-      for (let i = 0; i < l; i++) {
-        const index = i % items.length;
-        const time = i * spacing;
-        rawSequence.add(animateFunc(items[index]), time);
-      }
-
-      rawSequence.time(startTime);
-      seamlessLoop
-        .to(rawSequence, { time: loopTime, duration: loopTime - startTime, ease: "none" })
-        .fromTo(rawSequence, { time: overlap * spacing + 1 }, {
-          time: startTime,
-          duration: startTime - (overlap * spacing + 1),
-          immediateRender: false,
-          ease: "none"
-        });
-      return seamlessLoop;
+    // Рендеринг стробоскопов
+    function renderStroboscopes(items) {
+      const grid = document.getElementById('galleryGrid');
+      grid.innerHTML = '';
+      
+      items.forEach((item, index) => {
+        const stroboscopeEl = createStroboscopeItem(item, index);
+        grid.appendChild(stroboscopeEl);
+      });
     }
+
+    // Инициализация
+    renderStroboscopes(filteredStroboscopes);
+
+    // Поиск
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      filteredStroboscopes = stroboscopes.filter(s => 
+        s.name.toLowerCase().includes(query)
+      );
+      renderStroboscopes(filteredStroboscopes);
+      window.scrollTo(0, 0);
+    });
 
     // Частицы
     document.addEventListener('DOMContentLoaded', () => {
