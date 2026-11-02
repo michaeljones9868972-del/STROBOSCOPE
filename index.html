@@ -9,284 +9,117 @@
   <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: white;
-      font-family: 'Martian Mono', monospace;
-      min-height: 100vh;
-      position: relative;
-      overflow-x: hidden;
-    }
-    
-    /* Фон */
-    .a-hole {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-    
-    .js-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-    
-    .aura {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle at center, rgba(100, 50, 200, 0.2) 0%, transparent 70%);
-      pointer-events: none;
-      animation: aura-pulse 8s infinite alternate;
-    }
-    
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px),
-        repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px);
-      pointer-events: none;
-    }
-    
-    @keyframes aura-pulse {
-      0% { opacity: 0.3; transform: scale(1); }
-      100% { opacity: 0.7; transform: scale(1.2); }
+      margin: 0; padding: 0; background: #000; color: white;
+      font-family: 'Martian Mono', monospace; min-height: 100vh; position: relative; overflow-x: hidden;
     }
 
-    /* Поиск */
+    .a-hole { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
+    .js-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .aura {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle at center, rgba(100, 50, 200, 0.2) 0%, transparent 70%);
+      pointer-events: none; animation: aura-pulse 8s infinite alternate;
+    }
+    .overlay {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px),
+                  repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px);
+      pointer-events: none;
+    }
+    @keyframes aura-pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.2); } }
+
     .search-container {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 100;
-      background: rgba(0, 0, 0, 0.8);
-      padding: 15px;
-      border-radius: 8px;
+      position: fixed; top: 20px; left: 20px; z-index: 100;
+      background: rgba(0, 0, 0, 0.8); padding: 15px; border-radius: 8px;
       border: 1px solid rgba(160, 216, 241, 0.3);
     }
-
     .search-container input {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(160, 216, 241, 0.5);
-      color: #a0d8f1;
-      padding: 10px 15px;
-      font-family: 'Martian Mono', monospace;
-      font-size: 14px;
-      border-radius: 4px;
-      width: 350px;
-      max-width: 45ch;
-      outline: none;
-      transition: all 0.3s;
+      background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(160, 216, 241, 0.5);
+      color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace;
+      font-size: 14px; border-radius: 4px; width: 350px; max-width: 45ch;
+      outline: none; transition: all 0.3s;
     }
+    .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160, 216, 241, 0.3); }
+    .search-container input::placeholder { color: rgba(160, 216, 241, 0.5); }
 
-    .search-container input:focus {
-      border-color: #a0d8f1;
-      box-shadow: 0 0 10px rgba(160, 216, 241, 0.3);
-    }
-
-    .search-container input::placeholder {
-      color: rgba(160, 216, 241, 0.5);
-    }
-
-    /* Галерея */
-    .gallery {
-      padding: 120px 20px 120px;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 40px;
-      max-width: 1800px;
-      margin: 0 auto;
-      width: 100%;
-    }
-
+    .gallery { padding: 120px 20px 120px; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 1800px; margin: 0 auto; width: 100%; }
     .stroboscope-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.3s;
-      opacity: 0;
-      transform: translateY(30px);
-      animation: fadeIn 0.8s forwards;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
+      display: flex; flex-direction: column; align-items: center; cursor: pointer;
+      transition: transform 0.3s; opacity: 0; transform: translateY(30px);
+      animation: fadeIn 0.8s forwards; backface-visibility: hidden; -webkit-backface-visibility: hidden;
     }
-
-    .stroboscope-item:hover {
-      transform: translateY(-10px) scale(1.02);
-    }
-
+    .stroboscope-item:hover { transform: translateY(-10px) scale(1.02); }
     .stroboscope-name {
-      font-family: 'Dancing Script', cursive;
-      font-size: 56px;
-      margin-bottom: 15px;
+      font-family: 'Dancing Script', cursive; font-size: 56px; margin-bottom: 15px;
       color: #ffffff;
-      text-shadow: 
-        0 0 20px rgba(255, 255, 255, 0.9),
-        0 0 40px rgba(255, 255, 255, 0.7),
-        0 0 80px rgba(255, 255, 255, 0.5);
-      text-align: center;
-      font-weight: 700;
-      line-height: 1;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 255, 255, 0.7), 0 0 80px rgba(255, 255, 255, 0.5);
+      text-align: center; font-weight: 700; line-height: 1;
     }
-
     .stroboscope-circle {
-      width: 520px;
-      height: 520px;
-      border-radius: 50%;
-      overflow: hidden;
+      width: 520px; height: 520px; border-radius: 50%; overflow: hidden;
       border: 5px solid rgba(160, 216, 241, 0.5);
-      box-shadow: 
-        0 0 50px rgba(160, 216, 241, 0.4),
-        0 0 100px rgba(160, 216, 241, 0.2);
-      transition: all 0.3s;
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
+      box-shadow: 0 0 50px rgba(160, 216, 241, 0.4), 0 0 100px rgba(160, 216, 241, 0.2);
+      transition: all 0.3s; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      transform: translateZ(0); -webkit-transform: translateZ(0);
     }
-
     .stroboscope-item:hover .stroboscope-circle {
       border-color: rgba(160, 216, 241, 1);
-      box-shadow: 
-        0 0 80px rgba(160, 216, 241, 0.6),
-        0 0 150px rgba(160, 216, 241, 0.3);
+      box-shadow: 0 0 80px rgba(160, 216, 241, 0.6), 0 0 150px rgba(160, 216, 241, 0.3);
     }
-
     .stroboscope-circle img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      pointer-events: none;
-      -webkit-user-drag: none;
-      user-select: none;
+      width: 100%; height: 100%; object-fit: cover; display: block;
+      pointer-events: none; -webkit-user-drag: none; user-select: none;
     }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    /* Нижняя строка */
     .marquee-container {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 70px;
-      overflow: hidden;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      z-index: 2;
+      position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+      overflow: hidden; background: rgba(0, 0, 0, 0.8);
+      display: flex; align-items: center; z-index: 2;
     }
-
     .marquee-content {
-      white-space: nowrap;
-      animation: scroll-left 360s linear infinite;
-      font-size: 16px;
-      color: #a0d8f1;
-      padding: 0 50px;
-      font-family: 'Martian Mono', monospace;
-      letter-spacing: 0.5px;
+      white-space: nowrap; animation: scroll-left 360s linear infinite;
+      font-size: 16px; color: #a0d8f1; padding: 0 50px;
+      font-family: 'Martian Mono', monospace; letter-spacing: 0.5px;
     }
+    @keyframes scroll-left { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
-    @keyframes scroll-left {
-      0% { transform: translateX(100vw); }
-      100% { transform: translateX(-100%); }
-    }
-
-    @media (max-width: 1600px) {
-      .stroboscope-circle {
-        width: 420px;
-        height: 420px;
-      }
-      .stroboscope-name {
-        font-size: 48px;
-      }
-    }
-
-    @media (max-width: 1300px) {
-      .stroboscope-circle {
-        width: 350px;
-        height: 350px;
-      }
-      .stroboscope-name {
-        font-size: 42px;
-      }
-    }
-
+    @media (max-width: 1600px) { .stroboscope-circle { width: 420px; height: 420px; } .stroboscope-name { font-size: 48px; } }
+    @media (max-width: 1300px) { .stroboscope-circle { width: 350px; height: 350px; } .stroboscope-name { font-size: 42px; } }
     @media (max-width: 1100px) {
-      .gallery-grid {
-        grid-template-columns: 1fr;
-        gap: 60px;
-      }
-      .stroboscope-circle {
-        width: 400px;
-        height: 400px;
-      }
-      .stroboscope-name {
-        font-size: 48px;
-      }
-      .search-container input {
-        width: 250px;
-      }
+      .gallery-grid { grid-template-columns: 1fr; gap: 60px; }
+      .stroboscope-circle { width: 400px; height: 400px; }
+      .stroboscope-name { font-size: 48px; }
+      .search-container input { width: 250px; }
     }
   </style>
 </head>
 <body>
-  <div class="a-hole">
-    <canvas class="js-canvas"></canvas>
-    <div class="aura"></div>
-    <div class="overlay"></div>
-  </div>
+  <div class="a-hole"><canvas class="js-canvas"></canvas><div class="aura"></div><div class="overlay"></div></div>
 
-  <!-- Поиск -->
-  <div class="search-container">
-    <input type="text" id="searchInput" placeholder="ПОИСК ПО НАЗВАНИЮ" maxlength="45">
-  </div>
+  <div class="search-container"><input type="text" id="searchInput" placeholder="ПОИСК ПО НАЗВАНИЮ" maxlength="45"></div>
 
-  <!-- Галерея -->
-  <div class="gallery">
-    <div class="gallery-grid" id="galleryGrid"></div>
-  </div>
+  <div class="gallery"><div class="gallery-grid" id="galleryGrid"></div></div>
 
-  <div class="marquee-container">
-    <div class="marquee-content" id="marqueeContent">
-      Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
+  <div class="marquee-container"><div class="marquee-content" id="marqueeContent">
+      Stroboscope and music... Crypto Season Update! To the Moon 🌕 | HODL 💎🙌 | WAGMI 🚀 — Choose your vibe!
     </div>
   </div>
 
   <script>
-    // Данные стробоскопов с названиями
     const stroboscopes = [
+      // 🚀 МЕМНЫЕ КРИПТО-СТРОБОСКОПЫ
+      { id: 11, name: "MOON", image: "11krug.png",
+        fallback: ['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
+      { id: 12, name: "HODL", image: "12krug.png",
+        fallback: ['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
+      { id: 13, name: "WAGMI", image: "13krug.png",
+        fallback: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
+
+      // 🎨 ОБЫЧНЫЕ СТРОБОСКОПЫ
       { id: 1, name: "Ember", image: "1krug.png" },
       { id: 2, name: "Prism", image: "2krug.png" },
       { id: 3, name: "Roots", image: "3krug.png" },
@@ -301,17 +134,27 @@
 
     let filteredStroboscopes = [...stroboscopes];
 
-    // Бегущая строка
     const marqueeContent = document.getElementById('marqueeContent');
     marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
 
-    // Создание элемента стробоскопа
+    function generateFallbackSVG(colors) {
+      const size = 500;
+      const center = size / 2;
+      const maxRadius = size / 2 - 10;
+      const ringWidth = maxRadius / colors.length;
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`;
+      for (let i = 0; i < colors.length; i++) {
+        const radius = maxRadius - (i * ringWidth);
+        svg += `<circle cx="${center}" cy="${center}" r="${radius}" fill="${colors[i]}"/>`;
+      }
+      svg += '</svg>';
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    }
+
     function createStroboscopeItem(item, index) {
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
       div.style.animationDelay = `${index * 0.1}s`;
-      div.dataset.id = item.id;
-      div.dataset.name = item.name.toLowerCase();
       
       const nameDiv = document.createElement('div');
       nameDiv.className = 'stroboscope-name';
@@ -323,12 +166,16 @@
       const img = document.createElement('img');
       img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
       img.alt = item.name;
+      img.onerror = function() {
+        if (item.fallback) {
+          this.src = generateFallbackSVG(item.fallback);
+        }
+      };
       
       circleDiv.appendChild(img);
       div.appendChild(nameDiv);
       div.appendChild(circleDiv);
       
-      // Клик по элементу
       div.addEventListener('click', () => {
         window.location.href = `page${item.id}.html`;
       });
@@ -336,52 +183,34 @@
       return div;
     }
 
-    // Рендеринг стробоскопов
     function renderStroboscopes(items) {
       const grid = document.getElementById('galleryGrid');
       grid.innerHTML = '';
-      
       items.forEach((item, index) => {
-        const stroboscopeEl = createStroboscopeItem(item, index);
-        grid.appendChild(stroboscopeEl);
+        grid.appendChild(createStroboscopeItem(item, index));
       });
     }
 
-    // Инициализация
     renderStroboscopes(filteredStroboscopes);
 
-    // Поиск
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
-      filteredStroboscopes = stroboscopes.filter(s => 
-        s.name.toLowerCase().includes(query)
-      );
+      filteredStroboscopes = stroboscopes.filter(s => s.name.toLowerCase().includes(query));
       renderStroboscopes(filteredStroboscopes);
       window.scrollTo(0, 0);
     });
 
-    // Частицы
     document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.querySelector('.js-canvas');
       const ctx = canvas.getContext('2d');
-
-      const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      };
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-
+      const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+      resizeCanvas(); window.addEventListener('resize', resizeCanvas);
       const particles = Array.from({ length: 100 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 1,
-        speed: Math.random() * 0.5 + 0.1,
-        angle: Math.random() * Math.PI * 2,
-        color: `hsl(${Math.random() * 360}, 70%, 60%)`
+        x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1, speed: Math.random() * 0.5 + 0.1,
+        angle: Math.random() * Math.PI * 2, color: `hsl(${Math.random() * 360}, 70%, 60%)`
       }));
-
       const animateParticles = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => {
