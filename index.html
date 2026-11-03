@@ -4,6 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Stroboscope Gallery</title>
+  
+  <!-- Favicon с cache-busting -->
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png?v=2">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon16x16.png?v=2">
+  <link rel="shortcut icon" href="favicon16x16.png?v=2">
+  <link rel="apple-touch-icon" href="favicon16x16.png?v=2">
+  
+  <!-- Запрет кэширования -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
@@ -104,22 +116,20 @@
 
   <div class="gallery"><div class="gallery-grid" id="galleryGrid"></div></div>
 
-  <div class="marquee-container"><div class="marquee-content" id="marqueeContent">
-      Stroboscope and music... Crypto Season Update! To the Moon 🌕 | HODL 💎🙌 | WAGMI 🚀 — Choose your vibe!
+  <div class="marquee-container">
+    <div class="marquee-content" id="marqueeContent">
+      Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things "heavy", "light", "cold", "hot". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color "speaks" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the "ideal" color, the "dream color". This color can be preferred by a person with any character, it does not repel anyone.
     </div>
   </div>
 
   <script>
     const stroboscopes = [
-      // 🚀 МЕМНЫЕ КРИПТО-СТРОБОСКОПЫ
       { id: 11, name: "MOON", image: "11krug.png",
         fallback: ['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
       { id: 12, name: "HODL", image: "12krug.png",
         fallback: ['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
       { id: 13, name: "WAGMI", image: "13krug.png",
         fallback: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
-
-      // 🎨 ОБЫЧНЫЕ СТРОБОСКОПЫ
       { id: 1, name: "Ember", image: "1krug.png" },
       { id: 2, name: "Prism", image: "2krug.png" },
       { id: 3, name: "Roots", image: "3krug.png" },
