@@ -24,11 +24,9 @@
       background: #000; color: white;
       font-family: 'Martian Mono', monospace;
       overflow-x: hidden;
+      height: 100vh;
     }
-    body {
-      min-height: 100vh;
-      position: relative;
-    }
+    body { position: relative; }
 
     .a-hole { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
     .js-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -59,56 +57,74 @@
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160, 216, 241, 0.3); }
     .search-container input::placeholder { color: rgba(160, 216, 241, 0.5); }
 
-    /* ГЛАВНАЯ ГАЛЕРЕЯ — ровно 3 круга на экране */
-    .gallery {
-      min-height: 100vh;
+    .gallery-wrapper {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+    }
+    
+    .gallery-page {
+      height: 100vh;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 80px 20px 90px;
+      padding: 0 40px;
+      position: relative;
     }
+    
     .gallery-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-      max-width: 2000px;
-      margin: 0 auto;
+      gap: 40px;
+      max-width: 1800px;
       width: 100%;
     }
+    
     .stroboscope-item {
       display: flex; flex-direction: column; align-items: center; cursor: pointer;
-      transition: transform 0.3s; opacity: 0; transform: translateY(30px);
-      animation: fadeIn 0.8s forwards; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      transition: transform 0.3s, opacity 0.6s ease;
+      opacity: 0;
+      transform: translateY(40px);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .stroboscope-item.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
     .stroboscope-name {
       font-family: 'Dancing Script', cursive;
-      font-size: 64px;
+      font-size: 56px;
       margin-bottom: 15px;
       color: #ffffff;
       text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 40px rgba(255, 255, 255, 0.7), 0 0 80px rgba(255, 255, 255, 0.5);
       text-align: center; font-weight: 700; line-height: 1;
       white-space: nowrap;
       width: 100%;
-      overflow: visible;
     }
     .stroboscope-circle {
-      width: 600px; height: 600px; border-radius: 50%; overflow: hidden;
+      width: 520px; height: 520px; border-radius: 50%; overflow: hidden;
       border: 5px solid rgba(160, 216, 241, 0.5);
       box-shadow: 0 0 50px rgba(160, 216, 241, 0.4), 0 0 100px rgba(160, 216, 241, 0.2);
       transition: all 0.3s; backface-visibility: hidden; -webkit-backface-visibility: hidden;
       transform: translateZ(0); -webkit-transform: translateZ(0);
       flex-shrink: 0;
+      background: #000;
     }
     .stroboscope-item:hover .stroboscope-circle {
       border-color: rgba(160, 216, 241, 1);
       box-shadow: 0 0 80px rgba(160, 216, 241, 0.6), 0 0 150px rgba(160, 216, 241, 0.3);
     }
-    .stroboscope-circle img {
+    .stroboscope-circle img, .stroboscope-circle svg {
       width: 100%; height: 100%; object-fit: cover; display: block;
       pointer-events: none; -webkit-user-drag: none; user-select: none;
     }
-    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
 
     .marquee-container {
       position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
@@ -122,36 +138,32 @@
     }
     @keyframes scroll-left { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
-    /* ========== АДАПТИВНОСТЬ ========== */
-
-    /* Большие экраны — ровно 3 круга */
     @media (min-width: 1900px) {
-      .stroboscope-circle { width: 620px; height: 620px; }
-      .stroboscope-name { font-size: 68px; }
-    }
-
-    /* Стандартные десктопы */
-    @media (max-width: 1900px) and (min-width: 1400px) {
-      .stroboscope-circle { width: 560px; height: 560px; }
+      .stroboscope-circle { width: 540px; height: 540px; }
       .stroboscope-name { font-size: 60px; }
+      .gallery-grid { gap: 50px; }
     }
 
-    /* Ноутбуки */
+    @media (max-width: 1900px) and (min-width: 1400px) {
+      .stroboscope-circle { width: 500px; height: 500px; }
+      .stroboscope-name { font-size: 56px; }
+      .gallery-grid { gap: 40px; }
+    }
+
     @media (max-width: 1400px) and (min-width: 1100px) {
-      .stroboscope-circle { width: 420px; height: 420px; }
+      .stroboscope-circle { width: 380px; height: 380px; }
       .stroboscope-name { font-size: 48px; }
-      .gallery { padding: 70px 15px 80px; }
+      .gallery-grid { gap: 35px; }
+      .gallery-page { padding: 0 30px; }
     }
 
-    /* Планшеты — 2 колонки */
     @media (max-width: 1100px) and (min-width: 768px) {
       .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 30px; }
-      .stroboscope-circle { width: 380px; height: 380px; }
+      .stroboscope-circle { width: 360px; height: 360px; }
       .stroboscope-name { font-size: 44px; }
-      .gallery { padding: 70px 15px 80px; }
+      .gallery-page { padding: 0 25px; }
     }
 
-    /* Телефоны — 1 колонка */
     @media (max-width: 767px) {
       .gallery-grid { grid-template-columns: 1fr; gap: 30px; }
       .stroboscope-circle { width: 280px; height: 280px; }
@@ -160,10 +172,9 @@
       .search-container input { width: 180px; font-size: 11px; padding: 6px 10px; }
       .marquee-container { height: 50px; }
       .marquee-content { font-size: 11px; padding: 0 20px; }
-      .gallery { padding: 60px 10px 70px; }
+      .gallery-page { padding: 0 15px; }
     }
 
-    /* Маленькие телефоны */
     @media (max-width: 400px) {
       .stroboscope-circle { width: 240px; height: 240px; }
       .stroboscope-name { font-size: 28px; }
@@ -176,7 +187,7 @@
 
   <div class="search-container"><input type="text" id="searchInput" placeholder="ПОИСК ПО НАЗВАНИЮ" maxlength="45"></div>
 
-  <div class="gallery"><div class="gallery-grid" id="galleryGrid"></div></div>
+  <div class="gallery-wrapper" id="galleryWrapper"></div>
 
   <div class="marquee-container">
     <div class="marquee-content" id="marqueeContent">
@@ -185,35 +196,49 @@
   </div>
 
   <script>
+    // Все стробоскопы с SVG fallback
     const stroboscopes = [
       { id: 11, name: "MOON", image: "11krug.png",
-        fallback: ['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
+        colors: ['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
       { id: 12, name: "HODL", image: "12krug.png",
-        fallback: ['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
+        colors: ['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
       { id: 13, name: "WAGMI", image: "13krug.png",
-        fallback: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
-      { id: 1, name: "Ember", image: "1krug.png" },
-      { id: 2, name: "Prism", image: "2krug.png" },
-      { id: 3, name: "Roots", image: "3krug.png" },
-      { id: 4, name: "Eclipse", image: "4krug.png" },
-      { id: 5, name: "Tide", image: "5krug.png" },
-      { id: 6, name: "Neon", image: "6krug.png" },
-      { id: 7, name: "Sunset", image: "7krug.png" },
-      { id: 8, name: "Overdrive", image: "8krug.png" },
-      { id: 9, name: "Flux", image: "9krug.png" },
-      { id: 10, name: "Hypnosis", image: "10krug.png" }
+        colors: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
+      { id: 1, name: "Ember", image: "1krug.png",
+        colors: ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'] },
+      { id: 2, name: "Prism", image: "2krug.png",
+        colors: ['#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd', '#ffffff', '#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd'] },
+      { id: 3, name: "Roots", image: "3krug.png",
+        colors: ['#14471E', '#68904D', '#C8D2D1', '#EE9B01', '#DA6A00', '#ffffff', '#14471E', '#68904D', '#C8D2D1', '#EE9B01', '#DA6A00'] },
+      { id: 4, name: "Eclipse", image: "4krug.png",
+        colors: ['#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57', '#ffffff', '#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57'] },
+      { id: 5, name: "Tide", image: "5krug.png",
+        colors: ['#012E4A', '#036280', '#378BA4', '#81BECE', '#E8EDE7', '#ffffff', '#012E4A', '#036280', '#378BA4', '#81BECE', '#E8EDE7'] },
+      { id: 6, name: "Neon", image: "6krug.png",
+        colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
+      { id: 7, name: "Sunset", image: "7krug.png",
+        colors: ['#FC712B', '#FD9319', '#FECD5A', '#07B1BC', '#2B8180', '#ffffff', '#FC712B', '#FD9319', '#FECD5A', '#07B1BC', '#2B8180'] },
+      { id: 8, name: "Overdrive", image: "8krug.png",
+        colors: ['#B20000', '#FD292F', '#FE8535', '#FDB10B', '#FEF4C0', '#ffffff', '#B20000', '#FD292F', '#FE8535', '#FDB10B', '#FEF4C0'] },
+      { id: 9, name: "Flux", image: "9krug.png",
+        colors: ['#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61', '#ffffff', '#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61'] },
+      { id: 10, name: "Hypnosis", image: "10krug.png",
+        colors: ['#2C5D37', '#E3C515', '#EE51B1', '#A59CD3', '#ffffff', '#2C5D37', '#E3C515', '#EE51B1', '#A59CD3', '#ffffff', '#2C5D37'] }
     ];
 
     let filteredStroboscopes = [...stroboscopes];
+    let isResetting = false;
 
     const marqueeContent = document.getElementById('marqueeContent');
     marqueeContent.innerHTML += ' ' + marqueeContent.innerHTML;
 
-    function generateFallbackSVG(colors) {
+    // Генерация SVG круга
+    function generateCircleSVG(colors) {
       const size = 500;
       const center = size / 2;
       const maxRadius = size / 2 - 10;
       const ringWidth = maxRadius / colors.length;
+      
       let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`;
       for (let i = 0; i < colors.length; i++) {
         const radius = maxRadius - (i * ringWidth);
@@ -226,7 +251,6 @@
     function createStroboscopeItem(item, index) {
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
-      div.style.animationDelay = `${index * 0.1}s`;
       
       const nameDiv = document.createElement('div');
       nameDiv.className = 'stroboscope-name';
@@ -235,16 +259,24 @@
       const circleDiv = document.createElement('div');
       circleDiv.className = 'stroboscope-circle';
       
-      const img = document.createElement('img');
-      img.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
-      img.alt = item.name;
-      img.onerror = function() {
-        if (item.fallback) {
-          this.src = generateFallbackSVG(item.fallback);
-        }
-      };
+      // Сначала показываем SVG fallback
+      const fallbackImg = document.createElement('img');
+      fallbackImg.src = generateCircleSVG(item.colors);
+      fallbackImg.alt = item.name;
+      circleDiv.appendChild(fallbackImg);
       
-      circleDiv.appendChild(img);
+      // Пытаемся загрузить реальное изображение
+      const realImg = new Image();
+      realImg.onload = function() {
+        circleDiv.innerHTML = '';
+        circleDiv.appendChild(realImg);
+      };
+      realImg.onerror = function() {
+        // Оставляем SVG fallback
+        console.log(`Не удалось загрузить ${item.image}, используем SVG`);
+      };
+      realImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
+      
       div.appendChild(nameDiv);
       div.appendChild(circleDiv);
       
@@ -256,12 +288,86 @@
     }
 
     function renderStroboscopes(items) {
-      const grid = document.getElementById('galleryGrid');
-      grid.innerHTML = '';
-      items.forEach((item, index) => {
-        grid.appendChild(createStroboscopeItem(item, index));
+      const wrapper = document.getElementById('galleryWrapper');
+      wrapper.innerHTML = '';
+      
+      const copies = 3;
+      for (let copy = 0; copy < copies; copy++) {
+        for (let i = 0; i < items.length; i += 3) {
+          const page = document.createElement('div');
+          page.className = 'gallery-page';
+          
+          const grid = document.createElement('div');
+          grid.className = 'gallery-grid';
+          
+          const pageItems = items.slice(i, i + 3);
+          pageItems.forEach((item, index) => {
+            grid.appendChild(createStroboscopeItem(item, index));
+          });
+          
+          page.appendChild(grid);
+          wrapper.appendChild(page);
+        }
+      }
+      
+      setupIntersectionObserver();
+      
+      setTimeout(() => {
+        const pageHeight = window.innerHeight;
+        const totalPages = wrapper.children.length;
+        const middlePage = Math.floor(totalPages / 2);
+        wrapper.scrollTop = middlePage * pageHeight;
+      }, 100);
+    }
+
+    function setupIntersectionObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      }, {
+        threshold: 0.3,
+        root: document.getElementById('galleryWrapper')
+      });
+
+      document.querySelectorAll('.stroboscope-item').forEach(item => {
+        observer.observe(item);
       });
     }
+
+    const galleryWrapper = document.getElementById('galleryWrapper');
+    
+    galleryWrapper.addEventListener('scroll', () => {
+      if (isResetting) return;
+      
+      const scrollTop = galleryWrapper.scrollTop;
+      const pageHeight = window.innerHeight;
+      const totalHeight = galleryWrapper.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      
+      if (scrollTop + viewportHeight >= totalHeight - 10) {
+        isResetting = true;
+        galleryWrapper.style.scrollBehavior = 'auto';
+        galleryWrapper.scrollTop = pageHeight;
+        setTimeout(() => {
+          galleryWrapper.style.scrollBehavior = 'smooth';
+          isResetting = false;
+        }, 50);
+      }
+      else if (scrollTop <= 10) {
+        isResetting = true;
+        galleryWrapper.style.scrollBehavior = 'auto';
+        galleryWrapper.scrollTop = totalHeight - viewportHeight - pageHeight;
+        setTimeout(() => {
+          galleryWrapper.style.scrollBehavior = 'smooth';
+          isResetting = false;
+        }, 50);
+      }
+    });
 
     renderStroboscopes(filteredStroboscopes);
 
@@ -270,7 +376,6 @@
       const query = e.target.value.toLowerCase();
       filteredStroboscopes = stroboscopes.filter(s => s.name.toLowerCase().includes(query));
       renderStroboscopes(filteredStroboscopes);
-      window.scrollTo(0, 0);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
