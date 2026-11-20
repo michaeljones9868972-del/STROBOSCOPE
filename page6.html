@@ -3,128 +3,62 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Stroboscope - Neon</title>
+  <title>Stroboscope - Ember</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
   
-  <!-- Шрифты -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   
   <style>
-    body { 
-      margin: 0; 
-      padding: 0; 
-      overflow: hidden; 
-      background: #000; 
-    }
-    canvas { 
-      display: block; 
-      cursor: pointer; 
-    }
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    canvas { display: block; cursor: pointer; }
     
-    /* Экран запуска */
     .start-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      transition: opacity 0.5s ease;
-      cursor: pointer;
-      flex-direction: column;
-      gap: 80px;
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; display: flex; justify-content: center; align-items: center;
+      z-index: 1000; transition: opacity 0.5s ease; cursor: pointer;
+      flex-direction: column; gap: 80px;
     }
+    .start-screen.hidden { opacity: 0; pointer-events: none; }
     
-    .start-screen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    
-    /* Контейнер Title + Stars */
-    .title-container {
-      display: flex;
-      align-items: center;
-      gap: 30px;
-    }
-
-    /* Название NEON — Огромное, белое, свечение */
-    .main-title {
+    .ember-text {
       font-family: 'Dancing Script', cursive;
-      font-size: 240px;
-      font-weight: 700;
-      color: #ffffff;
-      user-select: none;
-      text-shadow:
-        0 0 20px rgba(255, 255, 255, 0.9),
-        0 0 40px rgba(255, 255, 255, 0.7),
-        0 0 80px rgba(255, 255, 255, 0.5);
-      animation: title-glow 3s ease-in-out infinite alternate;
-      line-height: 1;
+      font-size: 220px; font-weight: 700; color: #ffffff;
+      letter-spacing: 4px; user-select: none;
+      text-shadow: 0 0 20px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.7),
+        0 0 60px rgba(255,255,255,0.5), 0 0 80px rgba(255,255,255,0.3);
+      animation: ember-glow 3s ease-in-out infinite alternate;
     }
-
-    @keyframes title-glow {
-      0% { transform: scale(1); filter: brightness(1); }
-      100% { transform: scale(1.02); filter: brightness(1.1); }
-    }
-
-    /* Звезды */
-    .star-icon {
-      font-size: 60px;
-      color: #fff;
-      opacity: 0.8;
-      animation: twinkle 2s infinite;
-    }
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.5; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
-
-    /* Кнопка START — Разноцветная неоновая */
-    .start-text {
-      font-family: 'Martian Mono', monospace;
-      font-size: 100px;
-      font-weight: 800;
-      letter-spacing: 10px;
-      user-select: none;
-      display: flex;
-      gap: 8px;
-    }
+    .stars { font-size: 60px; color: #ffffff; opacity: 0.7; animation: star-twinkle 2s ease-in-out infinite; margin: 0 20px; }
     
-    .start-letter { display: inline-block; animation: pulse-neon 2s infinite; }
-    
-    /* Цвета букв соответствуют палитре круга (Розовый -> Голубой -> Темный Синий) */
-    .start-letter:nth-child(1) { color: #FE00EC; text-shadow: 0 0 20px #FE00EC, 0 0 40px #FE00EC; animation-delay: 0s; } /* S - Hot Pink */
-    .start-letter:nth-child(2) { color: #049CE4; text-shadow: 0 0 20px #049CE4, 0 0 40px #049CE4; animation-delay: 0.2s; } /* T - Electric Blue */
-    .start-letter:nth-child(3) { color: #02C9AF; text-shadow: 0 0 20px #02C9AF, 0 0 40px #02C9AF; animation-delay: 0.4s; } /* A - Turquoise */
-    .start-letter:nth-child(4) { color: #2B4F8D; text-shadow: 0 0 20px #2B4F8D, 0 0 40px #2B4F8D; animation-delay: 0.6s; } /* R - Deep Indigo */
-    .start-letter:nth-child(5) { color: #011034; text-shadow: 0 0 20px #011034, 0 0 40px #011034; animation-delay: 0.8s; } /* T - Night Sky */
-
-    @keyframes pulse-neon {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.05); }
+    @keyframes ember-glow {
+      0% { text-shadow: 0 0 20px rgba(255,255,255,0.7), 0 0 40px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3); transform: scale(1); }
+      100% { text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(255,255,255,0.8), 0 0 90px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.4); transform: scale(1.03); }
     }
+    @keyframes star-twinkle { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
+    
+    .start-text { font-family: 'Martian Mono', monospace; font-size: 100px; font-weight: 800; letter-spacing: 10px; user-select: none; display: flex; gap: 8px; }
+    .start-letter { display: inline-block; animation: neon-pulse 2s ease-in-out infinite; }
+    .start-letter:nth-child(1) { color: #FFB901; text-shadow: 0 0 10px #FFB901, 0 0 20px #FFB901, 0 0 40px #FFB901, 0 0 80px #FFB901; animation-delay: 0s; }
+    .start-letter:nth-child(2) { color: #E0908D; text-shadow: 0 0 10px #E0908D, 0 0 20px #E0908D, 0 0 40px #E0908D, 0 0 80px #E0908D; animation-delay: 0.2s; }
+    .start-letter:nth-child(3) { color: #8338EC; text-shadow: 0 0 10px #8338EC, 0 0 20px #8338EC, 0 0 40px #8338EC, 0 0 80px #8338EC; animation-delay: 0.4s; }
+    .start-letter:nth-child(4) { color: #47C9DD; text-shadow: 0 0 10px #47C9DD, 0 0 20px #47C9DD, 0 0 40px #47C9DD, 0 0 80px #47C9DD; animation-delay: 0.6s; }
+    .start-letter:nth-child(5) { color: #3A86FF; text-shadow: 0 0 10px #3A86FF, 0 0 20px #3A86FF, 0 0 40px #3A86FF, 0 0 80px #3A86FF; animation-delay: 0.8s; }
+    @keyframes neon-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
   </style>
 </head>
 <body>
   <div class="start-screen" id="startScreen">
-    <!-- Блок Заголовка со звездами -->
-    <div class="title-container">
-      <span class="star-icon">✦</span>
-      <div class="main-title">Neon</div>
-      <span class="star-icon">✦</span>
+    <div>
+      <span class="stars">✦</span>
+      <span class="ember-text">Ember</span>
+      <span class="stars">✦</span>
     </div>
-
-    <!-- Блок Кнопки Start -->
-    <div class="start-text">
+    <div class="start-text" id="startText">
       <span class="start-letter">S</span>
       <span class="start-letter">T</span>
       <span class="start-letter">A</span>
@@ -134,54 +68,31 @@
   </div>
   
   <script>
-    // Палитра из твоего шестого изображения (Круг)
-    let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff']; 
-    
+    let cols = ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
-    let isPlaying = false;
-    let isPaused = false;
-    let pausedLevel = 0;
-    let song;
-    let amplitude;
-    let level;
-    let lastLevel = 0;
-    let particles = [];
-    let lastBurstTime = 0;
-    let minBurstInterval = 300;
-
-    let isSongLoaded = false;
-    let shouldStartOnLoad = false;
-    let startScreen;
+    let isPlaying = false, isPaused = false, pausedLevel = 0;
+    let song, amplitude, level, lastLevel = 0;
+    let particles = [], lastBurstTime = 0, minBurstInterval = 300;
+    let isSongLoaded = false, shouldStartOnLoad = false, startScreen;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
-      rectMode(CENTER);
-      noStroke();
+      rectMode(CENTER); noStroke();
       MAX_INIT_SIZE = max(width, height) * 0.4;
-      MAX_ANGLE_STEP = PI / 20;
-      SIZE_MULT = 0.88;
-      MIN_SIZE = 8;
-      initSize = MAX_INIT_SIZE;
-      initAngle = 0;
-      initColIndex = 0;
+      MAX_ANGLE_STEP = PI / 20; SIZE_MULT = 0.88; MIN_SIZE = 8;
+      initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
 
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
-
       startScreen = document.getElementById('startScreen');
 
-      // Загрузка аудиофайла m6.mp3
       song = loadSound('m6.mp3', () => {
         console.log('m6.mp3 загружен');
         isSongLoaded = true;
         amplitude.setInput(song);
         if (shouldStartOnLoad) startExperience();
-      }, (err) => {
-        console.error('Ошибка загрузки m6.mp3:', err);
-        isSongLoaded = true; 
-        if (shouldStartOnLoad) startExperience();
-      });
+      }, (err) => { console.error('Ошибка загрузки m6.mp3:', err); });
 
       startScreen.addEventListener('click', () => {
         if (isSongLoaded) startExperience(); else shouldStartOnLoad = true;
@@ -194,8 +105,9 @@
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
           e.preventDefault();
-          if (!isPlaying) { if (isSongLoaded) startExperience(); else shouldStartOnLoad = true; } 
-          else togglePause();
+          if (!isPlaying) {
+            if (isSongLoaded) startExperience(); else shouldStartOnLoad = true;
+          } else togglePause();
         }
       });
     }
@@ -203,28 +115,24 @@
     function startExperience() {
       startScreen.classList.add('hidden');
       setTimeout(() => { if (startScreen.parentNode) startScreen.remove(); }, 500);
-      
       const elem = document.documentElement;
       if (elem.requestFullscreen) elem.requestFullscreen().catch(err => {});
       else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
       else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
-
       if (song && isSongLoaded) song.loop();
-      isPlaying = true;
-      isPaused = false;
+      isPlaying = true; isPaused = false;
     }
 
     function togglePause() {
       if (!isPlaying) return;
       isPaused = !isPaused;
-      if (isPaused) { pausedLevel = level; if (song) song.pause(); } 
+      if (isPaused) { pausedLevel = level; if (song) song.pause(); }
       else { if (song) song.loop(); lastBurstTime = millis(); }
     }
 
     function draw() {
       if (!isPlaying) return;
       background(0);
-      
       if (isPaused) {
         for (let particle of particles) particle.show();
         let count = sin(frameCount / 150);
@@ -233,59 +141,78 @@
         let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5);
         let angle = initAngle;
         while (size > MIN_SIZE) {
-          push(); translate(width / 2, height / 2); rotate(angle); fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
+          push(); translate(width / 2, height / 2); rotate(angle);
+          fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
           angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
           size *= 0.88; colIndex++;
         }
         return;
       }
-      
       level = amplitude.getLevel();
       let delta = abs(level - lastLevel);
       let now = millis();
       if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        particles = []; createBurst(initSize, cols[initColIndex % cols.length]); lastBurstTime = now;
+        particles = [];
+        createBurst(initSize, cols[initColIndex % cols.length]);
+        lastBurstTime = now;
       }
       lastLevel = level;
-
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
-
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
       let size = initSize * map(level, 0, 0.5, 1, 1.5);
       let angle = initAngle;
-
       while (size > MIN_SIZE) {
-        push(); translate(width / 2, height / 2); rotate(angle); fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
+        push(); translate(width / 2, height / 2); rotate(angle);
+        fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
         angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
         size *= 0.88; colIndex++;
       }
-
       initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
       initAngle += angleStep * 0.1;
-      if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
+      if (initSize < MAX_INIT_SIZE * 0.88) {
+        initSize /= 0.88;
+        initColIndex = (initColIndex + cols.length - 1) % cols.length;
+      }
     }
 
     function createBurst(size, color) {
-      const numParticles = 50; const center = { x: width / 2, y: height / 2 };
+      const numParticles = 50;
+      const center = { x: width / 2, y: height / 2 };
       for (let i = 0; i < numParticles; i++) particles.push(new Particle(center.x, center.y, color));
     }
 
     class Particle {
-      constructor(x, y, col) { this.pos = createVector(x, y); this.vel = p5.Vector.random2D().mult(random(3, 10)); this.acc = createVector(0, 0); this.lifespan = 60; this.maxLife = this.lifespan; this.color = col; this.size = random(2, 4); }
+      constructor(x, y, col) {
+        this.pos = createVector(x, y);
+        this.vel = p5.Vector.random2D().mult(random(3, 10));
+        this.acc = createVector(0, 0);
+        this.lifespan = 60; this.maxLife = this.lifespan;
+        this.color = col; this.size = random(2, 4);
+      }
       update() { this.vel.add(this.acc); this.pos.add(this.vel); this.lifespan--; }
-      show() { let alpha = map(this.lifespan, 0, this.maxLife, 0, 255); if (this.lifespan < 15) alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5; noStroke(); fill(red(this.color), green(this.color), blue(this.color), alpha); ellipse(this.pos.x, this.pos.y, this.size); }
+      show() {
+        let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
+        if (this.lifespan < 15) alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
+        noStroke();
+        fill(red(this.color), green(this.color), blue(this.color), alpha);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
       isDead() { return this.lifespan < 0; }
     }
 
     function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) { if (song && song.isPlaying()) song.pause(); location.reload(); }
+      if (keyCode === ESC || keyCode === 32) {
+        if (song && song.isPlaying()) song.pause();
+        location.reload();
+      }
       if (key === 'p' || key === 'P') togglePause();
     }
+
     function windowResized() { resizeCanvas(windowWidth, windowHeight); }
   </script>
 </body>
