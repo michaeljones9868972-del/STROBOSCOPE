@@ -148,7 +148,6 @@
       pointer-events: none; -webkit-user-drag: none; user-select: none;
     }
 
-    /* SVG оверлей с полукругами */
     .caps-overlay {
       position: absolute;
       top: 0; left: 0;
@@ -218,6 +217,14 @@
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent" data-i18n="marquee"></div></div>
 
   <script>
+    // ============ UTF-8 safe btoa ============
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
+    }
+
     const flags = {
       en: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -344,36 +351,33 @@
         svg += `<circle cx="${center}" cy="${center}" r="${radius}" fill="${colors[i]}"/>`;
       }
       svg += '</svg>';
-      return 'data:image/svg+xml;base64,' + btoa(svg);
+      return 'data:image/svg+xml;base64,' + utf8ToBase64(svg);
     }
 
-    // Генерация SVG с настоящими полукругами
     function generateCapsSVG(ticker, kaomoji, outerColor, innerColor) {
       const size = 500;
       const cx = size / 2;
       const cy = size / 2;
-      const r = size / 2 - 5; // радиус полукруга (чуть меньше круга)
-      const capHeight = r * 0.18; // высота полукруга (18% от радиуса)
+      const r = size / 2 - 5;
+      const capHeight = r * 0.18;
       
-      // Верхний полукруг: дуга от 180° до 360°
       const topY = cy - r + capHeight;
       const topPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} L ${cx + r * 0.85} ${topY} A ${r * 0.85} ${r * 0.85} 0 0 0 ${cx - r * 0.85} ${topY} Z`;
       
-      // Нижний полукруг: дуга от 0° до 180°
       const botY = cy + r - capHeight;
       const botPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy} L ${cx + r * 0.85} ${botY} A ${r * 0.85} ${r * 0.85} 0 0 1 ${cx - r * 0.85} ${botY} Z`;
       
+      // Экранируем спецсимволы в SVG-тексте
+      const safeTicker = ticker.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const safeKaomoji = kaomoji.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      
       let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`;
-      // Верхний полукруг
       svg += `<path d="${topPath}" fill="${outerColor}" opacity="0.95"/>`;
-      // Нижний полукруг
       svg += `<path d="${botPath}" fill="${outerColor}" opacity="0.95"/>`;
-      // Тикер сверху
-      svg += `<text x="${cx}" y="${cy - r * 0.7}" font-family="Martian Mono, monospace" font-size="28" font-weight="800" fill="${innerColor}" text-anchor="middle" letter-spacing="2">${ticker}</text>`;
-      // Каомодзи снизу
-      svg += `<text x="${cx}" y="${cy + r * 0.75}" font-family="Segoe UI Symbol, Noto Sans, sans-serif" font-size="24" fill="${innerColor}" text-anchor="middle">${kaomoji}</text>`;
+      svg += `<text x="${cx}" y="${cy - r * 0.65}" font-family="Martian Mono, monospace" font-size="28" font-weight="800" fill="${innerColor}" text-anchor="middle" letter-spacing="2">${safeTicker}</text>`;
+      svg += `<text x="${cx}" y="${cy + r * 0.78}" font-family="Segoe UI Symbol, Noto Sans, sans-serif" font-size="24" fill="${innerColor}" text-anchor="middle">${safeKaomoji}</text>`;
       svg += '</svg>';
-      return 'data:image/svg+xml;base64,' + btoa(svg);
+      return 'data:image/svg+xml;base64,' + utf8ToBase64(svg);
     }
 
     function createStroboscopeItem(item) {
@@ -393,7 +397,6 @@
       fallbackImg.className = 'circle-img';
       circleDiv.appendChild(fallbackImg);
 
-      // SVG оверлей с полукругами
       const capsOverlay = document.createElement('div');
       capsOverlay.className = 'caps-overlay';
       const capsImg = document.createElement('img');
@@ -439,11 +442,12 @@
       renderStroboscopes(filteredStroboscopes);
     });
 
-    buildLangDropdown();
-    applyLanguage(detectLanguage());
-    renderStroboscopes(filteredStroboscopes);
-
+    // Инициализация ПОСЛЕ загрузки DOM
     document.addEventListener('DOMContentLoaded', () => {
+      buildLangDropdown();
+      applyLanguage(detectLanguage());
+      renderStroboscopes(filteredStroboscopes);
+
       const canvas = document.querySelector('.js-canvas');
       const ctx = canvas.getContext('2d');
       const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
