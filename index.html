@@ -145,18 +145,25 @@
       background: none;
       border: 1px solid rgba(160, 216, 241, 0.5);
       color: #a0d8f1;
-      padding: 6px 10px;
+      padding: 4px 8px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 20px;
       transition: all 0.3s;
       display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      line-height: 0;
     }
     .lang-btn:hover {
       background: rgba(160, 216, 241, 0.2);
       border-color: #a0d8f1;
+    }
+    .lang-btn svg {
+      width: 28px;
+      height: 20px;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
     }
     .lang-dropdown {
       position: absolute;
@@ -165,11 +172,11 @@
       background: rgba(0, 0, 0, 0.95);
       border: 1px solid rgba(160, 216, 241, 0.5);
       border-radius: 8px;
-      padding: 8px;
+      padding: 10px;
       display: none;
       grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      min-width: 180px;
+      gap: 8px;
+      min-width: 220px;
       backdrop-filter: blur(10px);
     }
     .lang-dropdown.active {
@@ -178,23 +185,31 @@
     .lang-flag {
       background: none;
       border: 1px solid transparent;
-      font-size: 24px;
       cursor: pointer;
-      padding: 6px;
+      padding: 4px;
       border-radius: 6px;
       transition: all 0.3s;
       display: flex;
       align-items: center;
       justify-content: center;
+      line-height: 0;
+    }
+    .lang-flag svg {
+      width: 40px;
+      height: 28px;
+      display: block;
+      border-radius: 3px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.15);
     }
     .lang-flag:hover {
       background: rgba(160, 216, 241, 0.2);
       border-color: rgba(160, 216, 241, 0.5);
-      transform: scale(1.15);
+      transform: scale(1.1);
     }
     .lang-flag.active {
       border-color: #a0d8f1;
       background: rgba(160, 216, 241, 0.3);
+      box-shadow: 0 0 12px rgba(160, 216, 241, 0.4);
     }
 
     /* Search */
@@ -343,18 +358,9 @@
     <div class="divider"></div>
     <div class="lang-selector">
       <button class="lang-btn" id="langBtn" aria-label="Select language">
-        <span id="currentFlag">🇬🇧</span>
+        <span id="currentFlag"></span>
       </button>
-      <div class="lang-dropdown" id="langDropdown">
-        <button class="lang-flag" data-lang="en" title="English">🇬🇧</button>
-        <button class="lang-flag" data-lang="es" title="Español">🇪🇸</button>
-        <button class="lang-flag" data-lang="zh" title="中文">🇨🇳</button>
-        <button class="lang-flag" data-lang="hi" title="हिन्दी">🇮🇳</button>
-        <button class="lang-flag" data-lang="ar" title="العربية">🇸🇦</button>
-        <button class="lang-flag" data-lang="fr" title="Français">🇫🇷</button>
-        <button class="lang-flag" data-lang="ru" title="Русский">🇷🇺</button>
-        <button class="lang-flag" data-lang="pt" title="Português">🇧🇷</button>
-      </div>
+      <div class="lang-dropdown" id="langDropdown"></div>
     </div>
   </div>
 
@@ -371,7 +377,65 @@
   </div>
 
   <script>
-    // Translations
+    // ============ SVG FLAGS (work on ALL platforms) ============
+    const flags = {
+      en: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="40" fill="#012169"/>
+        <path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/>
+        <path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/>
+        <path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/>
+        <path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/>
+      </svg>`,
+      es: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="40" fill="#AA151B"/>
+        <rect y="10" width="60" height="20" fill="#F1BF00"/>
+      </svg>`,
+      zh: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="40" fill="#DE2910"/>
+        <polygon points="10,6 12.5,13 20,13 14,17 16,24 10,20 4,24 6,17 0,13 7.5,13" fill="#FFDE00"/>
+        <circle cx="22" cy="6" r="1.5" fill="#FFDE00"/>
+        <circle cx="26" cy="10" r="1.5" fill="#FFDE00"/>
+        <circle cx="26" cy="16" r="1.5" fill="#FFDE00"/>
+        <circle cx="22" cy="20" r="1.5" fill="#FFDE00"/>
+      </svg>`,
+      hi: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="13.33" fill="#FF9933"/>
+        <rect y="13.33" width="60" height="13.33" fill="#FFFFFF"/>
+        <rect y="26.66" width="60" height="13.33" fill="#138808"/>
+        <circle cx="30" cy="20" r="5" fill="none" stroke="#000080" stroke-width="1"/>
+        <circle cx="30" cy="20" r="1" fill="#000080"/>
+      </svg>`,
+      ar: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="40" fill="#165D32"/>
+        <rect x="12" y="26" width="36" height="2" fill="#fff"/>
+        <path d="M14,26 L46,26 L46,28 L14,28 Z" fill="#fff"/>
+        <text x="30" y="20" font-size="8" fill="#fff" text-anchor="middle" font-family="serif">لا إله إلا الله</text>
+      </svg>`,
+      fr: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="20" height="40" fill="#002395"/>
+        <rect x="20" width="20" height="40" fill="#FFFFFF"/>
+        <rect x="40" width="20" height="40" fill="#ED2939"/>
+      </svg>`,
+      ru: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="13.33" fill="#FFFFFF"/>
+        <rect y="13.33" width="60" height="13.33" fill="#0039A6"/>
+        <rect y="26.66" width="60" height="13.33" fill="#D52B1E"/>
+      </svg>`,
+      pt: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+        <rect width="60" height="40" fill="#009C3B"/>
+        <rect x="24" width="36" height="40" fill="#FFDF00"/>
+        <circle cx="24" cy="20" r="7" fill="#002776"/>
+        <circle cx="24" cy="20" r="5" fill="#FFDF00"/>
+        <circle cx="24" cy="20" r="3.5" fill="#002776"/>
+      </svg>`
+    };
+
+    const langNames = {
+      en: 'English', es: 'Español', zh: '中文', hi: 'हिन्दी',
+      ar: 'العربية', fr: 'Français', ru: 'Русский', pt: 'Português'
+    };
+
+    // ============ TRANSLATIONS ============
     const translations = {
       en: {
         search: "SEARCH BY NAME",
@@ -391,25 +455,20 @@
       },
       ar: {
         search: "البحث بالاسم",
-        marquee: "الستروبوسكوب والموسيقى - لهما تأثير تنويمي على إيقاعات ألفا في دماغ الشخص السليم وينشطان نشاطه العقلي! اللون هو أحد العوامل التي تحدد حالة نفسيتنا. علماء النفس والأطباء النفسيون، بناءً على تفضيل الناس أو حبهم للون معين، يحددون شخصية الشخص وميوله وعقليته ونفسيته وحتى حالته الصحية. تأثير اللون على الإنسان كبير جدًا، على الرغم من أننا في الحياة اليومية لا ننتبه إليه. اللون يجعل الأشياء \"ثقيلة\"، \"خفيفة\"، \"باردة\"، \"ساخنة\". له تأثير هائل على الإنسان، على عمل أعضائه. كل لون يثير رد فعل محدد في الدماغ البشري. على سبيل المثال، إذا كان الشخص متحمسًا جدًا، يكفي وضعه في غرفة بورق جدران وردي فاتح، حيث يهدأ بسرعة كبيرة وحتى ينام. ومع ذلك، كان كافيًا تغيير اللون إلى الأزرق، حيث اختفى هذا الضعف. هذا يعني أن اللون يؤثر ليس فقط على المزاج، ولكن أيضًا على جسم الإنسان بأكمله. الأحمر هو لون العاطفة. إذا كان هذا هو اللون المفضل، فإن هذا الشخص شجاع، قوي الإرادة، مهيمن، سريع الغضب، اجتماعي. البرتقالي هو اللون المفضل للأشخاص ذوي الحدوث والحالمين العاطفيين، يعني الصحة، يرمز إلى الفرح والدفء. الأصفر - هذا اللون يرمز إلى الهدوء والذكاء. إذا كان هذا هو اللون المفضل، فإن هذا الشخص اجتماعي، فضولي، شجاع. الأخضر هو لون الطبيعة. من يفضله يخشى من تأثير الآخرين، يبحث عن طريقة لتأكيد نفسه. الأزرق - يرمز إلى الحقيقة. هذا هو السلام، الهدوء، الرفاهية. الأزرق هو لون السماء. إذا أعجب الشخص به، فهذا يتحدث عن التواضع والكآبة؛ مثل هذا الشخص يحتاج إلى الراحة، يتعب بسرعة. البنفسجي - هذا اللون \"يتحدث\" عن عاطفية كبيرة جدًا، حساسية، رقة، إنه لون الأشخاص المتطورين بشكل متناغم. الأسود هو لون عدم اليقين، يرمز إلى تصور قاتم للحياة. أي شخص يحب الأسود، غالبًا ما ينظر إلى الحياة بألوان داكنة، يكون غير سعيد. الأبيض هو توليف جميع الألوان، لأنه اللون \"المثالي\"، \"لون الحلم\". يمكن تفضيل هذا اللون من قبل شخص بأي شخصية، لا يصد أحد."
+        marquee: "الستروبوسكوب والموسيقى - لهما تأثير تنويمي على إيقاعات ألفا في دماغ الشخص السليم وينشطان نشاطه العقلي! اللون هو أحد العوامل التي تحدد حالة نفسيتنا. علماء النفس والأطباء النفسيون، بناءً على تفضيل الناس أو حبهم للون معين، يحددون شخصية الشخص وميوله وعقليته ونفسيته وحتى حالته الصحية. تأثير اللون على الإنسان كبير جدًا، على الرغم من أننا في الحياة اليومية لا ننتبه إليه. اللون يجعل الأشياء \"ثقيلة\"، \"خفيفة\"، \"باردة\"، \"ساخنة\". له تأثير هائل على الإنسان، على عمل أعضائه. كل لون يثير رد فعل محدد في الدماغ البشري. على سبيل المثال، إذا كان الشخص متحمسًا جدًا، يكفي وضعه في غرفة بورق جدران وردي فاتح، حيث يهدأ بسرعة كبيرة وحتى ينام. ومع ذلك، كان كافيًا تغيير اللون إلى الأزرق، حيث اختفى هذا الضعف. هذا يعني أن اللون يؤثر ليس فقط على المزاج، ولكن أيضًا على جسم الإنسان بأكمله. الأحمر هو لون العاطفة. إذا كان هذا هو اللون المفضل، فإن هذا الشخص شجاع، قوي الإرادة، مهيمن، سريع الغضب، اجتماعي. البرتقالي هو اللون المفضل للأشخاص ذوي الحدس والحالمين العاطفيين، يعني الصحة، يرمز إلى الفرح والدفء. الأصفر - هذا اللون يرمز إلى الهدوء والذكاء. إذا كان هذا هو اللون المفضل، فإن هذا الشخص اجتماعي، فضولي، شجاع. الأخضر هو لون الطبيعة. من يفضله يخشى من تأثير الآخرين، يبحث عن طريقة لتأكيد نفسه. الأزرق - يرمز إلى الحقيقة. هذا هو السلام، الهدوء، الرفاهية. الأزرق هو لون السماء. إذا أعجب الشخص به، فهذا يتحدث عن التواضع والكآبة؛ مثل هذا الشخص يحتاج إلى الراحة، يتعب بسرعة. البنفسجي - هذا اللون \"يتحدث\" عن عاطفية كبيرة جدًا، حساسية، رقة، إنه لون الأشخاص المتطورين بشكل متناغم. الأسود هو لون عدم اليقين، يرمز إلى تصور قاتم للحياة. أي شخص يحب الأسود، غالبًا ما ينظر إلى الحياة بألوان داكنة، يكون غير سعيد. الأبيض هو توليف جميع الألوان، لأنه اللون \"المثالي\"، \"لون الحلم\". يمكن تفضيل هذا اللون من قبل شخص بأي شخصية، لا يصد أحد."
       },
       fr: {
         search: "RECHERCHER PAR NOM",
-        marquee: "Le stroboscope et la musique - ont un effet hypnotique sur les rythmes alpha du cerveau d'une personne en bonne santé et stimulent activement son activité mentale! La couleur est l'un des facteurs qui déterminent l'état de notre psyché. Les psychologues et les psychiatres, en fonction de la préférence ou de l'amour des gens pour une couleur particulière, déterminent le caractère d'une personne, ses inclinations, son état d'esprit, sa psyché et même son état de santé. L'influence de la couleur sur une personne est très grande, bien que dans la vie de tous les jours nous n'y prêtions pas attention. La couleur rend les choses \"lourdes\", \"légères\", \"froides\", \"chaudes\". Elle a un impact tremendous sur une personne, sur le travail de ses organes. Chaque couleur évoque une réaction spécifique dans le cerveau humain. Par exemple, si une personne est très excitée, il suffit de la placer dans une pièce avec un papier peint rose vif, car elle se calme très rapidement et s'endort même. Cependant, il a suffi de changer la couleur en bleu, pour que cette faiblesse disparaisse. Cela signifie que la couleur affecte non seulement l'humeur, mais aussi tout le corps humain. Le rouge est la couleur de la passion. Si c'est une couleur préférée, alors une telle personne est brave, forte de volonté, dominatrice, colérique, sociable. L'orange est la couleur préférée des personnes intuitives et des rêveurs passionnés, elle signifie la santé, symbolise la joie, la chaleur. Le jaune - cette couleur symbolise le calme, l'intelligence. Si c'est une couleur préférée, alors une telle personne est sociable, curieuse, courageuse. Le vert est la couleur de la nature. Celui qui le préfère a peur de l'influence des autres, cherchant un moyen de s'affirmer. Le bleu - symbolise la vérité. C'est la paix, la tranquillité, le bien-être. Le bleu est la couleur du ciel. Si une personne l'aime, cela parle de modestie et de mélancolie; une telle personne a besoin de se reposer, elle se fatigue rapidement. Le violet - cette couleur \"parle\" d'une très grande émotivité, sensibilité, délicatesse, c'est la couleur des personnes harmonieusement développées. Le noir est la couleur de l'incertitude, symbolisant une perception sombre de la vie. Quiconque aime le noir, perçoit souvent la vie en couleurs sombres, est malheureux. Le blanc est la synthèse de toutes les couleurs, car c'est la couleur \"idéale\", la \"couleur du rêve\". Cette couleur peut être préférée par une personne de n'importe quel caractère, elle ne repousse personne."
+        marquee: "Le stroboscope et la musique ont un effet hypnotique sur les rythmes alpha du cerveau d'une personne en bonne santé et stimulent activement son activité mentale! La couleur est l'un des facteurs qui déterminent l'état de notre psyché. Les psychologues et les psychiatres, en fonction de la préférence ou de l'amour des gens pour une couleur particulière, déterminent le caractère d'une personne, ses inclinations, son état d'esprit, sa psyché et même son état de santé. L'influence de la couleur sur une personne est très grande, bien que dans la vie de tous les jours nous n'y prêtions pas attention. La couleur rend les choses \"lourdes\", \"légères\", \"froides\", \"chaudes\". Elle a un impact énorme sur une personne, sur le travail de ses organes. Chaque couleur évoque une réaction spécifique dans le cerveau humain. Par exemple, si une personne est très excitée, il suffit de la placer dans une pièce avec un papier peint rose vif, car elle se calme très rapidement et s'endort même. Cependant, il a suffi de changer la couleur en bleu, pour que cette faiblesse disparaisse. Cela signifie que la couleur affecte non seulement l'humeur, mais aussi tout le corps humain. Le rouge est la couleur de la passion. Si c'est une couleur préférée, alors une telle personne est brave, forte de volonté, dominatrice, colérique, sociable. L'orange est la couleur préférée des personnes intuitives et des rêveurs passionnés, elle signifie la santé, symbolise la joie, la chaleur. Le jaune - cette couleur symbolise le calme, l'intelligence. Si c'est une couleur préférée, alors une telle personne est sociable, curieuse, courageuse. Le vert est la couleur de la nature. Celui qui le préfère a peur de l'influence des autres, cherchant un moyen de s'affirmer. Le bleu - symbolise la vérité. C'est la paix, la tranquillité, le bien-être. Le bleu est la couleur du ciel. Si une personne l'aime, cela parle de modestie et de mélancolie; une telle personne a besoin de se reposer, elle se fatigue rapidement. Le violet - cette couleur \"parle\" d'une très grande émotivité, sensibilité, délicatesse, c'est la couleur des personnes harmonieusement développées. Le noir est la couleur de l'incertitude, symbolisant une perception sombre de la vie. Quiconque aime le noir perçoit souvent la vie en couleurs sombres, est malheureux. Le blanc est la synthèse de toutes les couleurs, car c'est la couleur \"idéale\", la \"couleur du rêve\". Cette couleur peut être préférée par une personne de n'importe quel caractère, elle ne repousse personne."
       },
       ru: {
         search: "ПОИСК ПО НАЗВАНИЮ",
-        marquee: "Стробоскоп и музыка - оказывают гипнотическое воздействие на альфа-ритмы мозга здорового человека и активно стимулируют его умственную деятельность! Цвет является одним из факторов, определяющих состояние нашей психики. Психологи и психиатры, основываясь на предпочтении или любви людей к определенному цвету, определяют характер человека, его наклонности, его мировоззрение, психику и даже состояние здоровья. Влияние цвета на человека очень велико, хотя в повседневной жизни мы не обращаем на это внимания. Цвет делает вещи \"тяжелыми\", \"легкими\", \"холодными\", \"горячими\". Он оказывает огромное влияние на человека, на работу его органов. Каждый цвет вызывает специфическую реакцию в человеческом мозге. Например, если человек очень возбужден, достаточно поместить его в комнату с ярко-розовыми обоями, как он очень быстро успокаивается и даже засыпает. Однако стоило изменить цвет на синий, как эта слабость исчезла. Это означает, что цвет влияет не только на настроение, но и на все человеческое тело. Красный - цвет страсти. Если это любимый цвет, то такой человек смелый, волевой, властный, вспыльчивый, общительный. Оранжевый - любимый цвет людей с интуицией и страстных мечтателей, он означает здоровье, символизирует радость, тепло. Желтый - этот цвет символизирует спокойствие, интеллект. Если это любимый цвет, то такой человек общительный, любопытный, смелый. Зеленый - цвет природы. Тот, кто предпочитает его, боится чужого влияния, ищет способ утвердиться. Синий - символизирует истину. Это мир, спокойствие, благополучие. Синий - цвет неба. Если человеку он нравится, это говорит о скромности и меланхолии; такому человеку нужен отдых, он быстро устает. Фиолетовый - этот цвет \"говорит\" об очень большой эмоциональности, чувствительности, деликатности, это цвет гармонично развитых людей. Черный - цвет неопределенности, символизирующий мрачное восприятие жизни. Любой, кто любит черный, часто воспринимает жизнь в темных тонах, несчастен. Белый - синтез всех цветов, потому что это \"идеальный\" цвет, \"цвет мечты\". Этот цвет может предпочитать человек с любым характером, он никого не отталкивает."
+        marquee: "Стробоскоп и музыка оказывают гипнотическое воздействие на альфа-ритмы мозга здорового человека и активно стимулируют его умственную деятельность! Цвет является одним из факторов, определяющих состояние нашей психики. Психологи и психиатры, основываясь на предпочтении или любви людей к определённому цвету, определяют характер человека, его наклонности, его мировоззрение, психику и даже состояние здоровья. Влияние цвета на человека очень велико, хотя в повседневной жизни мы не обращаем на это внимания. Цвет делает вещи \"тяжёлыми\", \"лёгкими\", \"холодными\", \"горячими\". Он оказывает огромное влияние на человека, на работу его органов. Каждый цвет вызывает специфическую реакцию в человеческом мозге. Например, если человек очень возбуждён, достаточно поместить его в комнату с ярко-розовыми обоями, как он очень быстро успокаивается и даже засыпает. Однако стоило изменить цвет на синий, как эта слабость исчезла. Это означает, что цвет влияет не только на настроение, но и на всё человеческое тело. Красный - цвет страсти. Если это любимый цвет, то такой человек смелый, волевой, властный, вспыльчивый, общительный. Оранжевый - любимый цвет людей с интуицией и страстных мечтателей, он означает здоровье, символизирует радость, тепло. Жёлтый - этот цвет символизирует спокойствие, интеллект. Если это любимый цвет, то такой человек общительный, любопытный, смелый. Зелёный - цвет природы. Тот, кто предпочитает его, боится чужого влияния, ищет способ утвердиться. Синий - символизирует истину. Это мир, спокойствие, благополучие. Синий - цвет неба. Если человеку он нравится, это говорит о скромности и меланхолии; такому человеку нужен отдых, он быстро устаёт. Фиолетовый - этот цвет \"говорит\" об очень большой эмоциональности, чувствительности, деликатности, это цвет гармонично развитых людей. Чёрный - цвет неопределённости, символизирующий мрачное восприятие жизни. Любой, кто любит чёрный, часто воспринимает жизнь в тёмных тонах, несчастен. Белый - синтез всех цветов, потому что это \"идеальный\" цвет, \"цвет мечты\". Этот цвет может предпочитать человек с любым характером, он никого не отталкивает."
       },
       pt: {
         search: "PESQUISAR POR NOME",
-        marquee: "O estroboscópio e a música - têm um efeito hipnótico sobre os ritmos alfa do cérebro de uma pessoa saudável e estimulam ativamente sua atividade mental! A cor é um dos fatores que determinam o estado de nossa psique. Psicólogos e psiquiatras, com base na preferência ou amor das pessoas por uma cor em particular, determinam o caráter de uma pessoa, suas inclinações, sua mentalidade, psique e até mesmo seu estado de saúde. A influência da cor em uma pessoa é muito grande, embora no dia a dia não prestemos atenção a isso. A cor torna as coisas \"pesadas\", \"leves\", \"frias\", \"quentes\". Tem um tremendo impacto em uma pessoa, no trabalho de seus órgãos. Cada cor evoca uma reação específica no cérebro humano. Por exemplo, se uma pessoa está muito excitada, basta colocá-la em uma sala com papel de parede rosa brilhante, pois ela se acalma muito rapidamente e até adormece. No entanto, bastou mudar a cor para azul, para que essa fraqueza desaparecesse. Isso significa que a cor afeta não apenas o humor, mas também todo o corpo humano. O vermelho é a cor da paixão. Se esta é uma cor favorita, então tal pessoa é corajosa, de forte vontade, dominadora, de temperamento rápido, sociável. O laranja é a cor favorita das pessoas com intuição e sonhadores apaixonados, significa saúde, simboliza alegria, calor. O amarelo - esta cor simboliza calma, inteligência. Se esta é uma cor favorita, então tal pessoa é sociável, curiosa, corajosa. O verde é a cor da natureza. Aquele que o prefere tem medo da influência de outra pessoa, procurando uma maneira de se afirmar. O azul - simboliza a verdade. Esta é paz, tranquilidade, bem-estar. O azul é a cor do céu. Se uma pessoa gosta dele, isso fala de modéstia e melancolia; tal pessoa precisa descansar, cansa-se rapidamente. O violeta - esta cor \"fala\" de uma grande emotividade, sensibilidade, delicadeza, é a cor das pessoas harmoniosamente desenvolvidas. O preto é a cor da incerteza, simbolizando uma percepção sombria da vida. Qualquer pessoa que ame o preto, muitas vezes percebe a vida em cores escuras, é infeliz. O branco é a síntese de todas as cores, porque é a cor \"ideal\", a \"cor do sonho\". Esta cor pode ser preferida por uma pessoa com qualquer caráter, não repele ninguém."
+        marquee: "O estroboscópio e a música têm um efeito hipnótico sobre os ritmos alfa do cérebro de uma pessoa saudável e estimulam ativamente sua atividade mental! A cor é um dos fatores que determinam o estado de nossa psique. Psicólogos e psiquiatras, com base na preferência ou amor das pessoas por uma cor em particular, determinam o caráter de uma pessoa, suas inclinações, sua mentalidade, psique e até mesmo seu estado de saúde. A influência da cor em uma pessoa é muito grande, embora no dia a dia não prestemos atenção a isso. A cor torna as coisas \"pesadas\", \"leves\", \"frias\", \"quentes\". Tem um tremendo impacto em uma pessoa, no trabalho de seus órgãos. Cada cor evoca uma reação específica no cérebro humano. Por exemplo, se uma pessoa está muito excitada, basta colocá-la em uma sala com papel de parede rosa brilhante, pois ela se acalma muito rapidamente e até adormece. No entanto, bastou mudar a cor para azul, para que essa fraqueza desaparecesse. Isso significa que a cor afeta não apenas o humor, mas também todo o corpo humano. O vermelho é a cor da paixão. Se esta é uma cor favorita, então tal pessoa é corajosa, de forte vontade, dominadora, de temperamento rápido, sociável. O laranja é a cor favorita das pessoas com intuição e sonhadores apaixonados, significa saúde, simboliza alegria, calor. O amarelo - esta cor simboliza calma, inteligência. Se esta é uma cor favorita, então tal pessoa é sociável, curiosa, corajosa. O verde é a cor da natureza. Aquele que o prefere tem medo da influência de outra pessoa, procurando uma maneira de se afirmar. O azul - simboliza a verdade. Esta é paz, tranquilidade, bem-estar. O azul é a cor do céu. Se uma pessoa gosta dele, isso fala de modéstia e melancolia; tal pessoa precisa descansar, cansa-se rapidamente. O violeta - esta cor \"fala\" de uma grande emotividade, sensibilidade, delicadeza, é a cor das pessoas harmoniosamente desenvolvidas. O preto é a cor da incerteza, simbolizando uma percepção sombria da vida. Qualquer pessoa que ame o preto, muitas vezes percebe a vida em cores escuras, é infeliz. O branco é a síntese de todas as cores, porque é a cor \"ideal\", a \"cor do sonho\". Esta cor pode ser preferida por uma pessoa com qualquer caráter, não repele ninguém."
       }
-    };
-
-    const flagMap = {
-      en: '🇬🇧', es: '🇪🇸', zh: '🇨🇳', hi: '🇮🇳',
-      ar: '🇸🇦', fr: '🇫🇷', ru: '🇷🇺', pt: '🇧🇷'
     };
 
     let currentLang = 'en';
@@ -417,11 +476,30 @@
     function detectLanguage() {
       const saved = localStorage.getItem('stroboscope_lang');
       if (saved && translations[saved]) return saved;
-
-      const browserLang = navigator.language || navigator.languages?.[0] || 'en';
+      const browserLang = navigator.language || (navigator.languages && navigator.languages[0]) || 'en';
       const code = browserLang.split('-')[0].toLowerCase();
       if (translations[code]) return code;
       return 'en';
+    }
+
+    // ============ BUILD LANGUAGE DROPDOWN ============
+    function buildLangDropdown() {
+      const dropdown = document.getElementById('langDropdown');
+      dropdown.innerHTML = '';
+      Object.keys(flags).forEach(code => {
+        const btn = document.createElement('button');
+        btn.className = 'lang-flag';
+        btn.dataset.lang = code;
+        btn.title = langNames[code];
+        btn.setAttribute('aria-label', langNames[code]);
+        btn.innerHTML = flags[code];
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          applyLanguage(code);
+          dropdown.classList.remove('active');
+        });
+        dropdown.appendChild(btn);
+      });
     }
 
     function applyLanguage(lang) {
@@ -430,8 +508,10 @@
       document.documentElement.lang = lang;
       document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
 
-      document.getElementById('currentFlag').textContent = flagMap[lang] || '🇬🇧';
+      // Update current flag (SVG)
+      document.getElementById('currentFlag').innerHTML = flags[lang];
 
+      // Update texts
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) {
@@ -448,6 +528,7 @@
         marquee.innerHTML = translations[lang].marquee + ' ' + translations[lang].marquee;
       }
 
+      // Highlight active flag
       document.querySelectorAll('.lang-flag').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
       });
@@ -462,14 +543,6 @@
       langDropdown.classList.toggle('active');
     });
 
-    document.querySelectorAll('.lang-flag').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        applyLanguage(btn.dataset.lang);
-        langDropdown.classList.remove('active');
-      });
-    });
-
     document.addEventListener('click', () => {
       langDropdown.classList.remove('active');
     });
@@ -479,29 +552,25 @@
     const supportTooltip = document.getElementById('supportTooltip');
     const supportEmail = 'stroboscope@atomicmail.io';
 
-    supportBtn.addEventListener('click', async () => {
+    supportBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
       try {
         await navigator.clipboard.writeText(supportEmail);
-        supportTooltip.classList.add('active');
-        setTimeout(() => {
-          supportTooltip.classList.remove('active');
-        }, 2500);
       } catch (err) {
-        // Fallback for older browsers
         const textArea = document.createElement("textarea");
         textArea.value = supportEmail;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand("copy");
         document.body.removeChild(textArea);
-        supportTooltip.classList.add('active');
-        setTimeout(() => {
-          supportTooltip.classList.remove('active');
-        }, 2500);
       }
+      supportTooltip.classList.add('active');
+      setTimeout(() => {
+        supportTooltip.classList.remove('active');
+      }, 2500);
     });
 
-    // Stroboscopes data
+    // ============ STROBOSCOPES ============
     const stroboscopes = [
       { id: 1, name: "Neon", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -573,7 +642,7 @@
         circleDiv.appendChild(realImg);
       };
       realImg.onerror = function() {
-        console.log(`Не удалось загрузить ${item.image}, используем SVG`);
+        console.log(`Failed to load ${item.image}, using SVG fallback`);
       };
       realImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
       
@@ -617,7 +686,8 @@
       renderStroboscopes(filteredStroboscopes);
     });
 
-    // Initialize
+    // ============ INIT ============
+    buildLangDropdown();
     applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
 
