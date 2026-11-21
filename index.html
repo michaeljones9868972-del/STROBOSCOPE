@@ -143,25 +143,21 @@
       border-color: rgba(160, 216, 241, 1);
       box-shadow: 0 0 60px rgba(160, 216, 241, 0.6), 0 0 120px rgba(160, 216, 241, 0.3);
     }
-    .stroboscope-circle img, .stroboscope-circle svg {
+    .stroboscope-circle img, .stroboscope-circle svg.circle-img {
       width: 100%; height: 100%; object-fit: cover; display: block;
       pointer-events: none; -webkit-user-drag: none; user-select: none;
     }
 
-    /* Полукруги-шапки (цвет внешнего кольца) */
-    .cap-bg { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 50%; pointer-events: none; }
-    .cap-bg.cap-top { clip-path: inset(0 0 84% 0); }
-    .cap-bg.cap-bottom { clip-path: inset(84% 0 0 0); }
-
-    /* Надписи на полукругах (цвет 2-го кольца) */
-    .cap-text {
-      position: absolute; left: 15%; width: 70%; height: 16%;
-      display: flex; align-items: center; justify-content: center;
-      text-align: center; white-space: nowrap; overflow: hidden;
-      font-weight: 800; letter-spacing: 0.5px; direction: ltr; pointer-events: none;
+    /* SVG оверлей с полукругами */
+    .caps-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
     }
-    .cap-text-top { top: 0; font-family: 'Martian Mono', monospace; font-size: clamp(8px, 1vw, 15px); }
-    .cap-text-bottom { bottom: 0; font-family: 'Segoe UI Symbol','Noto Sans','Martian Mono',sans-serif; font-size: clamp(7px, 0.9vw, 13px); }
+    .caps-overlay svg {
+      width: 100%; height: 100%;
+    }
 
     .marquee-container {
       position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
@@ -222,7 +218,6 @@
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent" data-i18n="marquee"></div></div>
 
   <script>
-    // ============ SVG FLAGS (8 языков, RU заменён на DE) ============
     const flags = {
       en: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -235,7 +230,6 @@
     };
     const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português' };
 
-    // ============ TRANSLATIONS ============
     const translations = {
       en: { search:"SEARCH BY NAME", marquee:"Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things \"heavy\", \"light\", \"cold\", \"hot\". It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color \"speaks\" of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the \"ideal\" color, the \"dream color\". This color can be preferred by a person with any character, it does not repel anyone." },
       es: { search:"BUSCAR POR NOMBRE", marquee:"El estroboscopio y la música tienen un efecto hipnótico sobre los ritmos alfa del cerebro de una persona sana y estimulan activamente su actividad mental. El color es uno de los factores que determinan el estado de nuestra psique. Los psicólogos y psiquiatras, basándose en la preferencia o el amor de las personas por un color en particular, determinan el carácter de una persona, sus inclinaciones, su mentalidad, psique e incluso su estado de salud. La influencia del color en una persona es muy grande, aunque en la vida cotidiana no le prestamos atención. El color hace que las cosas sean \"pesadas\", \"ligeras\", \"frías\", \"calientes\". Tiene un tremendo impacto en una persona, en el trabajo de sus órganos. Cada color evoca una reacción específica en el cerebro humano. Por ejemplo, si una persona está muy excitada, basta con colocarla en una habitación con papel tapiz rosa brillante, ya que se calma muy rápidamente e incluso se queda dormida. Sin embargo, bastó con cambiar el color a azul, para que esta debilidad desapareciera. Esto significa que el color afecta no solo el estado de ánimo, sino también todo el cuerpo humano. El rojo es el color de la pasión. Si este es un color favorito, entonces tal persona es valiente, de voluntad fuerte, dominante, de temperamento rápido, sociable. El naranja es el color favorito de las personas con intuición y soñadores apasionados, significa salud, simboliza alegría, calidez. El amarillo - este color simboliza calma, inteligencia. Si este es un color favorito, entonces tal persona es sociable, curiosa, valiente. El verde es el color de la naturaleza. El que lo prefiere teme la influencia de los demás, buscando una forma de afirmarse. El azul - simboliza la verdad. Esto es paz, tranquilidad, bienestar. El azul es el color del cielo. Si a una persona le gusta, esto habla de modestia y melancolía; tal persona necesita descansar, se cansa rápidamente. El violeta - este color \"habla\" de una gran emocionalidad, sensibilidad, delicadeza, es el color de las personas armoniosamente desarrolladas. El negro es el color de la incertidumbre, que simboliza una percepción sombría de la vida. Cualquiera que ame el negro, a menudo percibe la vida en colores oscuros, es infeliz. El blanco es la síntesis de todos los colores, porque es el color \"ideal\", el \"color del sueño\". Este color puede ser preferido por una persona con cualquier carácter, no repele a nadie." },
@@ -307,7 +301,6 @@
       setTimeout(() => supportTooltip.classList.remove('active'), 2500);
     });
 
-    // ============ STROBOSCOPES (с тикерами и каомодзи из таблицы) ============
     const stroboscopes = [
       { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -354,6 +347,35 @@
       return 'data:image/svg+xml;base64,' + btoa(svg);
     }
 
+    // Генерация SVG с настоящими полукругами
+    function generateCapsSVG(ticker, kaomoji, outerColor, innerColor) {
+      const size = 500;
+      const cx = size / 2;
+      const cy = size / 2;
+      const r = size / 2 - 5; // радиус полукруга (чуть меньше круга)
+      const capHeight = r * 0.18; // высота полукруга (18% от радиуса)
+      
+      // Верхний полукруг: дуга от 180° до 360°
+      const topY = cy - r + capHeight;
+      const topPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy} L ${cx + r * 0.85} ${topY} A ${r * 0.85} ${r * 0.85} 0 0 0 ${cx - r * 0.85} ${topY} Z`;
+      
+      // Нижний полукруг: дуга от 0° до 180°
+      const botY = cy + r - capHeight;
+      const botPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 0 ${cx + r} ${cy} L ${cx + r * 0.85} ${botY} A ${r * 0.85} ${r * 0.85} 0 0 1 ${cx - r * 0.85} ${botY} Z`;
+      
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`;
+      // Верхний полукруг
+      svg += `<path d="${topPath}" fill="${outerColor}" opacity="0.95"/>`;
+      // Нижний полукруг
+      svg += `<path d="${botPath}" fill="${outerColor}" opacity="0.95"/>`;
+      // Тикер сверху
+      svg += `<text x="${cx}" y="${cy - r * 0.7}" font-family="Martian Mono, monospace" font-size="28" font-weight="800" fill="${innerColor}" text-anchor="middle" letter-spacing="2">${ticker}</text>`;
+      // Каомодзи снизу
+      svg += `<text x="${cx}" y="${cy + r * 0.75}" font-family="Segoe UI Symbol, Noto Sans, sans-serif" font-size="24" fill="${innerColor}" text-anchor="middle">${kaomoji}</text>`;
+      svg += '</svg>';
+      return 'data:image/svg+xml;base64,' + btoa(svg);
+    }
+
     function createStroboscopeItem(item) {
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
@@ -368,31 +390,23 @@
       const fallbackImg = document.createElement('img');
       fallbackImg.src = generateCircleSVG(item.colors);
       fallbackImg.alt = item.name;
+      fallbackImg.className = 'circle-img';
       circleDiv.appendChild(fallbackImg);
 
-      // Полукруги: фон = внешний (1-й) цвет, текст = 2-й цвет
-      const capTopBg = document.createElement('div');
-      capTopBg.className = 'cap-bg cap-top'; capTopBg.style.background = item.colors[0];
-      const capBotBg = document.createElement('div');
-      capBotBg.className = 'cap-bg cap-bottom'; capBotBg.style.background = item.colors[0];
-
-      const capTopText = document.createElement('div');
-      capTopText.className = 'cap-text cap-text-top'; capTopText.style.color = item.colors[1];
-      capTopText.textContent = item.ticker;
-
-      const capBotText = document.createElement('div');
-      capBotText.className = 'cap-text cap-text-bottom'; capBotText.style.color = item.colors[1];
-      capBotText.textContent = item.kaomoji;
-
-      circleDiv.appendChild(capTopBg);
-      circleDiv.appendChild(capBotBg);
-      circleDiv.appendChild(capTopText);
-      circleDiv.appendChild(capBotText);
+      // SVG оверлей с полукругами
+      const capsOverlay = document.createElement('div');
+      capsOverlay.className = 'caps-overlay';
+      const capsImg = document.createElement('img');
+      capsImg.src = generateCapsSVG(item.ticker, item.kaomoji, item.colors[0], item.colors[1]);
+      capsImg.alt = '';
+      capsImg.style.pointerEvents = 'none';
+      capsOverlay.appendChild(capsImg);
+      circleDiv.appendChild(capsOverlay);
 
       const realImg = new Image();
       realImg.onload = function() {
-        // сохраняем оверлеи, заменяем только картинку
-        circleDiv.querySelectorAll('img').forEach(i => i.remove());
+        circleDiv.querySelectorAll('img.circle-img').forEach(i => i.remove());
+        realImg.className = 'circle-img';
         circleDiv.insertBefore(realImg, circleDiv.firstChild);
       };
       realImg.onerror = function() { console.log(`Failed to load ${item.image}, using SVG fallback`); };
@@ -404,24 +418,11 @@
       return div;
     }
 
-    // Автоподгон шрифта каомодзи/тикера под ширину полукруга
-    function fitAllCaps() {
-      document.querySelectorAll('.cap-text').forEach(el => {
-        el.style.fontSize = '';
-        let fs = parseFloat(getComputedStyle(el).fontSize);
-        let guard = 0;
-        while (el.scrollWidth > el.clientWidth && fs > 5 && guard < 40) {
-          fs -= 0.5; el.style.fontSize = fs + 'px'; guard++;
-        }
-      });
-    }
-
     function renderStroboscopes(items) {
       const grid = document.getElementById('galleryGrid');
       grid.innerHTML = '';
       items.forEach(item => grid.appendChild(createStroboscopeItem(item)));
       setupIntersectionObserver();
-      requestAnimationFrame(fitAllCaps);
     }
 
     function setupIntersectionObserver() {
@@ -441,7 +442,6 @@
     buildLangDropdown();
     applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
-    window.addEventListener('resize', fitAllCaps);
 
     document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.querySelector('.js-canvas');
