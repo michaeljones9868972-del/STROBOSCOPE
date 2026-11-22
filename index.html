@@ -159,8 +159,8 @@
       }
     }
 
-    /* ============ RED BANNER OVERLAY ============ */
-    .red-banner {
+    /* ============ COLOR BANNER OVERLAY ============ */
+    .color-banner {
       position: fixed;
       top: 75px;
       left: 0;
@@ -176,16 +176,16 @@
       transition: opacity 0.4s ease;
       padding: 20px;
     }
-    .red-banner.active {
+    .color-banner.active {
       opacity: 1;
       pointer-events: auto;
     }
-    .red-banner-img {
+    .color-banner-img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
       border-radius: 8px;
-      box-shadow: 0 0 60px rgba(229, 57, 53, 0.3);
+      box-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
     }
 
     .gallery-wrapper {
@@ -312,7 +312,7 @@
       .gallery-page { padding: 0 25px; }
       .rainbow-row { top: 75px; }
       .gallery-wrapper { padding-top: 130px; }
-      .red-banner { top: 130px; }
+      .color-banner { top: 130px; }
     }
     @media (max-width: 700px) {
       .gallery-grid { grid-template-columns: 1fr; gap: 20px; max-width: 400px; }
@@ -327,7 +327,7 @@
       .rainbow-row { top: 65px; gap: 6px; padding: 6px 10px; }
       .rainbow-dot { width: 26px; height: 26px; }
       .gallery-wrapper { padding-top: 110px; }
-      .red-banner { top: 110px; bottom: 50px; padding: 10px; }
+      .color-banner { top: 110px; bottom: 50px; padding: 10px; }
     }
 
     html[dir="rtl"] .top-controls { right: auto; left: 20px; }
@@ -368,19 +368,20 @@
     <input type="text" id="searchInput" placeholder="SEARCH BY NAME" maxlength="45">
   </div>
 
+  <!-- 7 радужных кругов. data-banner — путь к картинке баннера (если есть) -->
   <div class="rainbow-row" id="rainbowRow">
-    <div class="rainbow-dot" id="redDot" title="Red"></div>
-    <div class="rainbow-dot"></div>
-    <div class="rainbow-dot"></div>
-    <div class="rainbow-dot"></div>
-    <div class="rainbow-dot"></div>
-    <div class="rainbow-dot"></div>
-    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot" data-banner="red-banner.png" title="Red"></div>
+    <div class="rainbow-dot" data-banner="orange-banner.png" title="Orange"></div>
+    <div class="rainbow-dot" data-banner="yellow-banner.png" title="Yellow"></div>
+    <div class="rainbow-dot" data-banner="green-banner.png" title="Green"></div>
+    <div class="rainbow-dot" title="Cyan"></div>
+    <div class="rainbow-dot" title="Blue"></div>
+    <div class="rainbow-dot" title="Violet"></div>
   </div>
 
-  <!-- RED BANNER OVERLAY -->
-  <div class="red-banner" id="redBanner">
-    <img src="red-banner.png" alt="Red color info" class="red-banner-img">
+  <!-- Универсальный цветной баннер -->
+  <div class="color-banner" id="colorBanner">
+    <img src="" alt="" class="color-banner-img" id="colorBannerImg">
   </div>
 
   <div class="gallery-wrapper" id="galleryWrapper"></div>
@@ -510,25 +511,32 @@
       setTimeout(() => supportTooltip.classList.remove('active'), 2500);
     });
 
-    // ============ RED BANNER HOVER LOGIC ============
-    const redDot = document.getElementById('redDot');
-    const redBanner = document.getElementById('redBanner');
+    // ============ COLOR BANNER HOVER LOGIC ============
+    const colorBanner = document.getElementById('colorBanner');
+    const colorBannerImg = document.getElementById('colorBannerImg');
     let bannerTimeout;
 
-    redDot.addEventListener('mouseenter', () => {
+    // Навешиваем обработчики на все круги с data-banner
+    document.querySelectorAll('.rainbow-dot[data-banner]').forEach(dot => {
+      dot.addEventListener('mouseenter', () => {
+        clearTimeout(bannerTimeout);
+        colorBannerImg.src = dot.dataset.banner;
+        colorBannerImg.alt = dot.title || dot.dataset.banner;
+        colorBanner.classList.add('active');
+      });
+      dot.addEventListener('mouseleave', () => {
+        bannerTimeout = setTimeout(() => {
+          colorBanner.classList.remove('active');
+        }, 100);
+      });
+    });
+
+    // Удержание баннера при наведении на сам баннер
+    colorBanner.addEventListener('mouseenter', () => {
       clearTimeout(bannerTimeout);
-      redBanner.classList.add('active');
     });
-    redDot.addEventListener('mouseleave', () => {
-      bannerTimeout = setTimeout(() => {
-        redBanner.classList.remove('active');
-      }, 100);
-    });
-    redBanner.addEventListener('mouseenter', () => {
-      clearTimeout(bannerTimeout);
-    });
-    redBanner.addEventListener('mouseleave', () => {
-      redBanner.classList.remove('active');
+    colorBanner.addEventListener('mouseleave', () => {
+      colorBanner.classList.remove('active');
     });
 
     const stroboscopes = [
