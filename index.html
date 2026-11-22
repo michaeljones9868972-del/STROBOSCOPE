@@ -115,7 +115,6 @@
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160, 216, 241, 0.3); }
     .search-container input::placeholder { color: rgba(160, 216, 241, 0.5); }
 
-    /* 7 радужных пульсирующих кругов вверху по центру */
     .rainbow-row {
       position: fixed;
       top: 22px;
@@ -159,7 +158,6 @@
       }
     }
 
-    /* ============ COLOR BANNER OVERLAY ============ */
     .color-banner {
       position: fixed;
       top: 75px;
@@ -368,7 +366,6 @@
     <input type="text" id="searchInput" placeholder="SEARCH BY NAME" maxlength="45">
   </div>
 
-  <!-- 7 радужных кругов. data-banner — путь к картинке баннера (если есть) -->
   <div class="rainbow-row" id="rainbowRow">
     <div class="rainbow-dot" data-banner="red-banner.png" title="Red"></div>
     <div class="rainbow-dot" data-banner="orange-banner.png" title="Orange"></div>
@@ -379,7 +376,6 @@
     <div class="rainbow-dot" data-banner="purple-banner.png" title="Purple"></div>
   </div>
 
-  <!-- Универсальный цветной баннер -->
   <div class="color-banner" id="colorBanner">
     <img src="" alt="" class="color-banner-img" id="colorBannerImg">
   </div>
@@ -516,7 +512,6 @@
     const colorBannerImg = document.getElementById('colorBannerImg');
     let bannerTimeout;
 
-    // Навешиваем обработчики на все круги с data-banner
     document.querySelectorAll('.rainbow-dot[data-banner]').forEach(dot => {
       dot.addEventListener('mouseenter', () => {
         clearTimeout(bannerTimeout);
@@ -531,7 +526,6 @@
       });
     });
 
-    // Удержание баннера при наведении на сам баннер
     colorBanner.addEventListener('mouseenter', () => {
       clearTimeout(bannerTimeout);
     });
@@ -539,6 +533,7 @@
       colorBanner.classList.remove('active');
     });
 
+    // ============ STROBOSCOPES ============
     const stroboscopes = [
       { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -709,10 +704,19 @@
       }
     });
 
+    // ============ SEARCH (по name + ticker + kaomoji) ============
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      filteredStroboscopes = stroboscopes.filter(s => s.name.toLowerCase().includes(query));
+      const query = e.target.value.toLowerCase().trim();
+      if (query === '') {
+        filteredStroboscopes = [...stroboscopes];
+      } else {
+        filteredStroboscopes = stroboscopes.filter(s => 
+          s.name.toLowerCase().includes(query) || 
+          s.ticker.toLowerCase().includes(query) || 
+          s.kaomoji.includes(query)
+        );
+      }
       renderStroboscopes(filteredStroboscopes);
     });
 
