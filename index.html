@@ -115,6 +115,47 @@
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160, 216, 241, 0.3); }
     .search-container input::placeholder { color: rgba(160, 216, 241, 0.5); }
 
+    /* 7 радужных кругов вверху по центру */
+    .rainbow-row {
+      position: fixed;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(160, 216, 241, 0.2);
+      backdrop-filter: blur(8px);
+    }
+    .rainbow-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: rainbowPulse 2.5s ease-in-out infinite;
+    }
+    .rainbow-dot:nth-child(1) { background: #FF1744; animation-delay: 0s; }
+    .rainbow-dot:nth-child(2) { background: #FF9100; animation-delay: 0.15s; }
+    .rainbow-dot:nth-child(3) { background: #FFEA00; animation-delay: 0.3s; }
+    .rainbow-dot:nth-child(4) { background: #00E676; animation-delay: 0.45s; }
+    .rainbow-dot:nth-child(5) { background: #00B0FF; animation-delay: 0.6s; }
+    .rainbow-dot:nth-child(6) { background: #2979FF; animation-delay: 0.75s; }
+    .rainbow-dot:nth-child(7) { background: #D500F9; animation-delay: 0.9s; }
+    @keyframes rainbowPulse {
+      0%, 100% {
+        box-shadow: 0 0 8px rgba(255,255,255,0.6), 0 0 16px rgba(255,255,255,0.3);
+        transform: scale(1);
+      }
+      50% {
+        box-shadow: 0 0 16px rgba(255,255,255,1), 0 0 28px rgba(255,255,255,0.7), 0 0 40px rgba(255,255,255,0.4);
+        transform: scale(1.1);
+      }
+    }
+
     .gallery-wrapper {
       height: 100vh;
       overflow-y: scroll;
@@ -122,6 +163,7 @@
       scroll-behavior: smooth;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: contain;
+      padding-top: 80px;
     }
     
     .gallery-page {
@@ -157,7 +199,6 @@
     }
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
     
-    /* Название НАД кругом — Dancing Script со свечением */
     .stroboscope-ticker {
       font-family: 'Dancing Script', cursive;
       font-size: clamp(32px, 4vw, 52px);
@@ -185,7 +226,6 @@
       }
     }
     
-    /* Каомодзи ПОД кругом — тот же шрифт и размер */
     .stroboscope-kaomoji {
       font-family: 'Dancing Script', cursive;
       font-size: clamp(32px, 4vw, 52px);
@@ -233,10 +273,13 @@
 
     @media (max-width: 1400px) {
       .gallery-grid { gap: 30px; }
+      .rainbow-dot { width: 32px; height: 32px; }
     }
     @media (max-width: 1100px) {
       .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 25px; }
       .gallery-page { padding: 0 25px; }
+      .rainbow-row { top: 75px; }
+      .gallery-wrapper { padding-top: 130px; }
     }
     @media (max-width: 700px) {
       .gallery-grid { grid-template-columns: 1fr; gap: 20px; max-width: 400px; }
@@ -248,6 +291,9 @@
       .marquee-content { font-size: 11px; padding: 0 20px; }
       .support-link { display: none; }
       .divider { display: none; }
+      .rainbow-row { top: 65px; gap: 6px; padding: 6px 10px; }
+      .rainbow-dot { width: 26px; height: 26px; }
+      .gallery-wrapper { padding-top: 110px; }
     }
 
     html[dir="rtl"] .top-controls { right: auto; left: 20px; }
@@ -288,6 +334,17 @@
     <input type="text" id="searchInput" placeholder="SEARCH BY NAME" maxlength="45">
   </div>
 
+  <!-- 7 радужных пульсирующих кругов вверху по центру -->
+  <div class="rainbow-row">
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+    <div class="rainbow-dot"></div>
+  </div>
+
   <div class="gallery-wrapper" id="galleryWrapper"></div>
 
   <div class="marquee-container">
@@ -295,7 +352,6 @@
   </div>
 
   <script>
-    // ============ SVG FLAGS ============
     const flags = {
       en: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -308,7 +364,6 @@
     };
     const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português' };
 
-    // ============ TRANSLATIONS ============
     const translations = {
       en: {
         search: "SEARCH BY NAME",
@@ -384,15 +439,12 @@
       const t = translations[lang];
       if (!t) return;
 
-      // Обновляем placeholder поиска
       const searchInput = document.getElementById('searchInput');
       if (searchInput) searchInput.placeholder = t.search;
 
-      // Обновляем marquee
       const marquee = document.getElementById('marqueeContent');
       if (marquee) marquee.innerHTML = t.marquee + ' ' + t.marquee;
 
-      // Подсвечиваем активный флаг
       document.querySelectorAll('.lang-flag').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.lang === lang);
       });
@@ -420,7 +472,6 @@
       setTimeout(() => supportTooltip.classList.remove('active'), 2500);
     });
 
-    // ============ STROBOSCOPES (по таблице) ============
     const stroboscopes = [
       { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -479,7 +530,6 @@
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
 
-      // Название НАД кругом
       const tickerDiv = document.createElement('div');
       tickerDiv.className = 'stroboscope-ticker';
       tickerDiv.textContent = item.ticker;
@@ -502,7 +552,6 @@
       realImg.onerror = function() { console.log(`Failed to load ${item.image}, using SVG fallback`); };
       realImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
 
-      // Каомодзи ПОД кругом
       const kaomojiDiv = document.createElement('div');
       kaomojiDiv.className = 'stroboscope-kaomoji';
       kaomojiDiv.textContent = item.kaomoji;
@@ -518,6 +567,7 @@
       const wrapper = document.getElementById('galleryWrapper');
       wrapper.innerHTML = '';
       
+      // Показываем с первого набора (копия 0) — TENDER, HYPE, BLOOM...
       const copies = 3;
       for (let copy = 0; copy < copies; copy++) {
         for (let i = 0; i < items.length; i += 3) {
@@ -539,11 +589,9 @@
       
       setupIntersectionObserver();
       
+      // Начинаем с ПЕРВОГО набора (не с середины)
       setTimeout(() => {
-        const pageHeight = window.innerHeight;
-        const totalPages = wrapper.children.length;
-        const middlePage = Math.floor(totalPages / 2);
-        wrapper.scrollTop = middlePage * pageHeight;
+        wrapper.scrollTop = 0;
       }, 100);
     }
 
@@ -603,7 +651,6 @@
       renderStroboscopes(filteredStroboscopes);
     });
 
-    // ============ INIT ============
     buildLangDropdown();
     applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
