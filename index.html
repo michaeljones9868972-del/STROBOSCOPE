@@ -507,7 +507,6 @@
       setTimeout(() => supportTooltip.classList.remove('active'), 2500);
     });
 
-    // ============ COLOR BANNER HOVER LOGIC ============
     const colorBanner = document.getElementById('colorBanner');
     const colorBannerImg = document.getElementById('colorBannerImg');
     let bannerTimeout;
@@ -533,7 +532,6 @@
       colorBanner.classList.remove('active');
     });
 
-    // ============ STROBOSCOPES ============
     const stroboscopes = [
       { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -588,9 +586,10 @@
       return 'data:image/svg+xml;base64,' + utf8ToBase64(svg);
     }
 
-    function createStroboscopeItem(item) {
+    function createStroboscopeItem(item, showImmediately = false) {
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
+      if (showImmediately) div.classList.add('visible');
 
       const tickerDiv = document.createElement('div');
       tickerDiv.className = 'stroboscope-ticker';
@@ -629,6 +628,8 @@
       const wrapper = document.getElementById('galleryWrapper');
       wrapper.innerHTML = '';
       
+      const isSearch = items.length < stroboscopes.length;
+      
       const copies = 3;
       for (let copy = 0; copy < copies; copy++) {
         for (let i = 0; i < items.length; i += 3) {
@@ -640,7 +641,7 @@
           
           const pageItems = items.slice(i, i + 3);
           pageItems.forEach((item) => {
-            grid.appendChild(createStroboscopeItem(item));
+            grid.appendChild(createStroboscopeItem(item, isSearch));
           });
           
           page.appendChild(grid);
@@ -648,7 +649,9 @@
         }
       }
       
-      setupIntersectionObserver();
+      if (!isSearch) {
+        setupIntersectionObserver();
+      }
       
       setTimeout(() => {
         wrapper.scrollTop = 0;
@@ -704,7 +707,6 @@
       }
     });
 
-    // ============ SEARCH (по name + ticker + kaomoji) ============
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
