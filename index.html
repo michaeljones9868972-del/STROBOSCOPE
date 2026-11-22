@@ -16,7 +16,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -24,8 +24,9 @@
       background: #000; color: white;
       font-family: 'Martian Mono', monospace;
       overflow-x: hidden;
+      height: 100vh;
     }
-    body { position: relative; min-height: 100vh; }
+    body { position: relative; }
 
     .a-hole { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; }
     .js-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
@@ -89,6 +90,7 @@
       background: rgba(0, 0, 0, 0.95); border: 1px solid rgba(160, 216, 241, 0.5);
       border-radius: 8px; padding: 10px; display: none;
       grid-template-columns: repeat(4, 1fr); gap: 8px; min-width: 220px; backdrop-filter: blur(10px);
+      z-index: 101;
     }
     .lang-dropdown.active { display: grid; }
     .lang-flag {
@@ -113,19 +115,94 @@
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160, 216, 241, 0.3); }
     .search-container input::placeholder { color: rgba(160, 216, 241, 0.5); }
 
-    .gallery-wrapper { padding: 100px 40px 80px; min-height: 100vh; }
-    .gallery-grid {
-      display: grid; grid-template-columns: repeat(5, 1fr);
-      gap: 30px; max-width: 2200px; margin: 0 auto;
+    .gallery-wrapper {
+      height: 100vh;
+      overflow-y: scroll;
+      scroll-snap-type: y mandatory;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
     }
-
+    
+    .gallery-page {
+      height: 100vh;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 40px;
+      position: relative;
+    }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1800px;
+      width: 100%;
+    }
+    
     .stroboscope-item {
       display: flex; flex-direction: column; align-items: center; cursor: pointer;
-      transition: transform 0.3s, opacity 0.6s ease; opacity: 0; transform: translateY(40px);
-      backface-visibility: hidden; -webkit-backface-visibility: hidden;
+      transition: transform 0.3s, opacity 0.6s ease;
+      opacity: 0;
+      transform: translateY(40px);
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
     }
-    .stroboscope-item.visible { opacity: 1; transform: translateY(0); }
-    .stroboscope-item:hover { transform: translateY(-8px) scale(1.03); }
+    .stroboscope-item.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
+    
+    /* Название НАД кругом — Dancing Script со свечением */
+    .stroboscope-ticker {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+      text-align: center;
+      white-space: nowrap;
+      width: 100%;
+      text-shadow:
+        0 0 20px rgba(255, 255, 255, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.7),
+        0 0 60px rgba(255, 255, 255, 0.5),
+        0 0 80px rgba(255, 255, 255, 0.3);
+      animation: ticker-glow 3s ease-in-out infinite alternate;
+    }
+    @keyframes ticker-glow {
+      0% {
+        text-shadow: 0 0 20px rgba(255,255,255,0.7), 0 0 40px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3);
+        transform: scale(1);
+      }
+      100% {
+        text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(255,255,255,0.8), 0 0 90px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.4);
+        transform: scale(1.03);
+      }
+    }
+    
+    /* Каомодзи ПОД кругом — тот же шрифт и размер */
+    .stroboscope-kaomoji {
+      font-family: 'Dancing Script', cursive;
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 12px;
+      text-align: center;
+      white-space: nowrap;
+      width: 100%;
+      text-shadow:
+        0 0 20px rgba(255, 255, 255, 0.9),
+        0 0 40px rgba(255, 255, 255, 0.7),
+        0 0 60px rgba(255, 255, 255, 0.5),
+        0 0 80px rgba(255, 255, 255, 0.3);
+      animation: ticker-glow 3s ease-in-out infinite alternate;
+      animation-delay: 1.5s;
+    }
     
     .stroboscope-circle {
       position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; overflow: hidden;
@@ -143,35 +220,6 @@
       pointer-events: none; -webkit-user-drag: none; user-select: none;
     }
 
-    /* Название и каомодзи ВНУТРИ круга — строго в пределах */
-    .circle-label {
-      position: absolute;
-      left: 10%;
-      width: 80%;
-      text-align: center;
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(18px, 2.5vw, 32px);
-      font-weight: 700;
-      color: #ffffff;
-      text-shadow:
-        0 0 15px rgba(255, 255, 255, 0.9),
-        0 0 30px rgba(255, 255, 255, 0.7),
-        0 0 45px rgba(255, 255, 255, 0.5),
-        -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      pointer-events: none;
-      line-height: 1;
-      letter-spacing: 1px;
-    }
-    .circle-label-top {
-      top: 10%;
-    }
-    .circle-label-bottom {
-      bottom: 10%;
-    }
-
     .marquee-container {
       position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
       overflow: hidden; background: rgba(0, 0, 0, 0.85); display: flex; align-items: center; z-index: 2;
@@ -183,10 +231,24 @@
     }
     @keyframes scroll-left { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
 
-    @media (max-width: 1600px) { .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 25px; } }
-    @media (max-width: 1200px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); gap: 25px; } .gallery-wrapper { padding: 90px 30px 80px; } }
-    @media (max-width: 900px) { .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } .gallery-wrapper { padding: 80px 20px 80px; } .top-controls { top: 10px; right: 10px; padding: 8px 12px; gap: 8px; } .search-container { top: 10px; left: 10px; padding: 8px; } .search-container input { width: 200px; font-size: 12px; } }
-    @media (max-width: 600px) { .gallery-grid { grid-template-columns: 1fr; gap: 20px; max-width: 400px; } .search-container input { width: 150px; font-size: 11px; padding: 6px 10px; } .marquee-container { height: 50px; } .marquee-content { font-size: 11px; padding: 0 20px; } .gallery-wrapper { padding: 70px 15px 70px; } .support-link { display: none; } .divider { display: none; } }
+    @media (max-width: 1400px) {
+      .gallery-grid { gap: 30px; }
+    }
+    @media (max-width: 1100px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); gap: 25px; }
+      .gallery-page { padding: 0 25px; }
+    }
+    @media (max-width: 700px) {
+      .gallery-grid { grid-template-columns: 1fr; gap: 20px; max-width: 400px; }
+      .gallery-page { padding: 0 15px; }
+      .top-controls { top: 10px; right: 10px; padding: 8px 12px; gap: 8px; }
+      .search-container { top: 10px; left: 10px; padding: 8px; }
+      .search-container input { width: 180px; font-size: 11px; padding: 6px 10px; }
+      .marquee-container { height: 50px; }
+      .marquee-content { font-size: 11px; padding: 0 20px; }
+      .support-link { display: none; }
+      .divider { display: none; }
+    }
 
     html[dir="rtl"] .top-controls { right: auto; left: 20px; }
     html[dir="rtl"] .search-container { left: auto; right: 20px; }
@@ -226,18 +288,14 @@
     <input type="text" id="searchInput" placeholder="SEARCH BY NAME" maxlength="45">
   </div>
 
-  <div class="gallery-wrapper"><div class="gallery-grid" id="galleryGrid"></div></div>
+  <div class="gallery-wrapper" id="galleryWrapper"></div>
 
-  <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
+  <div class="marquee-container">
+    <div class="marquee-content" id="marqueeContent"></div>
+  </div>
 
   <script>
-    function utf8ToBase64(str) {
-      const bytes = new TextEncoder().encode(str);
-      let binary = '';
-      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-      return btoa(binary);
-    }
-
+    // ============ SVG FLAGS ============
     const flags = {
       en: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es: `<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -250,43 +308,102 @@
     };
     const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português' };
 
-    // Только английский
-    const EN_TEXT = {
-      search: "SEARCH BY NAME",
-      marquee: "Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things heavy, light, cold, hot. It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color speaks of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the ideal color, the dream color. This color can be preferred by a person with any character, it does not repel anyone."
+    // ============ TRANSLATIONS ============
+    const translations = {
+      en: {
+        search: "SEARCH BY NAME",
+        marquee: "Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things heavy, light, cold, hot. It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color speaks of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the ideal color, the dream color. This color can be preferred by a person with any character, it does not repel anyone."
+      },
+      es: {
+        search: "BUSCAR POR NOMBRE",
+        marquee: "El estroboscopio y la música tienen un efecto hipnótico sobre los ritmos alfa del cerebro de una persona sana y estimulan activamente su actividad mental. El color es uno de los factores que determinan el estado de nuestra psique. Los psicólogos y psiquiatras, basándose en la preferencia o el amor de las personas por un color en particular, determinan el carácter de una persona, sus inclinaciones, su mentalidad, psique e incluso su estado de salud. La influencia del color en una persona es muy grande, aunque en la vida cotidiana no le prestamos atención. El color hace que las cosas sean pesadas, ligeras, frías, calientes. Tiene un tremendo impacto en una persona, en el trabajo de sus órganos. Cada color evoca una reacción específica en el cerebro humano. Por ejemplo, si una persona está muy excitada, basta con colocarla en una habitación con papel tapiz rosa brillante, ya que se calma muy rápidamente e incluso se queda dormida. Sin embargo, bastó con cambiar el color a azul, para que esta debilidad desapareciera. Esto significa que el color afecta no solo el estado de ánimo, sino también todo el cuerpo humano. El rojo es el color de la pasión. Si este es un color favorito, entonces tal persona es valiente, de voluntad fuerte, dominante, de temperamento rápido, sociable. El naranja es el color favorito de las personas con intuición y soñadores apasionados, significa salud, simboliza alegría, calidez. El amarillo - este color simboliza calma, inteligencia. Si este es un color favorito, entonces tal persona es sociable, curiosa, valiente. El verde es el color de la naturaleza. El que lo prefiere teme la influencia de los demás, buscando una forma de afirmarse. El azul - simboliza la verdad. Esto es paz, tranquilidad, bienestar. El azul es el color del cielo. Si a una persona le gusta, esto habla de modestia y melancolía; tal persona necesita descansar, se cansa rápidamente. El violeta - este color habla de una gran emocionalidad, sensibilidad, delicadeza, es el color de las personas armoniosamente desarrolladas. El negro es el color de la incertidumbre, que simboliza una percepción sombría de la vida. Cualquiera que ame el negro, a menudo percibe la vida en colores oscuros, es infeliz. El blanco es la síntesis de todos los colores, porque es el color ideal, el color del sueño. Este color puede ser preferido por una persona con cualquier carácter, no repele a nadie."
+      },
+      zh: {
+        search: "按名称搜索",
+        marquee: "频闪仪和音乐对健康人的大脑阿尔法节律有催眠作用，并积极刺激其心理活动！颜色是决定我们心理状态的因素之一。心理学家和精神病学家根据人们对特定颜色的偏好或喜爱，来确定一个人的性格、倾向、心态、心理甚至健康状况。颜色对人的影响非常大，尽管在日常生活中我们并不注意它。颜色使事物变得沉重、轻盈、寒冷、炎热。它对一个人及其器官的工作产生巨大影响。每种颜色都会在人类大脑中引起特定的反应。例如，如果一个人非常兴奋，只需将他放在一个有明亮粉色壁纸的房间里，他就会很快平静下来甚至入睡。然而，只需将颜色改为蓝色，这种虚弱感就消失了。这意味着颜色不仅影响情绪，还影响整个人体。红色是激情的颜色。如果这是最喜欢的颜色，那么这样的人是勇敢的、意志坚强的、专横的、脾气暴躁的、善于交际的。橙色是有直觉的人和充满激情的梦想家最喜欢的颜色，它意味着健康，象征着欢乐和温暖。黄色——这种颜色象征着平静和智慧。如果这是最喜欢的颜色，那么这样的人是善于交际的、好奇的、勇敢的。绿色是大自然的颜色。喜欢它的人害怕别人的影响，寻找一种方式来肯定自己。蓝色——象征真理。这是和平、宁静、幸福。蓝色是天空的颜色。如果一个人喜欢它，这说明他谦虚和忧郁；这样的人需要休息，他很快就会累。紫色——这种颜色诉说着非常强烈的情感、敏感、细腻，它是和谐发展的人的颜色。黑色是不确定性的颜色，象征着对生活的阴郁看法。任何喜欢黑色的人，经常以深色看待生活，是不快乐的。白色是所有颜色的综合，因为它是理想的颜色，梦想的颜色。任何性格的人都可以喜欢这种颜色，它不会排斥任何人。"
+      },
+      hi: {
+        search: "नाम से खोजें",
+        marquee: "स्ट्रोबोस्कोप और संगीत - एक स्वस्थ व्यक्ति के मस्तिष्क की अल्फा लयों पर सम्मोहक प्रभाव डालता है और उसकी मानसिक गतिविधि को सक्रिय रूप से उत्तेजित करता है! रंग हमारे मन की स्थिति निर्धारित करने वाले कारकों में से एक है। मनोवैज्ञानिक और मनोचिकित्सक, लोगों की किसी विशेष रंग की पसंद या प्रेम के आधार पर, एक व्यक्ति के चरित्र, उसकी प्रवृत्तियों, उसकी मानसिकता, मन और यहां तक कि उसकी स्वास्थ्य स्थिति का निर्धारण करते हैं। व्यक्ति पर रंग का प्रभाव बहुत बड़ा है, हालांकि दैनिक जीवन में हम इस पर ध्यान नहीं देते हैं। रंग चीजों को भारी, हल्का, ठंडा, गर्म बनाता है। इसका व्यक्ति पर, उसके अंगों के काम पर बहुत बड़ा प्रभाव पड़ता है। प्रत्येक रंग मानव मस्तिष्क में एक विशिष्ट प्रतिक्रिया उत्पन्न करता है। उदाहरण के लिए, यदि कोई व्यक्ति बहुत उत्तेजित है, तो उसे चमकीले गुलाबी वॉलपेपर वाले कमरे में रखना काफी है, क्योंकि वह बहुत जल्दी शांत हो जाता है और यहां तक कि सो जाता है। हालांकि, रंग को नीले में बदलना काफी था, क्योंकि यह कमजोरी गायब हो गई। इसका मतलब है कि रंग न केवल मूड को, बल्कि पूरे मानव शरीर को भी प्रभावित करता है। लाल जुनून का रंग है। यदि यह पसंदीदा रंग है, तो ऐसा व्यक्ति बहादुर, दृढ़ इच्छाशक्ति वाला, प्रभुत्व वाली, तेज-तर्रार, मिलनसार होता है। नारंगी अंतर्ज्ञान वाले लोगों और जुनूनी सपने देखने वालों का पसंदीदा रंग है, इसका अर्थ स्वास्थ्य है, खुशी, गर्मी का प्रतीक है। पीला - यह रंग शांति, बुद्धिमत्ता का प्रतीक है। यदि यह पसंदीदा रंग है, तो ऐसा व्यक्ति मिलनसार, जिज्ञासु, साहसी होता है। हरा प्रकृति का रंग है। जो इसे पसंद करता है वह किसी और के प्रभाव से डरता है, खुद को स्थापित करने का तरीका खोज रहा है। नीला - सत्य का प्रतीक है। यह शांति, शांति, कल्याण है। नीला आकाश का रंग है। यदि किसी व्यक्ति को यह पसंद है, तो यह विनम्रता और उदासी की बात करता है; ऐसे व्यक्ति को आराम की आवश्यकता है, वह जल्दी थक जाता है। बैंगनी - यह रंग बहुत बड़ी भावनात्मकता, संवेदनशीलता, कोमलता की बात करता है, यह सामंजस्यपूर्ण रूप से विकसित लोगों का रंग है। काला अनिश्चितता का रंग है, जीवन की उदास धारणा का प्रतीक है। जो कोई भी काले रंग से प्यार करता है, अक्सर जीवन को गहरे रंगों में देखता है, दुखी होता है। सफेद सभी रंगों का संश्लेषण है, क्योंकि यह आदर्श रंग है, सपने का रंग। इस रंग को किसी भी चरित्र वाले व्यक्ति द्वारा पसंद किया जा सकता है, यह किसी को भी विकर्षित नहीं करता है।"
+      },
+      ar: {
+        search: "البحث بالاسم",
+        marquee: "الستروبوسكوب والموسيقى - لهما تأثير تنويمي على إيقاعات ألفا في دماغ الشخص السليم وينشطان نشاطه العقلي! اللون هو أحد العوامل التي تحدد حالة نفسيتنا. علماء النفس والأطباء النفسيون، بناءً على تفضيل الناس أو حبهم للون معين، يحددون شخصية الشخص وميوله وعقليته ونفسيته وحتى حالته الصحية. تأثير اللون على الإنسان كبير جدًا، على الرغم من أننا في الحياة اليومية لا ننتبه إليه. اللون يجعل الأشياء ثقيلة، خفيفة، باردة، ساخنة. له تأثير هائل على الإنسان، على عمل أعضائه. كل لون يثير رد فعل محدد في الدماغ البشري. على سبيل المثال، إذا كان الشخص متحمسًا جدًا، يكفي وضعه في غرفة بورق جدران وردي فاتح، حيث يهدأ بسرعة كبيرة وحتى ينام. ومع ذلك، كان كافيًا تغيير اللون إلى الأزرق، حيث اختفى هذا الضعف. هذا يعني أن اللون يؤثر ليس فقط على المزاج، ولكن أيضًا على جسم الإنسان بأكمله. الأحمر هو لون العاطفة. إذا كان هذا هو اللون المفضل، فإن هذا الشخص شجاع، قوي الإرادة، مهيمن، سريع الغضب، اجتماعي. البرتقالي هو اللون المفضل للأشخاص ذوي الحدس والحالمين العاطفيين، يعني الصحة، يرمز إلى الفرح والدفء. الأصفر - هذا اللون يرمز إلى الهدوء والذكاء. إذا كان هذا هو اللون المفضل، فإن هذا الشخص اجتماعي، فضولي، شجاع. الأخضر هو لون الطبيعة. من يفضله يخشى من تأثير الآخرين، يبحث عن طريقة لتأكيد نفسه. الأزرق - يرمز إلى الحقيقة. هذا هو السلام، الهدوء، الرفاهية. الأزرق هو لون السماء. إذا أعجب الشخص به، فهذا يتحدث عن التواضع والكآبة؛ مثل هذا الشخص يحتاج إلى الراحة، يتعب بسرعة. البنفسجي - هذا اللون يتحدث عن عاطفية كبيرة جدًا، حساسية، رقة، إنه لون الأشخاص المتطورين بشكل متناغم. الأسود هو لون عدم اليقين، يرمز إلى تصور قاتم للحياة. أي شخص يحب الأسود، غالبًا ما ينظر إلى الحياة بألوان داكنة، يكون غير سعيد. الأبيض هو توليف جميع الألوان، لأنه اللون المثالي، لون الحلم. يمكن تفضيل هذا اللون من قبل شخص بأي شخصية، لا يصد أحد."
+      },
+      fr: {
+        search: "RECHERCHER PAR NOM",
+        marquee: "Le stroboscope et la musique ont un effet hypnotique sur les rythmes alpha du cerveau d'une personne en bonne santé et stimulent activement son activité mentale! La couleur est l'un des facteurs qui déterminent l'état de notre psyché. Les psychologues et les psychiatres, en fonction de la préférence ou de l'amour des gens pour une couleur particulière, déterminent le caractère d'une personne, ses inclinations, son état d'esprit, sa psyché et même son état de santé. L'influence de la couleur sur une personne est très grande, bien que dans la vie de tous les jours nous n'y prêtions pas attention. La couleur rend les choses lourdes, légères, froides, chaudes. Elle a un impact énorme sur une personne, sur le travail de ses organes. Chaque couleur évoque une réaction spécifique dans le cerveau humain. Par exemple, si une personne est très excitée, il suffit de la placer dans une pièce avec un papier peint rose vif, car elle se calme très rapidement et s'endort même. Cependant, il a suffi de changer la couleur en bleu, pour que cette faiblesse disparaisse. Cela signifie que la couleur affecte non seulement l'humeur, mais aussi tout le corps humain. Le rouge est la couleur de la passion. Si c'est une couleur préférée, alors une telle personne est brave, forte de volonté, dominatrice, colérique, sociable. L'orange est la couleur préférée des personnes intuitives et des rêveurs passionnés, elle signifie la santé, symbolise la joie, la chaleur. Le jaune - cette couleur symbolise le calme, l'intelligence. Si c'est une couleur préférée, alors une telle personne est sociable, curieuse, courageuse. Le vert est la couleur de la nature. Celui qui le préfère a peur de l'influence des autres, cherchant un moyen de s'affirmer. Le bleu - symbolise la vérité. C'est la paix, la tranquillité, le bien-être. Le bleu est la couleur du ciel. Si une personne l'aime, cela parle de modestie et de mélancolie; une telle personne a besoin de se reposer, elle se fatigue rapidement. Le violet - cette couleur parle d'une très grande émotivité, sensibilité, délicatesse, c'est la couleur des personnes harmonieusement développées. Le noir est la couleur de l'incertitude, symbolisant une perception sombre de la vie. Quiconque aime le noir perçoit souvent la vie en couleurs sombres, est malheureux. Le blanc est la synthèse de toutes les couleurs, car c'est la couleur idéale, la couleur du rêve. Cette couleur peut être préférée par une personne de n'importe quel caractère, elle ne repousse personne."
+      },
+      de: {
+        search: "SUCHE NACH NAME",
+        marquee: "Stroboskop und Musik - haben eine hypnotische Wirkung auf die Alpha-Rhythmen des Gehirns eines gesunden Menschen und stimulieren aktiv seine geistige Aktivität! Farbe ist einer der Faktoren, die den Zustand unserer Psyche bestimmen. Psychologen und Psychiater bestimmen anhand der Vorliebe oder Liebe der Menschen zu einer bestimmten Farbe den Charakter einer Person, ihre Neigungen, ihre Denkweise, Psyche und sogar ihren Gesundheitszustand. Der Einfluss der Farbe auf den Menschen ist sehr groß, obwohl wir im Alltag nicht darauf achten. Farbe macht Dinge schwer, leicht, kalt, heiß. Sie hat einen enormen Einfluss auf den Menschen und die Arbeit seiner Organe. Jede Farbe ruft eine spezifische Reaktion im menschlichen Gehirn hervor. Wenn eine Person zum Beispiel sehr aufgeregt ist, genügt es, sie in einen Raum mit hellrosa Tapete zu setzen, da sie sehr schnell zur Ruhe kommt und sogar einschläft. Es genügte jedoch, die Farbe in Blau zu ändern, und diese Schwäche verschwand. Das bedeutet, dass Farbe nicht nur die Stimmung, sondern auch den ganzen menschlichen Körper beeinflusst. Rot ist die Farbe der Leidenschaft. Wenn dies eine Lieblingsfarbe ist, dann ist eine solche Person mutig, willensstark, herrschsüchtig, jähzornig und gesellig. Orange ist die Lieblingsfarbe von Menschen mit Intuition und leidenschaftlichen Träumern, sie bedeutet Gesundheit, symbolisiert Freude und Wärme. Gelb - diese Farbe symbolisiert Ruhe und Intelligenz. Wenn dies eine Lieblingsfarbe ist, dann ist eine solche Person gesellig, neugierig und mutig. Grün ist die Farbe der Natur. Wer sie bevorzugt, fürchtet den Einfluss anderer und sucht nach einer Möglichkeit, sich durchzusetzen. Blau - symbolisiert Wahrheit. Dies ist Frieden, Ruhe und Wohlbefinden. Blau ist die Farbe des Himmels. Wenn eine Person sie mag, spricht dies von Bescheidenheit und Melancholie; eine solche Person braucht Erholung, sie ermüdet schnell. Violett - diese Farbe spricht von großer Emotionalität, Empfindsamkeit und Zartheit, sie ist die Farbe harmonisch entwickelter Menschen. Schwarz ist die Farbe der Unsicherheit und symbolisiert eine düstere Wahrnehmung des Lebens. Wer Schwarz liebt, nimmt das Leben oft in dunklen Farben wahr und ist unglücklich. Weiß ist die Synthese aller Farben, denn es ist die ideale Farbe, die Traumfarbe. Diese Farbe kann von einer Person mit jedem Charakter bevorzugt werden, sie stößt niemanden ab."
+      },
+      pt: {
+        search: "PESQUISAR POR NOME",
+        marquee: "O estroboscópio e a música têm um efeito hipnótico sobre os ritmos alfa do cérebro de uma pessoa saudável e estimulam ativamente sua atividade mental! A cor é um dos fatores que determinam o estado de nossa psique. Psicólogos e psiquiatras, com base na preferência ou amor das pessoas por uma cor em particular, determinam o caráter de uma pessoa, suas inclinações, sua mentalidade, psique e até mesmo seu estado de saúde. A influência da cor em uma pessoa é muito grande, embora no dia a dia não prestemos atenção a isso. A cor torna as coisas pesadas, leves, frias, quentes. Tem um tremendo impacto em uma pessoa, no trabalho de seus órgãos. Cada cor evoca uma reação específica no cérebro humano. Por exemplo, se uma pessoa está muito excitada, basta colocá-la em uma sala com papel de parede rosa brilhante, pois ela se acalma muito rapidamente e até adormece. No entanto, bastou mudar a cor para azul, para que essa fraqueza desaparecesse. Isso significa que a cor afeta não apenas o humor, mas também todo o corpo humano. O vermelho é a cor da paixão. Se esta é uma cor favorita, então tal pessoa é corajosa, de forte vontade, dominadora, de temperamento rápido, sociável. O laranja é a cor favorita das pessoas com intuição e sonhadores apaixonados, significa saúde, simboliza alegria, calor. O amarelo - esta cor simboliza calma, inteligência. Se esta é uma cor favorita, então tal pessoa é sociável, curiosa, corajosa. O verde é a cor da natureza. Aquele que o prefere tem medo da influência de outra pessoa, procurando uma maneira de se afirmar. O azul - simboliza a verdade. Esta é paz, tranquilidade, bem-estar. O azul é a cor do céu. Se uma pessoa gosta dele, isso fala de modéstia e melancolia; tal pessoa precisa descansar, cansa-se rapidamente. O violeta - esta cor fala de uma grande emotividade, sensibilidade, delicadeza, é a cor das pessoas harmoniosamente desenvolvidas. O preto é a cor da incerteza, simbolizando uma percepção sombria da vida. Qualquer pessoa que ame o preto, muitas vezes percebe a vida em cores escuras, é infeliz. O branco é a síntese de todas as cores, porque é a cor ideal, a cor do sonho. Esta cor pode ser preferida por uma pessoa com qualquer caráter, não repele ninguém."
+      }
     };
 
     let currentLang = 'en';
+
+    function detectLanguage() {
+      const saved = localStorage.getItem('stroboscope_lang');
+      if (saved && translations[saved]) return saved;
+      const browserLang = navigator.language || (navigator.languages && navigator.languages[0]) || 'en';
+      const code = browserLang.split('-')[0].toLowerCase();
+      if (translations[code]) return code;
+      return 'en';
+    }
 
     function buildLangDropdown() {
       const dropdown = document.getElementById('langDropdown');
       dropdown.innerHTML = '';
       Object.keys(flags).forEach(code => {
         const btn = document.createElement('button');
-        btn.className = 'lang-flag'; btn.dataset.lang = code;
-        btn.title = langNames[code]; btn.setAttribute('aria-label', langNames[code]);
+        btn.className = 'lang-flag';
+        btn.dataset.lang = code;
+        btn.title = langNames[code];
+        btn.setAttribute('aria-label', langNames[code]);
         btn.innerHTML = flags[code];
-        btn.addEventListener('click', (e) => { 
-          e.stopPropagation(); 
-          document.getElementById('currentFlag').innerHTML = flags[code];
-          document.querySelectorAll('.lang-flag').forEach(b => b.classList.toggle('active', b.dataset.lang === code));
-          dropdown.classList.remove('active'); 
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          applyLanguage(code);
+          dropdown.classList.remove('active');
         });
         dropdown.appendChild(btn);
       });
     }
 
-    function applyEnglish() {
-      document.documentElement.lang = 'en';
-      document.documentElement.dir = 'ltr';
-      document.getElementById('currentFlag').innerHTML = flags.en;
-      document.getElementById('searchInput').placeholder = EN_TEXT.search;
-      document.getElementById('marqueeContent').textContent = EN_TEXT.marquee + ' ' + EN_TEXT.marquee;
+    function applyLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('stroboscope_lang', lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('currentFlag').innerHTML = flags[lang];
+
+      const t = translations[lang];
+      if (!t) return;
+
+      // Обновляем placeholder поиска
+      const searchInput = document.getElementById('searchInput');
+      if (searchInput) searchInput.placeholder = t.search;
+
+      // Обновляем marquee
+      const marquee = document.getElementById('marqueeContent');
+      if (marquee) marquee.innerHTML = t.marquee + ' ' + t.marquee;
+
+      // Подсвечиваем активный флаг
+      document.querySelectorAll('.lang-flag').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
     }
 
     const langBtn = document.getElementById('langBtn');
     const langDropdown = document.getElementById('langDropdown');
-    langBtn.addEventListener('click', (e) => { e.stopPropagation(); langDropdown.classList.toggle('active'); });
+    langBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      langDropdown.classList.toggle('active');
+    });
     document.addEventListener('click', () => langDropdown.classList.remove('active'));
 
     const supportBtn = document.getElementById('supportBtn');
@@ -303,6 +420,7 @@
       setTimeout(() => supportTooltip.classList.remove('active'), 2500);
     });
 
+    // ============ STROBOSCOPES (по таблице) ============
     const stroboscopes = [
       { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
@@ -332,11 +450,19 @@
         colors: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
       { id: 14, name: "Ocean", ticker: "SOB", kaomoji: "(ಥ﹏ಥ)", image: "14krug.png",
         colors: ['#f6f6ec', '#c2ad90', '#88a0a4', '#4d5466', '#1c2246', '#ffffff', '#E8DFDD', '#EEF0F4', '#C2DBD9', '#01C6C3', '#00BCC9'] },
-      { id: 15, name: "Zona", ticker: "SHRUG", kaomoji: "¯\\_(ツ)_/¯", image: "15krug.png",
+      { id: 15, name: "Zero", ticker: "SHRUG", kaomoji: "¯\\_(ツ)_/¯", image: "15krug.png",
         colors: ['#2B3034', '#627C8C', '#989398', '#B9C7D2', '#E93C35', '#ffffff', '#474745', '#889293', '#B7C1C3', '#CCD6D8', '#E3E8EB'] }
     ];
 
     let filteredStroboscopes = [...stroboscopes];
+    let isResetting = false;
+
+    function utf8ToBase64(str) {
+      const bytes = new TextEncoder().encode(str);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+      return btoa(binary);
+    }
 
     function generateCircleSVG(colors) {
       const size = 500, center = size / 2, maxRadius = size / 2 - 10, ringWidth = maxRadius / colors.length;
@@ -353,6 +479,11 @@
       const div = document.createElement('div');
       div.className = 'stroboscope-item';
 
+      // Название НАД кругом
+      const tickerDiv = document.createElement('div');
+      tickerDiv.className = 'stroboscope-ticker';
+      tickerDiv.textContent = item.ticker;
+
       const circleDiv = document.createElement('div');
       circleDiv.className = 'stroboscope-circle';
 
@@ -361,18 +492,6 @@
       fallbackImg.alt = item.name;
       fallbackImg.className = 'circle-img';
       circleDiv.appendChild(fallbackImg);
-
-      // Название (тикер) ВНУТРИ круга сверху
-      const topLabel = document.createElement('div');
-      topLabel.className = 'circle-label circle-label-top';
-      topLabel.textContent = item.ticker;
-      circleDiv.appendChild(topLabel);
-
-      // Каомодзи ВНУТРИ круга снизу (тот же размер)
-      const bottomLabel = document.createElement('div');
-      bottomLabel.className = 'circle-label circle-label-bottom';
-      bottomLabel.textContent = item.kaomoji;
-      circleDiv.appendChild(bottomLabel);
 
       const realImg = new Image();
       realImg.onload = function() {
@@ -383,24 +502,99 @@
       realImg.onerror = function() { console.log(`Failed to load ${item.image}, using SVG fallback`); };
       realImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
 
+      // Каомодзи ПОД кругом
+      const kaomojiDiv = document.createElement('div');
+      kaomojiDiv.className = 'stroboscope-kaomoji';
+      kaomojiDiv.textContent = item.kaomoji;
+
+      div.appendChild(tickerDiv);
       div.appendChild(circleDiv);
+      div.appendChild(kaomojiDiv);
       div.addEventListener('click', () => { window.location.href = `page${item.id}.html`; });
       return div;
     }
 
     function renderStroboscopes(items) {
-      const grid = document.getElementById('galleryGrid');
-      grid.innerHTML = '';
-      items.forEach(item => grid.appendChild(createStroboscopeItem(item)));
+      const wrapper = document.getElementById('galleryWrapper');
+      wrapper.innerHTML = '';
+      
+      const copies = 3;
+      for (let copy = 0; copy < copies; copy++) {
+        for (let i = 0; i < items.length; i += 3) {
+          const page = document.createElement('div');
+          page.className = 'gallery-page';
+          
+          const grid = document.createElement('div');
+          grid.className = 'gallery-grid';
+          
+          const pageItems = items.slice(i, i + 3);
+          pageItems.forEach((item) => {
+            grid.appendChild(createStroboscopeItem(item));
+          });
+          
+          page.appendChild(grid);
+          wrapper.appendChild(page);
+        }
+      }
+      
       setupIntersectionObserver();
+      
+      setTimeout(() => {
+        const pageHeight = window.innerHeight;
+        const totalPages = wrapper.children.length;
+        const middlePage = Math.floor(totalPages / 2);
+        wrapper.scrollTop = middlePage * pageHeight;
+      }, 100);
     }
 
     function setupIntersectionObserver() {
       const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-      }, { threshold: 0.1 });
-      document.querySelectorAll('.stroboscope-item').forEach(item => observer.observe(item));
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible');
+          }
+        });
+      }, {
+        threshold: 0.3,
+        root: document.getElementById('galleryWrapper')
+      });
+
+      document.querySelectorAll('.stroboscope-item').forEach(item => {
+        observer.observe(item);
+      });
     }
+
+    const galleryWrapper = document.getElementById('galleryWrapper');
+    
+    galleryWrapper.addEventListener('scroll', () => {
+      if (isResetting) return;
+      
+      const scrollTop = galleryWrapper.scrollTop;
+      const pageHeight = window.innerHeight;
+      const totalHeight = galleryWrapper.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      
+      if (scrollTop + viewportHeight >= totalHeight - 10) {
+        isResetting = true;
+        galleryWrapper.style.scrollBehavior = 'auto';
+        galleryWrapper.scrollTop = pageHeight;
+        setTimeout(() => {
+          galleryWrapper.style.scrollBehavior = 'smooth';
+          isResetting = false;
+        }, 50);
+      }
+      else if (scrollTop <= 10) {
+        isResetting = true;
+        galleryWrapper.style.scrollBehavior = 'auto';
+        galleryWrapper.scrollTop = totalHeight - viewportHeight - pageHeight;
+        setTimeout(() => {
+          galleryWrapper.style.scrollBehavior = 'smooth';
+          isResetting = false;
+        }, 50);
+      }
+    });
 
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', (e) => {
@@ -409,11 +603,12 @@
       renderStroboscopes(filteredStroboscopes);
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      buildLangDropdown();
-      applyEnglish();
-      renderStroboscopes(filteredStroboscopes);
+    // ============ INIT ============
+    buildLangDropdown();
+    applyLanguage(detectLanguage());
+    renderStroboscopes(filteredStroboscopes);
 
+    document.addEventListener('DOMContentLoaded', () => {
       const canvas = document.querySelector('.js-canvas');
       const ctx = canvas.getContext('2d');
       const resizeCanvas = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
