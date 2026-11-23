@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -8,7 +8,7 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
@@ -17,64 +17,59 @@
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
     canvas { display: block; cursor: pointer; }
     
-    .start-screen {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #000; display: flex; justify-content: center; align-items: center;
-      z-index: 1000; transition: opacity 0.5s ease; cursor: pointer;
-      flex-direction: column; gap: 80px;
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid rgba(160, 216, 241, 0.5);
+      color: #a0d8f1;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Martian Mono', monospace;
+      font-size: 14px;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: block;
     }
-    .start-screen.hidden { opacity: 0; pointer-events: none; }
-    
-    .neon-text {
-      font-family: 'Dancing Script', cursive;
-      font-size: 220px; font-weight: 700; color: #ffffff;
-      letter-spacing: 4px; user-select: none;
-      text-shadow: 0 0 20px rgba(255,255,255,0.9), 0 0 40px rgba(255,255,255,0.7),
-        0 0 60px rgba(255,255,255,0.5), 0 0 80px rgba(255,255,255,0.3);
-      animation: neon-glow 3s ease-in-out infinite alternate;
+    .back-btn:hover {
+      background: rgba(160, 216, 241, 0.2);
+      color: #fff;
     }
-    .stars { font-size: 60px; color: #ffffff; opacity: 0.7; animation: star-twinkle 2s ease-in-out infinite; margin: 0 20px; }
     
-    @keyframes neon-glow {
-      0% { text-shadow: 0 0 20px rgba(255,255,255,0.7), 0 0 40px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3); transform: scale(1); }
-      100% { text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(255,255,255,0.8), 0 0 90px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.4); transform: scale(1.03); }
+    .hint {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(160, 216, 241, 0.7);
+      font-family: 'Martian Mono', monospace;
+      font-size: 13px;
+      z-index: 1000;
+      pointer-events: none;
+      transition: opacity 1s ease;
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+      padding: 8px 16px;
+      border-radius: 6px;
     }
-    @keyframes star-twinkle { 0%,100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 1; transform: scale(1.15); } }
-    
-    .start-text { font-family: 'Martian Mono', monospace; font-size: 100px; font-weight: 800; letter-spacing: 10px; user-select: none; display: flex; gap: 8px; }
-    .start-letter { display: inline-block; animation: neon-pulse 2s ease-in-out infinite; }
-    .start-letter:nth-child(1) { color: #FE00EC; text-shadow: 0 0 10px #FE00EC, 0 0 20px #FE00EC, 0 0 40px #FE00EC, 0 0 80px #FE00EC; animation-delay: 0s; }
-    .start-letter:nth-child(2) { color: #049CE4; text-shadow: 0 0 10px #049CE4, 0 0 20px #049CE4, 0 0 40px #049CE4, 0 0 80px #049CE4; animation-delay: 0.2s; }
-    .start-letter:nth-child(3) { color: #02C9AF; text-shadow: 0 0 10px #02C9AF, 0 0 20px #02C9AF, 0 0 40px #02C9AF, 0 0 80px #02C9AF; animation-delay: 0.4s; }
-    .start-letter:nth-child(4) { color: #2B4F8D; text-shadow: 0 0 10px #2B4F8D, 0 0 20px #2B4F8D, 0 0 40px #2B4F8D, 0 0 80px #2B4F8D; animation-delay: 0.6s; }
-    .start-letter:nth-child(5) { color: #011034; text-shadow: 0 0 10px #011034, 0 0 20px #011034, 0 0 40px #011034, 0 0 80px #011034; animation-delay: 0.8s; }
-    @keyframes neon-pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+    .hint.hidden { opacity: 0; }
   </style>
 </head>
 <body>
-  <div class="start-screen" id="startScreen">
-    <div>
-      <span class="stars">✦</span>
-      <span class="neon-text">Neon</span>
-      <span class="stars">✦</span>
-    </div>
-    <div class="start-text" id="startText">
-      <span class="start-letter">S</span>
-      <span class="start-letter">T</span>
-      <span class="start-letter">A</span>
-      <span class="start-letter">R</span>
-      <span class="start-letter">T</span>
-    </div>
-  </div>
+  <a href="index.html" class="back-btn">✕ CLOSE</a>
+  <div class="hint" id="hint">CLICK TO START SOUND</div>
   
   <script>
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
     let initSize, initAngle, initColIndex;
-    let isPlaying = false, isPaused = false, pausedLevel = 0;
-    let song, amplitude, level, lastLevel = 0;
+    let isPlaying = true, isPaused = false, pausedLevel = 0;
+    let song, amplitude, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
-    let isSongLoaded = false, shouldStartOnLoad = false, startScreen;
+    let isSongLoaded = false, isAudioStarted = false;
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
@@ -85,54 +80,79 @@
 
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
-      startScreen = document.getElementById('startScreen');
 
+      // Загружаем музыку, но НЕ запускаем автоматически
       song = loadSound('m1.mp3', () => {
-        console.log('m1.mp3 загружен');
         isSongLoaded = true;
         amplitude.setInput(song);
-        if (shouldStartOnLoad) startExperience();
+        // Пробуем запустить сразу (сработает на десктопе, если пользователь уже кликнул ранее)
+        tryStartAudio();
       }, (err) => { console.error('Ошибка загрузки m1.mp3:', err); });
 
-      startScreen.addEventListener('click', () => {
-        if (isSongLoaded) startExperience(); else shouldStartOnLoad = true;
-      });
-
+      // Первый клик/тап — запускаем звук + fullscreen
       const canvasEl = document.querySelector('canvas');
-      canvasEl.addEventListener('click', togglePause);
-      canvasEl.addEventListener('touchstart', (e) => { e.preventDefault(); togglePause(); }, { passive: false });
+      canvasEl.addEventListener('click', onCanvasClick);
+      canvasEl.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        onCanvasClick();
+      }, { passive: false });
 
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
           e.preventDefault();
-          if (!isPlaying) {
-            if (isSongLoaded) startExperience(); else shouldStartOnLoad = true;
-          } else togglePause();
+          if (!isAudioStarted) { tryStartAudio(); }
+          else { togglePause(); }
+        }
+        if (e.key === 'Escape') {
+          window.location.href = 'index.html';
         }
       });
     }
 
-    function startExperience() {
-      startScreen.classList.add('hidden');
-      setTimeout(() => { if (startScreen.parentNode) startScreen.remove(); }, 500);
-      const elem = document.documentElement;
-      if (elem.requestFullscreen) elem.requestFullscreen().catch(err => {});
-      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
-      if (song && isSongLoaded) song.loop();
-      isPlaying = true; isPaused = false;
+    function onCanvasClick() {
+      if (!isAudioStarted) {
+        tryStartAudio();
+      } else {
+        togglePause();
+      }
+    }
+
+    function tryStartAudio() {
+      if (!isSongLoaded || isAudioStarted) return;
+      userStartAudio().then(() => {
+        isAudioStarted = true;
+        song.loop();
+        lastBurstTime = millis();
+        // Скрыть подсказку
+        const hint = document.getElementById('hint');
+        if (hint) hint.classList.add('hidden');
+        // Fullscreen (только после жеста пользователя)
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      }).catch(() => {
+        // Браузер заблокировал — ждём клика
+      });
     }
 
     function togglePause() {
-      if (!isPlaying) return;
+      if (!isAudioStarted) return;
       isPaused = !isPaused;
-      if (isPaused) { pausedLevel = level; if (song) song.pause(); }
-      else { if (song) song.loop(); lastBurstTime = millis(); }
+      if (isPaused) {
+        pausedLevel = level;
+        if (song) song.pause();
+      } else {
+        if (song) song.loop();
+        lastBurstTime = millis();
+      }
     }
 
     function draw() {
-      if (!isPlaying) return;
       background(0);
+      
+      // Если звук не запущен — рисуем "холостую" анимацию (без реакции на биты)
+      const effectiveLevel = isAudioStarted ? level : 0.15 + 0.1 * sin(frameCount / 30);
+      
       if (isPaused) {
         for (let particle of particles) particle.show();
         let count = sin(frameCount / 150);
@@ -148,19 +168,26 @@
         }
         return;
       }
-      level = amplitude.getLevel();
-      let delta = abs(level - lastLevel);
-      let now = millis();
-      if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
-        particles = [];
-        createBurst(initSize, cols[initColIndex % cols.length]);
-        lastBurstTime = now;
+      
+      if (isAudioStarted) {
+        level = amplitude.getLevel();
+        let delta = abs(level - lastLevel);
+        let now = millis();
+        if (delta > 0.03 && level > 0.05 && now - lastBurstTime > minBurstInterval) {
+          particles = [];
+          createBurst(initSize, cols[initColIndex % cols.length]);
+          lastBurstTime = now;
+        }
+        lastLevel = level;
+      } else {
+        level = effectiveLevel;
       }
-      lastLevel = level;
+      
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
+      
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
@@ -203,14 +230,6 @@
         ellipse(this.pos.x, this.pos.y, this.size);
       }
       isDead() { return this.lifespan < 0; }
-    }
-
-    function keyPressed() {
-      if (keyCode === ESC || keyCode === 32) {
-        if (song && song.isPlaying()) song.pause();
-        location.reload();
-      }
-      if (key === 'p' || key === 'P') togglePause();
     }
 
     function windowResized() { resizeCanvas(windowWidth, windowHeight); }
