@@ -229,51 +229,6 @@
     }
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
     
-    .stroboscope-ticker {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(32px, 4vw, 52px);
-      font-weight: 700;
-      color: #ffffff;
-      margin-bottom: 12px;
-      text-align: center;
-      white-space: nowrap;
-      width: 100%;
-      text-shadow:
-        0 0 20px rgba(255, 255, 255, 0.9),
-        0 0 40px rgba(255, 255, 255, 0.7),
-        0 0 60px rgba(255, 255, 255, 0.5),
-        0 0 80px rgba(255, 255, 255, 0.3);
-      animation: ticker-glow 3s ease-in-out infinite alternate;
-    }
-    @keyframes ticker-glow {
-      0% {
-        text-shadow: 0 0 20px rgba(255,255,255,0.7), 0 0 40px rgba(255,255,255,0.5), 0 0 60px rgba(255,255,255,0.3);
-        transform: scale(1);
-      }
-      100% {
-        text-shadow: 0 0 30px rgba(255,255,255,1), 0 0 60px rgba(255,255,255,0.8), 0 0 90px rgba(255,255,255,0.6), 0 0 120px rgba(255,255,255,0.4);
-        transform: scale(1.03);
-      }
-    }
-    
-    .stroboscope-kaomoji {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(32px, 4vw, 52px);
-      font-weight: 700;
-      color: #ffffff;
-      margin-top: 12px;
-      text-align: center;
-      white-space: nowrap;
-      width: 100%;
-      text-shadow:
-        0 0 20px rgba(255, 255, 255, 0.9),
-        0 0 40px rgba(255, 255, 255, 0.7),
-        0 0 60px rgba(255, 255, 255, 0.5),
-        0 0 80px rgba(255, 255, 255, 0.3);
-      animation: ticker-glow 3s ease-in-out infinite alternate;
-      animation-delay: 1.5s;
-    }
-    
     .stroboscope-circle {
       position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 50%; overflow: hidden;
       border: 4px solid rgba(160, 216, 241, 0.5);
@@ -288,6 +243,103 @@
     .stroboscope-circle img, .stroboscope-circle svg.circle-img {
       width: 100%; height: 100%; object-fit: cover; display: block;
       pointer-events: none; -webkit-user-drag: none; user-select: none;
+    }
+
+    /* Рамка снизу круга */
+    .stroboscope-frame {
+      width: 100%;
+      margin-top: 20px;
+      padding: 15px 20px;
+      border: 2px solid rgba(160, 216, 241, 0.5);
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 20px rgba(160, 216, 241, 0.3), 0 0 40px rgba(160, 216, 241, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.3s;
+    }
+    .stroboscope-item:hover .stroboscope-frame {
+      border-color: rgba(160, 216, 241, 1);
+      box-shadow: 0 0 30px rgba(160, 216, 241, 0.5), 0 0 60px rgba(160, 216, 241, 0.25);
+    }
+
+    /* Верхняя часть рамки: иконка + каомодзи + название */
+    .frame-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+    .frame-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid rgba(160, 216, 241, 0.5);
+    }
+    .frame-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .frame-kaomoji {
+      font-family: 'Dancing Script', cursive;
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+      text-align: center;
+      flex: 1;
+    }
+    .frame-name {
+      font-family: 'Dancing Script', cursive;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ffffff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(255, 255, 255, 0.5);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    /* Контракт */
+    .frame-contract {
+      font-family: 'Martian Mono', monospace;
+      font-size: 11px;
+      color: #a0d8f1;
+      text-align: center;
+      padding: 8px;
+      background: rgba(160, 216, 241, 0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+      word-break: break-all;
+      position: relative;
+    }
+    .frame-contract:hover {
+      background: rgba(160, 216, 241, 0.2);
+      color: #ffffff;
+    }
+    .frame-contract.copied::after {
+      content: 'Copied!';
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4ade80;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+      animation: fadeOut 2s forwards;
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; }
     }
 
     .marquee-container {
@@ -326,6 +378,9 @@
       .rainbow-dot { width: 26px; height: 26px; }
       .gallery-wrapper { padding-top: 110px; }
       .color-banner { top: 110px; bottom: 50px; padding: 10px; }
+      .frame-kaomoji { font-size: 22px; }
+      .frame-name { font-size: 20px; }
+      .frame-contract { font-size: 9px; }
     }
 
     html[dir="rtl"] .top-controls { right: auto; left: 20px; }
@@ -533,35 +588,35 @@
     });
 
     const stroboscopes = [
-      { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png",
+      { id: 1, name: "Neon", ticker: "TENDER", kaomoji: "ヽ(♡‿♡)ノ", image: "1krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'] },
-      { id: 2, name: "Prism", ticker: "HYPE", kaomoji: "٩(◕‿◕｡)۶", image: "2krug.png",
+      { id: 2, name: "Prism", ticker: "HYPE", kaomoji: "٩(◕‿◕｡)۶", image: "2krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd', '#ffffff', '#ffb901', '#d13e1b', '#9f124a', '#e591b2', '#47c9dd'] },
-      { id: 3, name: "Roots", ticker: "BLOOM", kaomoji: "(✿◠‿◠)", image: "3krug.png",
+      { id: 3, name: "Roots", ticker: "BLOOM", kaomoji: "(✿◠‿◠)", image: "3krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#14471E', '#68904D', '#C8D2D1', '#EE9B01', '#DA6A00', '#ffffff', '#14471E', '#68904D', '#C8D2D1', '#EE9B01', '#DA6A00'] },
-      { id: 4, name: "Eclipse", ticker: "SMIRK", kaomoji: "(¬‿¬)", image: "4krug.png",
+      { id: 4, name: "Eclipse", ticker: "SMIRK", kaomoji: "(¬‿¬)", image: "4krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57', '#ffffff', '#091B1A', '#5D4A39', '#A96F47', '#FBCE02', '#F27B57'] },
-      { id: 5, name: "Tide", ticker: "COZY", kaomoji: "(づ◡﹏◡)づ", image: "5krug.png",
+      { id: 5, name: "Tide", ticker: "COZY", kaomoji: "(づ◡﹏◡)づ", image: "5krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#012E4A', '#036280', '#378BA4', '#81BECE', '#E8EDE7', '#ffffff', '#012E4A', '#036280', '#378BA4', '#81BECE', '#E8EDE7'] },
-      { id: 6, name: "Ember", ticker: "FIGHT", kaomoji: "(ง •̀_•́)ง", image: "6krug.png",
+      { id: 6, name: "Ember", ticker: "FIGHT", kaomoji: "(ง •̀_•́)ง", image: "6krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#9AA8A8', '#466A44', '#E0D5BE', '#E0908D', '#C7495C', '#ffffff', '#680003', '#BC0000', '#F5704A', '#EFB9AD', '#828D00'] },
-      { id: 7, name: "Sunset", ticker: "HUGS", kaomoji: "(づ｡◕‿‿◕｡)づ", image: "7krug.png",
+      { id: 7, name: "Sunset", ticker: "HUGS", kaomoji: "(づ｡◕‿‿◕｡)づ", image: "7krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#FC712B', '#FD9319', '#FECD5A', '#07B1BC', '#2B8180', '#ffffff', '#FC712B', '#FD9319', '#FECD5A', '#07B1BC', '#2B8180'] },
-      { id: 8, name: "Overdrive", ticker: "RAGE", kaomoji: "(ノಠ益ಠ)ノ", image: "8krug.png",
+      { id: 8, name: "Overdrive", ticker: "RAGE", kaomoji: "(ノಠ益ಠ)ノ", image: "8krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#B20000', '#FD292F', '#FE8535', '#FDB10B', '#FEF4C0', '#ffffff', '#B20000', '#FD292F', '#FE8535', '#FDB10B', '#FEF4C0'] },
-      { id: 9, name: "Flux", ticker: "KISS", kaomoji: "(づ￣ ³￣)づ", image: "9krug.png",
+      { id: 9, name: "Flux", ticker: "KISS", kaomoji: "(づ￣ ³￣)づ", image: "9krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61', '#ffffff', '#e1331b', '#f85e28', '#ccfcee', '#7bd1b8', '#3e6c61'] },
-      { id: 10, name: "Hypnosis", ticker: "FLIP", kaomoji: "(╯°□°）╯︵ ┻━┻", image: "10krug.png",
+      { id: 10, name: "Hypnosis", ticker: "FLIP", kaomoji: "(╯°□°）╯︵ ┻━┻", image: "10krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#2C5D37', '#E3C515', '#EE51B1', '#A59CD3', '#ffffff', '#2C5D37', '#E3C515', '#EE51B1', '#A59CD3', '#ffffff', '#2C5D37'] },
-      { id: 11, name: "MOON", ticker: "STAR", kaomoji: "(★^O^★)", image: "11krug.png",
+      { id: 11, name: "MOON", ticker: "STAR", kaomoji: "(★^O^★)", image: "11krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
-      { id: 12, name: "HODL", ticker: "DEAL", kaomoji: "(⌐■_■)", image: "12krug.png",
+      { id: 12, name: "HODL", ticker: "DEAL", kaomoji: "(⌐■_■)", image: "12krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
-      { id: 13, name: "WAGMI", ticker: "MEOW", kaomoji: "(=^･ω･^=)", image: "13krug.png",
+      { id: 13, name: "WAGMI", ticker: "MEOW", kaomoji: "(=^･ω･^=)", image: "13krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
-      { id: 14, name: "Ocean", ticker: "SOB", kaomoji: "(ಥ﹏ಥ)", image: "14krug.png",
+      { id: 14, name: "Ocean", ticker: "SOB", kaomoji: "(ಥ﹏ಥ)", image: "14krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#f6f6ec', '#c2ad90', '#88a0a4', '#4d5466', '#1c2246', '#ffffff', '#E8DFDD', '#EEF0F4', '#C2DBD9', '#01C6C3', '#00BCC9'] },
-      { id: 15, name: "Zero", ticker: "SHRUG", kaomoji: "¯\\_(ツ)_/¯", image: "15krug.png",
+      { id: 15, name: "Zero", ticker: "SHRUG", kaomoji: "¯\\_(ツ)_/¯", image: "15krug.png", contract: "J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn",
         colors: ['#2B3034', '#627C8C', '#989398', '#B9C7D2', '#E93C35', '#ffffff', '#474745', '#889293', '#B7C1C3', '#CCD6D8', '#E3E8EB'] }
     ];
 
@@ -591,10 +646,6 @@
       div.className = 'stroboscope-item';
       if (showImmediately) div.classList.add('visible');
 
-      const tickerDiv = document.createElement('div');
-      tickerDiv.className = 'stroboscope-ticker';
-      tickerDiv.textContent = item.ticker;
-
       const circleDiv = document.createElement('div');
       circleDiv.className = 'stroboscope-circle';
 
@@ -613,14 +664,64 @@
       realImg.onerror = function() { console.log(`Failed to load ${item.image}, using SVG fallback`); };
       realImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
 
-      const kaomojiDiv = document.createElement('div');
-      kaomojiDiv.className = 'stroboscope-kaomoji';
-      kaomojiDiv.textContent = item.kaomoji;
+      // Рамка снизу
+      const frameDiv = document.createElement('div');
+      frameDiv.className = 'stroboscope-frame';
 
-      div.appendChild(tickerDiv);
+      // Верхняя часть рамки: иконка + каомодзи + название
+      const frameTop = document.createElement('div');
+      frameTop.className = 'frame-top';
+
+      const frameIcon = document.createElement('div');
+      frameIcon.className = 'frame-icon';
+      const iconImg = document.createElement('img');
+      iconImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
+      iconImg.alt = item.name;
+      frameIcon.appendChild(iconImg);
+
+      const frameKaomoji = document.createElement('div');
+      frameKaomoji.className = 'frame-kaomoji';
+      frameKaomoji.textContent = item.kaomoji;
+
+      const frameName = document.createElement('div');
+      frameName.className = 'frame-name';
+      frameName.textContent = item.ticker;
+
+      frameTop.appendChild(frameIcon);
+      frameTop.appendChild(frameKaomoji);
+      frameTop.appendChild(frameName);
+
+      // Контракт
+      const frameContract = document.createElement('div');
+      frameContract.className = 'frame-contract';
+      frameContract.textContent = item.contract;
+      frameContract.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(item.contract);
+        } catch (err) {
+          const t = document.createElement("textarea");
+          t.value = item.contract;
+          document.body.appendChild(t);
+          t.select();
+          document.execCommand("copy");
+          document.body.removeChild(t);
+        }
+        frameContract.classList.add('copied');
+        setTimeout(() => frameContract.classList.remove('copied'), 2000);
+      });
+
+      frameDiv.appendChild(frameTop);
+      frameDiv.appendChild(frameContract);
+
       div.appendChild(circleDiv);
-      div.appendChild(kaomojiDiv);
-      div.addEventListener('click', () => { window.location.href = `page${item.id}.html`; });
+      div.appendChild(frameDiv);
+
+      // Клик на круг запускает анимацию (переход на страницу)
+      circleDiv.addEventListener('click', () => {
+        window.location.href = `page${item.id}.html`;
+      });
+
       return div;
     }
 
