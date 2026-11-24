@@ -11,68 +11,38 @@
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
     canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
     
-    .sound-btn {
+    .sound-btn, .close-btn {
       position: fixed;
-      bottom: 30px;
-      right: 30px;
+      z-index: 1000;
       width: 60px;
       height: 60px;
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.7);
       border: 2px solid rgba(160, 216, 241, 0.6);
       cursor: pointer;
-      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
       backdrop-filter: blur(8px);
     }
-    .sound-btn:hover {
+    .sound-btn { bottom: 30px; right: 30px; }
+    .close-btn { top: 20px; right: 20px; width: 50px; height: 50px; }
+    .sound-btn:hover, .close-btn:hover {
       background: rgba(160, 216, 241, 0.2);
       border-color: rgba(160, 216, 241, 1);
       transform: scale(1.1);
     }
-    .sound-btn svg {
-      width: 32px;
-      height: 32px;
-      fill: #ffffff;
-      transition: all 0.3s;
-    }
-    .sound-btn.active svg {
-      fill: #4ade80;
-    }
-    .sound-btn.active {
-      border-color: #4ade80;
-      box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
-    }
+    .sound-btn svg { width: 32px; height: 32px; fill: #ffffff; }
+    .close-btn svg { width: 24px; height: 24px; fill: #ffffff; }
+    .sound-btn.active { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.5); }
+    .sound-btn.active svg { fill: #4ade80; }
+    .close-btn:hover { background: rgba(255, 50, 50, 0.3); border-color: rgba(255, 100, 100, 1); }
     
-    .close-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.7);
-      border: 2px solid rgba(160, 216, 241, 0.6);
-      cursor: pointer;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(8px);
-    }
-    .close-btn:hover {
-      background: rgba(255, 50, 50, 0.3);
-      border-color: rgba(255, 100, 100, 1);
-      transform: scale(1.1);
-    }
-    .close-btn svg {
-      width: 24px;
-      height: 24px;
-      fill: #ffffff;
+    /* Кнопки скрыты во время игры */
+    .sound-btn.hidden, .close-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -98,14 +68,11 @@
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
     let detachedCircles = [];
-    let DETACH_THRESHOLD = 0.15;
-    let DETACH_LIFE = 180;
-    let bassEnergy = 0;
-    let prevBassEnergy = 0;
-    let beatDetected = false;
-    let beatDecay = 0;
-    let smoothLevel = 0;
-    let pulseIntensity = 0;
+    let DETACH_LIFE = 240;
+    let bassEnergy = 0, prevBassEnergy = 0;
+    let beatDetected = false, beatDecay = 0;
+    let smoothLevel = 0, pulseIntensity = 0;
+    let lastDetachTime = 0;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
@@ -125,16 +92,17 @@
       song = loadSound('m1.mp3', () => {
         amplitude.setInput(song);
         fft.setInput(song);
-      }, (err) => { console.error('Ошибка загрузки m1.mp3:', err); });
+      }, (err) => { console.error('m1.mp3 error:', err); });
 
       const soundBtn = document.getElementById('soundBtn');
+      const closeBtn = document.getElementById('closeBtn');
+
       soundBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!isAudioStarted) tryStartAudio();
         else toggleMute();
       });
 
-      const closeBtn = document.getElementById('closeBtn');
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         window.location.href = 'index.html';
@@ -158,9 +126,20 @@
         song.loop();
         lastBurstTime = millis();
         updateSoundIcon(true);
+        hideButtons();
         const elem = document.documentElement;
         if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
       }).catch(() => {});
+    }
+
+    function hideButtons() {
+      document.getElementById('soundBtn').classList.add('hidden');
+      document.getElementById('closeBtn').classList.add('hidden');
+    }
+
+    function showButtons() {
+      document.getElementById('soundBtn').classList.remove('hidden');
+      document.getElementById('closeBtn').classList.remove('hidden');
     }
 
     function toggleMute() {
@@ -168,9 +147,11 @@
       if (song.isPlaying()) {
         song.pause();
         updateSoundIcon(false);
+        showButtons();
       } else {
         song.loop();
         updateSoundIcon(true);
+        hideButtons();
         lastBurstTime = millis();
       }
     }
@@ -194,11 +175,13 @@
         pausedLevel = level;
         song.pause();
         updateSoundIcon(false);
+        showButtons();
         particles = [];
         detachedCircles = [];
       } else {
         song.loop();
         updateSoundIcon(true);
+        hideButtons();
         lastBurstTime = millis();
       }
     }
@@ -212,7 +195,7 @@
       for (let i = 0; i < bassEnd; i++) bassSum += spectrum[i] / 255;
       bassEnergy = bassSum / bassEnd;
       const bassDelta = bassEnergy - prevBassEnergy;
-      if (bassDelta > 0.08 && bassEnergy > 0.15) {
+      if (bassDelta > 0.06 && bassEnergy > 0.12) {
         beatDetected = true;
         beatDecay = 1.0;
       }
@@ -240,21 +223,26 @@
           lastBurstTime = now;
         }
         lastLevel = level;
-        if (beatDetected && detachedCircles.length === 0) {
-          let edgeCircle = findEdgeCircle();
-          if (edgeCircle) detachCircle(edgeCircle);
+
+        // Отделение крайнего круга при касании края экрана
+        const currentMaxSize = initSize * map(level, 0, 0.6, 1, 1.8);
+        const maxDim = max(width, height);
+        if (currentMaxSize >= maxDim * 0.95 && detachedCircles.length === 0 && now - lastDetachTime > 2000) {
+          detachCircle({ size: currentMaxSize, color: cols[initColIndex % cols.length] });
+          lastDetachTime = now;
         }
-        beatDetected = false;
       } else {
         level = 0.15 + 0.1 * sin(frameCount / 30);
         bassEnergy = 0;
       }
+
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
       drawCirclesBeat(level);
       drawDetached();
+
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
@@ -265,18 +253,10 @@
       }
     }
 
-    function findEdgeCircle() {
-      let size = initSize * map(level, 0, 0.6, 1, 1.8);
-      let maxDim = max(width, height);
-      if (size >= maxDim * 0.9) {
-        return { size: size, color: cols[initColIndex % cols.length] };
-      }
-      return null;
-    }
-
     function detachCircle(circle) {
+      // Направление наружу — плавно, медленно
       let angle = random(TWO_PI);
-      let speed = random(3, 6);
+      let speed = random(1.2, 2.5);
       detachedCircles.push({
         size: circle.size,
         color: circle.color,
@@ -295,12 +275,15 @@
         d.x += d.vx;
         d.y += d.vy;
         d.life--;
-        d.size *= 0.995;
-        let alpha = map(d.life, 0, d.maxLife, 0, 255);
+        d.size *= 0.998; // почти не уменьшается — плавно уходит
+
+        let alpha = map(d.life, 0, d.maxLife * 0.4, 0, 255);
+        alpha = min(alpha, 255);
         noStroke();
         fill(red(d.color), green(d.color), blue(d.color), alpha);
         ellipse(d.x, d.y, d.size, d.size);
-        if (d.life <= 0 || d.size < 20) detachedCircles.splice(i, 1);
+
+        if (d.life <= 0) detachedCircles.splice(i, 1);
       }
     }
 
