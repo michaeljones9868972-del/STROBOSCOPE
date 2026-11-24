@@ -5,170 +5,89 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Stroboscope - Neon</title>
   <link rel="icon" type="image/png" sizes="16x16" href="favicon16x16.png">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap" rel="stylesheet">
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
-  
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; cursor: pointer; }
-    
-    .back-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1000;
-      background: rgba(0,0,0,0.7);
-      border: 1px solid rgba(160, 216, 241, 0.5);
-      color: #a0d8f1;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: 'Martian Mono', monospace;
-      font-size: 14px;
-      transition: all 0.3s;
-      text-decoration: none;
-      display: block;
-    }
-    .back-btn:hover {
-      background: rgba(160, 216, 241, 0.2);
-      color: #fff;
-    }
-    
-    .hint {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: rgba(160, 216, 241, 0.7);
-      font-family: 'Martian Mono', monospace;
-      font-size: 13px;
-      z-index: 1000;
-      pointer-events: none;
-      transition: opacity 1s ease;
-      text-align: center;
-      background: rgba(0,0,0,0.5);
-      padding: 8px 16px;
-      border-radius: 6px;
-    }
-    .hint.hidden { opacity: 0; }
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; cursor: pointer; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
-  <a href="index.html" class="back-btn">✕ CLOSE</a>
-  <div class="hint" id="hint">CLICK TO START SOUND</div>
-  
   <script>
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
-    let MAX_INIT_SIZE, MAX_ANGLE_STEP, SIZE_MULT, MIN_SIZE;
+    let MAX_INIT_SIZE, MAX_ANGLE_STEP, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPlaying = true, isPaused = false, pausedLevel = 0;
     let song, amplitude, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
-    let isSongLoaded = false, isAudioStarted = false;
+    let isAudioStarted = false;
+    let detachedCircles = []; // отделённые круги при сильном басе
+    let DETACH_THRESHOLD = 0.12; // порог баса для отделения
+    let DETACH_LIFE = 180; // кадров жизни отделённого круга
 
     function setup() {
       createCanvas(windowWidth, windowHeight);
       rectMode(CENTER); noStroke();
-      MAX_INIT_SIZE = max(width, height) * 0.4;
-      MAX_ANGLE_STEP = PI / 20; SIZE_MULT = 0.88; MIN_SIZE = 8;
+      MAX_INIT_SIZE = max(width, height) * 0.45;
+      MAX_ANGLE_STEP = PI / 20; MIN_SIZE = 8;
       initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
 
       amplitude = new p5.Amplitude();
       amplitude.smooth(0.8);
 
-      // Загружаем музыку, но НЕ запускаем автоматически
       song = loadSound('m1.mp3', () => {
-        isSongLoaded = true;
         amplitude.setInput(song);
-        // Пробуем запустить сразу (сработает на десктопе, если пользователь уже кликнул ранее)
-        tryStartAudio();
       }, (err) => { console.error('Ошибка загрузки m1.mp3:', err); });
 
-      // Первый клик/тап — запускаем звук + fullscreen
+      // Клик на canvas — запускает звук + fullscreen
       const canvasEl = document.querySelector('canvas');
       canvasEl.addEventListener('click', onCanvasClick);
-      canvasEl.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        onCanvasClick();
-      }, { passive: false });
+      canvasEl.addEventListener('touchstart', (e) => { e.preventDefault(); onCanvasClick(); }, { passive: false });
 
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
           e.preventDefault();
-          if (!isAudioStarted) { tryStartAudio(); }
-          else { togglePause(); }
+          if (!isAudioStarted) tryStartAudio();
+          else togglePause();
         }
-        if (e.key === 'Escape') {
-          window.location.href = 'index.html';
-        }
+        if (e.key === 'Escape') window.location.href = 'index.html';
       });
     }
 
     function onCanvasClick() {
-      if (!isAudioStarted) {
-        tryStartAudio();
-      } else {
-        togglePause();
-      }
+      if (!isAudioStarted) tryStartAudio();
+      else togglePause();
     }
 
     function tryStartAudio() {
-      if (!isSongLoaded || isAudioStarted) return;
+      if (!song || isAudioStarted) return;
       userStartAudio().then(() => {
         isAudioStarted = true;
         song.loop();
         lastBurstTime = millis();
-        // Скрыть подсказку
-        const hint = document.getElementById('hint');
-        if (hint) hint.classList.add('hidden');
-        // Fullscreen (только после жеста пользователя)
         const elem = document.documentElement;
         if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
-        else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-      }).catch(() => {
-        // Браузер заблокировал — ждём клика
-      });
+      }).catch(() => {});
     }
 
     function togglePause() {
       if (!isAudioStarted) return;
       isPaused = !isPaused;
-      if (isPaused) {
-        pausedLevel = level;
-        if (song) song.pause();
-      } else {
-        if (song) song.loop();
-        lastBurstTime = millis();
-      }
+      if (isPaused) { pausedLevel = level; if (song) song.pause(); }
+      else { if (song) song.loop(); lastBurstTime = millis(); }
     }
 
     function draw() {
       background(0);
-      
-      // Если звук не запущен — рисуем "холостую" анимацию (без реакции на биты)
       const effectiveLevel = isAudioStarted ? level : 0.15 + 0.1 * sin(frameCount / 30);
-      
+
       if (isPaused) {
-        for (let particle of particles) particle.show();
-        let count = sin(frameCount / 150);
-        let angleStep = PI / 20 * count;
-        let colIndex = initColIndex;
-        let size = initSize * map(pausedLevel, 0, 0.5, 1, 1.5);
-        let angle = initAngle;
-        while (size > MIN_SIZE) {
-          push(); translate(width / 2, height / 2); rotate(angle);
-          fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
-          angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
-          size *= 0.88; colIndex++;
-        }
+        drawCircles(pausedLevel);
+        drawDetached();
+        for (let p of particles) p.show();
         return;
       }
-      
+
       if (isAudioStarted) {
         level = amplitude.getLevel();
         let delta = abs(level - lastLevel);
@@ -182,24 +101,25 @@
       } else {
         level = effectiveLevel;
       }
-      
+
+      // Проверка отделения круга при сильном басе
+      if (isAudioStarted && level > DETACH_THRESHOLD && detachedCircles.length === 0) {
+        let edgeCircle = findEdgeCircle();
+        if (edgeCircle) detachCircle(edgeCircle);
+      }
+
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
-      
+
+      drawCircles(level);
+      drawDetached();
+
+      // Обновление размера — НА 20% МЕДЛЕННЕЕ (было 0.0013, стало 0.00104)
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
-      let colIndex = initColIndex;
-      let size = initSize * map(level, 0, 0.5, 1, 1.5);
-      let angle = initAngle;
-      while (size > MIN_SIZE) {
-        push(); translate(width / 2, height / 2); rotate(angle);
-        fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
-        size *= 0.88; colIndex++;
-      }
-      initSize -= MAX_INIT_SIZE * 0.0013 * (10 + abs(count));
+      initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
       initAngle += angleStep * 0.1;
       if (initSize < MAX_INIT_SIZE * 0.88) {
         initSize /= 0.88;
@@ -207,10 +127,69 @@
       }
     }
 
+    function findEdgeCircle() {
+      // Находим самый большой круг, который касается края экрана
+      let size = initSize * map(level, 0, 0.5, 1, 1.5);
+      let maxDim = max(width, height);
+      if (size >= maxDim * 0.85) {
+        return { size: size, color: cols[initColIndex % cols.length] };
+      }
+      return null;
+    }
+
+    function detachCircle(circle) {
+      // Направление от центра к случайному краю
+      let angle = random(TWO_PI);
+      let speed = random(2, 4);
+      detachedCircles.push({
+        size: circle.size,
+        color: circle.color,
+        x: width / 2,
+        y: height / 2,
+        vx: cos(angle) * speed,
+        vy: sin(angle) * speed,
+        life: DETACH_LIFE,
+        maxLife: DETACH_LIFE
+      });
+    }
+
+    function drawDetached() {
+      for (let i = detachedCircles.length - 1; i >= 0; i--) {
+        let d = detachedCircles[i];
+        d.x += d.vx;
+        d.y += d.vy;
+        d.life--;
+        d.size *= 0.997; // медленно уменьшается
+
+        let alpha = map(d.life, 0, d.maxLife, 0, 255);
+        noStroke();
+        fill(red(d.color), green(d.color), blue(d.color), alpha);
+        ellipse(d.x, d.y, d.size, d.size);
+
+        if (d.life <= 0 || d.size < 20) {
+          detachedCircles.splice(i, 1);
+        }
+      }
+    }
+
+    function drawCircles(currentLevel) {
+      let count = sin(frameCount / 150);
+      let angleStep = PI / 20 * count;
+      let colIndex = initColIndex;
+      let size = initSize * map(currentLevel, 0, 0.5, 1, 1.5);
+      let angle = initAngle;
+
+      while (size > MIN_SIZE) {
+        push(); translate(width / 2, height / 2); rotate(angle);
+        fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+        size *= 0.88; colIndex++;
+      }
+    }
+
     function createBurst(size, color) {
       const numParticles = 50;
-      const center = { x: width / 2, y: height / 2 };
-      for (let i = 0; i < numParticles; i++) particles.push(new Particle(center.x, center.y, color));
+      for (let i = 0; i < numParticles; i++) particles.push(new Particle(width / 2, height / 2, color));
     }
 
     class Particle {
