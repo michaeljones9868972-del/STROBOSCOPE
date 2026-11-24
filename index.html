@@ -66,7 +66,6 @@
     .stroboscope-item.visible { opacity: 1; transform: translateY(0); }
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
 
-    /* Плашки MCAP и капитализация — КРУПНЕЕ, контур и свечение как у нижней рамки */
     .mcap-badge, .cap-badge {
       position: absolute; z-index: 10;
       padding: 8px 18px; border-radius: 24px;
@@ -81,7 +80,6 @@
     .mcap-badge { top: -14px; left: -14px; }
     .cap-badge { top: -14px; right: -14px; }
 
-    /* УБРАНЫ border и background — больше нет чёрных кругов */
     .stroboscope-circle {
       position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 50%; overflow: visible;
       background: transparent; border: none;
@@ -92,7 +90,6 @@
     .stroboscope-item:hover .stroboscope-circle { box-shadow: 0 0 60px rgba(160,216,241,0.6), 0 0 120px rgba(160,216,241,0.3); }
     .stroboscope-circle img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; pointer-events: none; user-select: none; }
 
-    /* Сердечко — ЗАЛИТО цветом, цифры контрастные */
     .heart-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
     .heart-svg { width: 100%; height: 100%; animation: heartPulse 1.4s ease-in-out infinite; filter: drop-shadow(0 0 10px currentColor); }
     @keyframes heartPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.18)} }
@@ -214,19 +211,15 @@
     function getLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); return l[id]||0; }
     function incrementLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); l[id]=(l[id]||0)+1; localStorage.setItem('stroboscope_likes',JSON.stringify(l)); return l[id]; }
 
-    // Контраст: яркость цвета
     function luminance(hex){ const c=hex.replace('#',''); const r=parseInt(c.substr(0,2),16)/255,g=parseInt(c.substr(2,2),16)/255,b=parseInt(c.substr(4,2),16)/255; const f=x=>x<=0.03928?x/12.92:Math.pow((x+0.055)/1.055,2.4); return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b); }
     function contrastRatio(a,b){ const l1=luminance(a),l2=luminance(b); return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); }
-    // Самый контрастный цвет из палитры к базовому
     function getContrastColor(base, palette){ let best=palette[0], bestC=0; palette.forEach(c=>{ const cr=contrastRatio(base,c); if(cr>bestC){bestC=cr;best=c;} }); return best; }
 
-    // === РЕАЛ-ТАЙМ КАПИТАЛИЗАЦИЯ через DexScreener ===
     async function fetchMarketCap(contract){
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
         const data = await res.json();
         if (data && data.pairs && data.pairs.length) {
-          // берём пару с наибольшим объёмом
           const pair = data.pairs.sort((a,b)=>(b.volume?.h24||0)-(a.volume?.h24||0))[0];
           const mc = pair.marketCap || pair.fdv || 0;
           return formatCap(mc);
@@ -241,7 +234,6 @@
       if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
       return '$' + Math.round(n);
     }
-    // Обновляем все плашки капитализации
     async function refreshAllCaps(){
       const seen = {};
       document.querySelectorAll('.cap-badge').forEach(badge => {
@@ -263,18 +255,16 @@
       const circleDiv=document.createElement('div'); circleDiv.className='stroboscope-circle';
       const fb=document.createElement('img'); fb.src=generateCircleSVG(item.colors); fb.alt=item.name; circleDiv.appendChild(fb);
       const real=new Image();
+      // ✅ ОТНОСИТЕЛЬНЫЙ ПУТЬ — работает даже с приватным репозиторием через Netlify
       real.onload=function(){ circleDiv.querySelectorAll('img').forEach(i=>{ if(i!==fb)i.remove(); }); real.alt=item.name; circleDiv.insertBefore(real,circleDiv.firstChild); };
-      real.onerror=function(){ console.log(`Fallback SVG for ${item.image}`); };
-      real.src=`https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
+      real.onerror=function(){ console.log(`SVG fallback for ${item.image}`); };
+      real.src=`${item.image}`;
 
-      // Сердечко: ЗАЛИТО цветом палитры, цифры контрастные
       const heartColor = item.colors[0];
       const textColor = getContrastColor(heartColor, item.colors);
       const heart=document.createElement('div'); heart.className='heart-overlay';
       heart.innerHTML=`<svg class="heart-svg" viewBox="0 0 24 24" style="color:${heartColor}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${heartColor}" stroke="${heartColor}" stroke-width="1"/></svg><div class="heart-count" id="hc-${item.id}" style="color:${textColor}">${getLikes(item.id)}</div>`;
       circleDiv.appendChild(heart);
-
-      circleDiv.addEventListener('click',(e)=>{ e.stopPropagation(); const n=incrementLikes(item.id); const ce=document.getElementById(`hc-${item.id}`); if(ce)ce.textContent=n; const hs=heart.querySelector('.heart-svg'); hs.style.transform='scale(1.4)'; setTimeout(()=>hs.style.transform='',300); setTimeout(()=>window.location.href=`page${item.id}.html`,400); });
 
       const frame=document.createElement('div'); frame.className='stroboscope-frame';
       const top=document.createElement('div'); top.className='frame-top';
@@ -286,6 +276,18 @@
       ct.addEventListener('click',async(e)=>{ e.stopPropagation(); try{await navigator.clipboard.writeText(item.contract);}catch(err){const t=document.createElement("textarea");t.value=item.contract;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);} ct.classList.add('copied'); setTimeout(()=>ct.classList.remove('copied'),2000); });
       frame.appendChild(top); frame.appendChild(ct);
       div.appendChild(circleDiv); div.appendChild(frame);
+
+      function goToAnimation(e){
+        e.stopPropagation();
+        const n=incrementLikes(item.id);
+        const ce=document.getElementById(`hc-${item.id}`);
+        if(ce)ce.textContent=n;
+        const hs=heart.querySelector('.heart-svg');
+        hs.style.transform='scale(1.4)';
+        setTimeout(()=>{ hs.style.transform=''; window.location.href=`page${item.id}.html`; }, 250);
+      }
+      circleDiv.addEventListener('click', goToAnimation);
+
       return div;
     }
 
@@ -307,7 +309,6 @@
     searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.classList.remove('visible'); filteredStroboscopes=[...stroboscopes]; renderStroboscopes(filteredStroboscopes); searchInput.focus(); });
 
     buildLangDropdown(); applyLanguage(detectLanguage()); renderStroboscopes(filteredStroboscopes);
-    // Обновление капитализации каждые 60 секунд
     setInterval(refreshAllCaps, 60000);
 
     document.addEventListener('DOMContentLoaded',()=>{ const canvas=document.querySelector('.js-canvas'); const ctx=canvas.getContext('2d'); const rc=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;}; rc(); window.addEventListener('resize',rc); const parts=Array.from({length:100},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,s:Math.random()*0.5+0.1,a:Math.random()*Math.PI*2,c:`hsl(${Math.random()*360},70%,60%)`})); const anim=()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); parts.forEach(p=>{ p.x+=Math.cos(p.a)*p.s;p.y+=Math.sin(p.a)*p.s; if(p.x<0||p.x>canvas.width)p.a=Math.PI-p.a; if(p.y<0||p.y>canvas.height)p.a=-p.a; ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=0.6;ctx.fill(); }); requestAnimationFrame(anim); }; anim(); });
