@@ -695,7 +695,7 @@
       const frameIcon = document.createElement('div');
       frameIcon.className = 'frame-icon';
       const iconImg = document.createElement('img');
-      iconImg.src = `https://raw.githubusercontent.com/michaeljones9868972-del/STROBOSCOPE/main/${item.image}`;
+      iconImg.src = generateCircleSVG(item.colors);
       iconImg.alt = item.name;
       frameIcon.appendChild(iconImg);
 
@@ -736,7 +736,6 @@
       div.appendChild(circleDiv);
       div.appendChild(frameDiv);
 
-      // Клик на большой круг перенаправляет на страницу с анимацией
       circleDiv.addEventListener('click', (e) => {
         e.stopPropagation();
         window.location.href = `page${item.id}.html`;
