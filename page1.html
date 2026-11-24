@@ -9,9 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
     
-    /* Кнопка звука в правом нижнем углу */
     .sound-btn {
       position: fixed;
       bottom: 30px;
@@ -48,7 +47,6 @@
       box-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
     }
     
-    /* Кнопка закрытия */
     .close-btn {
       position: fixed;
       top: 20px;
@@ -79,14 +77,12 @@
   </style>
 </head>
 <body>
-  <!-- Кнопка звука (перечёркнутый динамик по умолчанию) -->
   <button class="sound-btn" id="soundBtn" title="Play sound">
     <svg id="soundIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
     </svg>
   </button>
   
-  <!-- Кнопка закрытия -->
   <button class="close-btn" id="closeBtn" title="Close">
     <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
       <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -97,7 +93,7 @@
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, MIN_SIZE;
     let initSize, initAngle, initColIndex;
-    let isPlaying = true, isPaused = false, pausedLevel = 0;
+    let isPaused = false, pausedLevel = 0;
     let song, amplitude, fft, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
@@ -105,8 +101,6 @@
     let DETACH_THRESHOLD = 0.15;
     let DETACH_LIFE = 180;
     let bassEnergy = 0;
-    let midEnergy = 0;
-    let highEnergy = 0;
     let prevBassEnergy = 0;
     let beatDetected = false;
     let beatDecay = 0;
@@ -114,7 +108,11 @@
     let pulseIntensity = 0;
 
     function setup() {
-      createCanvas(windowWidth, windowHeight);
+      let cnv = createCanvas(windowWidth, windowHeight);
+      cnv.style('position', 'fixed');
+      cnv.style('top', '0');
+      cnv.style('left', '0');
+      cnv.style('z-index', '1');
       rectMode(CENTER); noStroke();
       MAX_INIT_SIZE = max(width, height) * 0.45;
       MAX_ANGLE_STEP = PI / 20; MIN_SIZE = 8;
@@ -129,28 +127,17 @@
         fft.setInput(song);
       }, (err) => { console.error('Ошибка загрузки m1.mp3:', err); });
 
-      // Кнопка звука
       const soundBtn = document.getElementById('soundBtn');
       soundBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (!isAudioStarted) {
-          tryStartAudio();
-        } else {
-          toggleMute();
-        }
+        if (!isAudioStarted) tryStartAudio();
+        else toggleMute();
       });
 
-      // Кнопка закрытия
       const closeBtn = document.getElementById('closeBtn');
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         window.location.href = 'index.html';
-      });
-
-      // Клик по canvas — пауза/возобновление
-      const canvasEl = document.querySelector('canvas');
-      canvasEl.addEventListener('click', () => {
-        if (isAudioStarted) togglePause();
       });
 
       document.addEventListener('keydown', (e) => {
@@ -170,7 +157,6 @@
         isAudioStarted = true;
         song.loop();
         lastBurstTime = millis();
-        // Меняем иконку на обычный динамик
         updateSoundIcon(true);
         const elem = document.documentElement;
         if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
@@ -194,11 +180,9 @@
       const soundIcon = document.getElementById('soundIcon');
       if (isPlaying) {
         soundBtn.classList.add('active');
-        // Иконка обычного динамика
         soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
       } else {
         soundBtn.classList.remove('active');
-        // Иконка перечёркнутого динамика
         soundIcon.innerHTML = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
       }
     }
@@ -210,7 +194,6 @@
         pausedLevel = level;
         song.pause();
         updateSoundIcon(false);
-        // Очищаем мусор при паузе
         particles = [];
         detachedCircles = [];
       } else {
@@ -222,27 +205,12 @@
 
     function analyzeAudio() {
       if (!isAudioStarted || !fft) return;
-      
       const spectrum = fft.analyze();
       const bins = spectrum.length;
-      
-      // Разделяем на частотные диапазоны
-      let bassSum = 0, midSum = 0, highSum = 0;
-      const bassEnd = Math.floor(bins * 0.1);      // 0-10% = бас
-      const midEnd = Math.floor(bins * 0.5);        // 10-50% = средние
-      
-      for (let i = 0; i < bins; i++) {
-        const val = spectrum[i] / 255;
-        if (i < bassEnd) bassSum += val;
-        else if (i < midEnd) midSum += val;
-        else highSum += val;
-      }
-      
+      let bassSum = 0;
+      const bassEnd = Math.floor(bins * 0.1);
+      for (let i = 0; i < bassEnd; i++) bassSum += spectrum[i] / 255;
       bassEnergy = bassSum / bassEnd;
-      midEnergy = (midSum - bassSum) / (midEnd - bassEnd);
-      highEnergy = (spectrum.reduce((a, b) => a + b / 255, 0) - bassSum - midSum) / (bins - midEnd);
-      
-      // Детекция бита — резкий скачок баса
       const bassDelta = bassEnergy - prevBassEnergy;
       if (bassDelta > 0.08 && bassEnergy > 0.15) {
         beatDetected = true;
@@ -250,31 +218,21 @@
       }
       prevBassEnergy = bassEnergy;
       beatDecay *= 0.92;
-      
-      // Плавное сглаживание уровня
       const rawLevel = amplitude.getLevel();
       smoothLevel = smoothLevel * 0.7 + rawLevel * 0.3;
-      
-      // Пульсация на бит
       pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
-      
       level = smoothLevel + pulseIntensity * 0.3;
     }
 
     function draw() {
       background(0);
-      
       if (isPaused) {
-        // При паузе рисуем только статичные круги — никакого мусора
         drawCirclesStatic(pausedLevel);
         return;
       }
-      
       if (isAudioStarted) {
         analyzeAudio();
-        
         let now = millis();
-        // Частицы при сильном изменении уровня
         let delta = abs(level - lastLevel);
         if (delta > 0.04 && level > 0.08 && now - lastBurstTime > minBurstInterval) {
           particles = [];
@@ -282,8 +240,6 @@
           lastBurstTime = now;
         }
         lastLevel = level;
-        
-        // Отделение круга при сильном басе
         if (beatDetected && detachedCircles.length === 0) {
           let edgeCircle = findEdgeCircle();
           if (edgeCircle) detachCircle(edgeCircle);
@@ -293,20 +249,12 @@
         level = 0.15 + 0.1 * sin(frameCount / 30);
         bassEnergy = 0;
       }
-      
-      // Обновление частиц
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
-      
-      // Рисуем круги с реакцией на бит
       drawCirclesBeat(level);
-      
-      // Рисуем отделённые круги
       drawDetached();
-      
-      // Обновление размера — на 20% медленнее
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
@@ -318,9 +266,9 @@
     }
 
     function findEdgeCircle() {
-      let size = initSize * map(level, 0, 0.5, 1, 1.5);
+      let size = initSize * map(level, 0, 0.6, 1, 1.8);
       let maxDim = max(width, height);
-      if (size >= maxDim * 0.85) {
+      if (size >= maxDim * 0.9) {
         return { size: size, color: cols[initColIndex % cols.length] };
       }
       return null;
@@ -348,15 +296,11 @@
         d.y += d.vy;
         d.life--;
         d.size *= 0.995;
-        
         let alpha = map(d.life, 0, d.maxLife, 0, 255);
         noStroke();
         fill(red(d.color), green(d.color), blue(d.color), alpha);
         ellipse(d.x, d.y, d.size, d.size);
-        
-        if (d.life <= 0 || d.size < 20) {
-          detachedCircles.splice(i, 1);
-        }
+        if (d.life <= 0 || d.size < 20) detachedCircles.splice(i, 1);
       }
     }
 
@@ -364,10 +308,8 @@
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       let colIndex = initColIndex;
-      // Сильная пульсация на бит
       let size = initSize * map(currentLevel, 0, 0.6, 1, 1.8);
       let angle = initAngle;
-      
       while (size > MIN_SIZE) {
         push(); translate(width / 2, height / 2); rotate(angle);
         fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
@@ -377,12 +319,10 @@
     }
 
     function drawCirclesStatic(currentLevel) {
-      // Статичная отрисовка без мусора
       let angleStep = PI / 20;
       let colIndex = initColIndex;
       let size = initSize * map(currentLevel, 0, 0.5, 1, 1.5);
       let angle = initAngle;
-      
       while (size > MIN_SIZE) {
         push(); translate(width / 2, height / 2); rotate(angle);
         fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
@@ -392,8 +332,7 @@
     }
 
     function createBurst(size, color) {
-      const numParticles = 60;
-      for (let i = 0; i < numParticles; i++) particles.push(new Particle(width / 2, height / 2, color));
+      for (let i = 0; i < 60; i++) particles.push(new Particle(width / 2, height / 2, color));
     }
 
     class Particle {
