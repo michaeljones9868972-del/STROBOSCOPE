@@ -10,7 +10,6 @@
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
     canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
-    
     .sound-btn, .close-btn {
       position: fixed; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
@@ -29,7 +28,22 @@
     .hidden-btns { opacity: 0 !important; pointer-events: none !important; }
     
     /* Скрыть Netlify badge */
-    #netlify-badge, [data-netlify="true"], .netlify-badge { display: none !important; }
+    iframe[src*="netlify"], 
+    [class*="netlify-badge"], 
+    [id*="netlify-badge"],
+    .netlify-badge,
+    #netlify-badge {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      position: fixed !important;
+      z-index: -9999 !important;
+      left: -9999px !important;
+      top: -9999px !important;
+    }
   </style>
 </head>
 <body>
@@ -39,8 +53,19 @@
   <button class="close-btn" id="closeBtn" title="Close (Esc)">
     <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
   </button>
-
   <script>
+    // Удаление Netlify badge
+    function removeNetlifyBadge() {
+      document.querySelectorAll('iframe[src*="netlify"], [class*="netlify"], [id*="netlify"]').forEach(el => {
+        if (el.textContent?.includes('Powered by Netlify') || el.src?.includes('netlify')) {
+          el.remove();
+        }
+      });
+    }
+    removeNetlifyBadge();
+    setInterval(removeNetlifyBadge, 500);
+    window.addEventListener('load', removeNetlifyBadge);
+
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
     let MAX_INIT_SIZE, MIN_SIZE;
     let initSize, initAngle, initColIndex;
@@ -49,10 +74,9 @@
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
     let detachedCircles = [];
-    let bassEnergy = 0, midEnergy = 0, highEnergy = 0;
-    let prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
+    let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
-    let bassPulse = 1.0; // пульсация от баса
+    let bassPulse = 1.0;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
@@ -111,38 +135,17 @@
       else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
     }
 
-    // УЛУЧШЕННЫЙ аудио-анализ: бас/средние/высокие раздельно
     function analyzeAudio() {
       if (!isAudioStarted || !fft) return;
-      const spec = fft.analyze();
-      const bins = spec.length;
-      let bassSum = 0, midSum = 0, highSum = 0;
-      const bassEnd = Math.floor(bins * 0.1);
-      const midEnd = Math.floor(bins * 0.5);
-      for (let i = 0; i < bins; i++) {
-        const val = spec[i] / 255;
-        if (i < bassEnd) bassSum += val;
-        else if (i < midEnd) midSum += val;
-        else highSum += val;
-      }
+      const spec = fft.analyze(); const bins = spec.length;
+      let bassSum = 0; const bassEnd = Math.floor(bins * 0.1);
+      for (let i=0;i<bassEnd;i++) bassSum += spec[i]/255;
       bassEnergy = bassSum / bassEnd;
-      midEnergy = (midSum - bassSum) / (midEnd - bassEnd);
-      highEnergy = (spec.reduce((a,b) => a + b/255, 0) - bassSum - midSum) / (bins - midEnd);
-
-      // Детекция бита
-      const bassDelta = bassEnergy - prevBassEnergy;
-      if (bassDelta > 0.08 && bassEnergy > 0.15) {
-        beatDetected = true;
-        beatDecay = 1.0;
-        bassPulse = 1.2; // резкое расширение на бит
-      }
-      prevBassEnergy = bassEnergy;
-      beatDecay *= 0.92;
-      bassPulse = bassPulse * 0.95 + 1.0 * 0.05; // плавное возвращение к 1.0
-
-      smoothLevel = smoothLevel * 0.7 + amplitude.getLevel() * 0.3;
-      pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
-      level = smoothLevel + pulseIntensity * 0.3;
+      if (bassEnergy - prevBassEnergy > 0.08 && bassEnergy > 0.15) { beatDetected = true; beatDecay = 1.0; bassPulse = 1.2; }
+      prevBassEnergy = bassEnergy; beatDecay *= 0.92; bassPulse = bassPulse * 0.95 + 1.0 * 0.05;
+      smoothLevel = smoothLevel*0.7 + amplitude.getLevel()*0.3;
+      pulseIntensity = pulseIntensity*0.85 + beatDecay*0.15;
+      level = smoothLevel + pulseIntensity*0.3;
     }
 
     function draw() {
@@ -150,8 +153,7 @@
       if (isPaused) { drawCirclesStatic(pausedLevel); return; }
       if (isAudioStarted) {
         analyzeAudio();
-        let now = millis();
-        let delta = abs(level - lastLevel);
+        let now = millis(); let delta = abs(level - lastLevel);
         if (delta > 0.04 && level > 0.08 && now - lastBurstTime > minBurstInterval) {
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
@@ -161,10 +163,7 @@
           if (edge) detachCircle(edge);
         }
         beatDetected = false;
-      } else {
-        level = 0.15 + 0.1*sin(frameCount/30);
-        bassEnergy = 0; bassPulse = 1.0;
-      }
+      } else { level = 0.15 + 0.1*sin(frameCount/30); bassEnergy = 0; bassPulse = 1.0; }
 
       for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
       drawCirclesBeat(level);
@@ -172,13 +171,9 @@
 
       let count = sin(frameCount/150);
       let angleStep = PI/20 * count;
-      // Скорость уменьшена на 10% (было 0.0013, стало 0.00117)
       initSize -= MAX_INIT_SIZE * 0.00117 * (10 + abs(count));
       initAngle += angleStep * 0.1;
-      if (initSize < MAX_INIT_SIZE * 0.88) {
-        initSize /= 0.88;
-        initColIndex = (initColIndex + cols.length - 1) % cols.length;
-      }
+      if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
     }
 
     function findEdgeCircle() {
@@ -206,24 +201,12 @@
       }
     }
 
-    // УЛУЧШЕННАЯ отрисовка: пульсация в такт басу
     function drawCirclesBeat(l) {
-      let count = sin(frameCount/150);
-      let angleStep = PI/20 * count;
-      let colIndex = initColIndex;
-      // Размер зависит от уровня + пульсация баса
-      let size = initSize * map(l, 0, 0.6, 1, 1.8) * bassPulse;
-      let angle = initAngle;
-      // Скорость вращения зависит от средних частот
-      angle += midEnergy * 0.02;
+      let count = sin(frameCount/150); let angleStep = PI/20*count;
+      let colIndex = initColIndex; let size = initSize * map(l, 0, 0.6, 1, 1.8) * bassPulse; let angle = initAngle;
       while (size > MIN_SIZE) {
         push(); translate(width/2,height/2); rotate(angle);
-        // Яркость зависит от высоких частот
-        let brightness = 1.0 + highEnergy * 0.3;
-        fill(red(cols[colIndex % cols.length])*brightness, 
-             green(cols[colIndex % cols.length])*brightness, 
-             blue(cols[colIndex % cols.length])*brightness);
-        ellipse(0,0,size,size); pop();
+        fill(cols[colIndex % cols.length]); ellipse(0,0,size,size); pop();
         angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE*1.5, 1, 0, false);
         size *= 0.88; colIndex++;
       }
