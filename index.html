@@ -114,23 +114,11 @@
     .marquee-content { white-space: nowrap; animation: scroll-left 360s linear infinite; font-size: 15px; color: #a0d8f1; padding: 0 50px; font-family: 'Martian Mono', monospace; letter-spacing: 0.5px; }
     @keyframes scroll-left { 0%{transform:translateX(100vw)}100%{transform:translateX(-100%)} }
 
-    /* Агрессивное скрытие Netlify badge */
-    iframe[src*="netlify"], 
-    [class*="netlify-badge"], 
-    [id*="netlify-badge"],
-    .netlify-badge,
-    #netlify-badge,
-    div[style*="netlify"] {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      height: 0 !important;
-      position: fixed !important;
-      z-index: -9999 !important;
-      left: -9999px !important;
-      top: -9999px !important;
+    /* Скрытие Netlify badge */
+    iframe[src*="netlify"], .netlify-badge, #netlify-badge, [class*="netlify-badge"], [id*="netlify-badge"] {
+      display: none !important; visibility: hidden !important; opacity: 0 !important;
+      pointer-events: none !important; width: 0 !important; height: 0 !important;
+      position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
     }
 
     @media (max-width:1400px){.gallery-grid{gap:30px}.rainbow-dot{width:32px;height:32px}}
@@ -171,28 +159,90 @@
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
 
   <script>
-    // Удаление Netlify badge через JavaScript
+    // ===== УДАЛЕНИЕ NETLIFY BADGE =====
     function removeNetlifyBadge() {
-      const selectors = [
-        'iframe[src*="netlify"]',
-        '[class*="netlify"]',
-        '[id*="netlify"]',
-        'div[style*="netlify"]'
-      ];
-      selectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => {
-          if (el.textContent?.includes('Powered by Netlify') || 
-              el.src?.includes('netlify') ||
-              el.className?.includes('netlify')) {
-            el.remove();
-          }
-        });
+      document.querySelectorAll('iframe[src*="netlify"], [class*="netlify"], [id*="netlify"]').forEach(el => {
+        if (el.textContent?.includes('Powered by Netlify') || el.src?.includes('netlify')) el.remove();
       });
     }
     removeNetlifyBadge();
     setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
+    // ===== JSONBIN ГЛОБАЛЬНЫЕ ЛАЙКИ =====
+    const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
+    const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
+
+    // Глобальный объект лайков (заполняется при загрузке)
+    let globalLikes = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
+    let likesLoaded = false;
+    let saveTimeout = null;
+
+    // Загрузка всех лайков одним запросом
+    async function loadGlobalLikes() {
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+          headers: { 'X-Master-Key': JSONBIN_API_KEY }
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && data.record) {
+          globalLikes = data.record;
+          likesLoaded = true;
+          // Обновляем все счётчики на странице
+          Object.keys(globalLikes).forEach(id => {
+            const el = document.getElementById(`hc-${id}`);
+            if (el) el.textContent = globalLikes[id];
+          });
+          console.log('Global likes loaded:', globalLikes);
+        }
+      } catch(e) {
+        console.warn('JSONBin load error, using localStorage:', e);
+        // Fallback на localStorage
+        const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
+        Object.keys(globalLikes).forEach(id => {
+          if (l[id] !== undefined) globalLikes[id] = l[id];
+        });
+        likesLoaded = true;
+        Object.keys(globalLikes).forEach(id => {
+          const el = document.getElementById(`hc-${id}`);
+          if (el) el.textContent = globalLikes[id];
+        });
+      }
+    }
+
+    // Сохранение лайков (с debounce, чтобы не спамить API)
+    function saveGlobalLikes() {
+      // Сохраняем локально всегда
+      localStorage.setItem('stroboscope_likes', JSON.stringify(globalLikes));
+      // Debounce для PUT запроса
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            method: 'PUT',
+            headers: {
+              'X-Master-Key': JSONBIN_API_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(globalLikes)
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          console.log('Global likes saved:', globalLikes);
+        } catch(e) {
+          console.warn('JSONBin save error:', e);
+        }
+      }, 800); // ждём 800мс после последнего клика
+    }
+
+    function getLikes(id) { return globalLikes[id] || 0; }
+    function incrementLikes(id) {
+      globalLikes[id] = (globalLikes[id] || 0) + 1;
+      saveGlobalLikes();
+      return globalLikes[id];
+    }
+
+    // ===== ФЛАГИ И ПЕРЕВОДЫ =====
     const flags = {
       en:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -201,11 +251,13 @@
       ar:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#165D32"/><rect x="12" y="26" width="36" height="2" fill="#fff"/></svg>`,
       fr:`<svg viewBox="0 0 60 40"><rect width="20" height="40" fill="#002395"/><rect x="20" width="20" height="40" fill="#FFF"/><rect x="40" width="20" height="40" fill="#ED2939"/></svg>`,
       de:`<svg viewBox="0 0 60 40"><rect width="60" height="13.33" fill="#000"/><rect y="13.33" width="60" height="13.33" fill="#DD0000"/><rect y="26.66" width="60" height="13.33" fill="#FFCE00"/></svg>`,
-      pt:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#009C3B"/><rect x="24" width="36" height="40" fill="#FFDF00"/><circle cx="24" cy="20" r="7" fill="#002776"/><circle cx="24" cy="20" r="5" fill="#FFDF00"/></svg>`
+      pt:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#009C3B"/><rect x="24" width="36" height="40" fill="#FFDF00"/><circle cx="24" cy="20" r="7" fill="#002776"/><circle cx="24" cy="20" r="5" fill="#FFDF00"/></svg>`,
+      ru:`<svg viewBox="0 0 60 40"><rect width="60" height="13.33" fill="#fff"/><rect y="13.33" width="60" height="13.33" fill="#0039A6"/><rect y="26.66" width="60" height="13.33" fill="#D52B1E"/></svg>`
     };
-    const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português' };
+    const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português', ru:'Русский' };
     const translations = {
       en:{search:"SEARCH BY NAME, TICKER, OR CONTRACT",marquee:"Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Psychologists and psychiatrists, based on people's preference or love for a particular color, determine the character of a person, his inclinations, his mindset, psyche, and even his state of health. The influence of color on a person is very great, although in everyday life we do not pay attention to it. Color makes things heavy, light, cold, hot. It has a tremendous impact on a person, on the work of his organs. Each color evokes a specific reaction in the human brain. For example, if a person is very excited, it is enough to place him in a room with bright pink wallpaper, as he calms down very quickly and even falls asleep. However, it was enough to change the color to blue, as this weakness disappeared. This means that color affects not only mood, but also the whole human body. Red is the color of passion. If this is a favorite color, then such a person is brave, strong-willed, domineering, quick-tempered, sociable. Orange is the favorite color of people with intuition and passionate dreamers, it means health, symbolizes joy, warmth. Yellow - this color symbolizes calmness, intelligence. If this is a favorite color, then such a person is sociable, curious, courageous. Green is the color of nature. The one who prefers it is afraid of someone else's influence, looking for a way to assert himself. Blue - symbolizes truth. This is peace, tranquility, well-being. Blue is the color of the sky. If a person likes him, this speaks of modesty and melancholy; such a person needs to rest, he quickly gets tired. Violet - this color speaks of a very great emotionality, sensitivity, delicacy, it is the color of harmoniously developed people. Black is the color of uncertainty, symbolizing a gloomy perception of life. Anyone who loves black, often perceives life in dark colors, is unhappy. White is the synthesis of all colors, because it is the ideal color, the dream color. This color can be preferred by a person with any character, it does not repel anyone."},
+      ru:{search:"ПОИСК ПО НАЗВАНИЮ, ТИКЕРУ ИЛИ КОНТРАКТУ",marquee:"Стробоскоп и музыка оказывают гипнотическое воздействие на альфа-ритмы мозга здорового человека и активно стимулируют его мыслительную деятельность! Цвет — один из факторов, определяющих состояние нашей психики. Психологи и психиатры, основываясь на предпочтениях людей или любви к определённому цвету, определяют характер человека, его наклонности, образ мышления, психику и даже состояние здоровья. Влияние цвета на человека очень велико, хотя в повседневной жизни мы не обращаем на это внимания. Цвет делает вещи тяжёлыми, лёгкими, холодными, горячими. Он оказывает огромное воздействие на человека, на работу его органов. Каждый цвет вызывает определённую реакцию в головном мозге человека. Например, если человек сильно возбуждён, достаточно поместить его в комнату с ярко-розовыми обоями, так как он очень быстро успокаивается и даже засыпает. Однако стоило поменять цвет на синий, как эта слабость исчезала. Это значит, что цвет влияет не только на настроение, но и на весь организм человека. Красный — цвет страсти. Если это любимый цвет, то такой человек смелый, волевой, властный, вспыльчивый, общительный. Оранжевый — любимый цвет людей с интуицией и страстных мечтателей, он означает здоровье, символизирует радость, тепло. Жёлтый — этот цвет символизирует спокойствие, ум. Если это любимый цвет, то такой человек общительный, любопытный, смелый. Зелёный — цвет природы. Тот, кто предпочитает его, боится влияния другого человека, ищет способ самоутвердиться. Синий — символизирует правду. Это покой, умиротворение, благополучие. Синий — цвет неба. Если человеку он нравится, это говорит о скромности и меланхолии; такому человеку нужен отдых, он быстро устаёт. Фиолетовый — этот цвет говорит о большой эмоциональности, чувствительности, ранимости, это цвет гармонично развитых людей. Чёрный — цвет неуверенности, символизирует мрачное восприятие жизни. Любой, кто любит чёрный, часто воспринимает жизнь в тёмных красках, несчастлив. Белый — синтез всех цветов, так как он является идеальным цветом, цветом мечты. Этот цвет может предпочитать человек с любым характером, он никого не отталкивает."},
       es:{search:"BUSCAR POR NOMBRE, TICKER O CONTRATO",marquee:"El estroboscopio y la música tienen un efecto hipnótico sobre los ritmos alfa del cerebro de una persona sana y estimulan activamente su actividad mental. El color es uno de los factores que determinan el estado de nuestra psique. Los psicólogos y psiquiatras, basándose en la preferencia o el amor de las personas por un color en particular, determinan el carácter de una persona, sus inclinaciones, su mentalidad, psique e incluso su estado de salud. La influencia del color en una persona es muy grande, aunque en la vida cotidiana no le prestamos atención. El color hace que las cosas sean pesadas, ligeras, frías, calientes. Tiene un tremendo impacto en una persona, en el trabajo de sus órganos. Cada color evoca una reacción específica en el cerebro humano. Por ejemplo, si una persona está muy excitada, basta con colocarla en una habitación con papel tapiz rosa brillante, ya que se calma muy rápidamente e incluso se queda dormida. Sin embargo, bastó con cambiar el color a azul, para que esta debilidad desapareciera. Esto significa que el color afecta no solo el estado de ánimo, sino también todo el cuerpo humano. El rojo es el color de la pasión. Si este es un color favorito, entonces tal persona es valiente, de voluntad fuerte, dominante, de temperamento rápido, sociable. El naranja es el color favorito de las personas con intuición y soñadores apasionados, significa salud, simboliza alegría, calidez. El amarillo - este color simboliza calma, inteligencia. Si este es un color favorito, entonces tal persona es sociable, curiosa, valiente. El verde es el color de la naturaleza. El que lo prefiere teme la influencia de los demás, buscando una forma de afirmarse. El azul - simboliza la verdad. Esto es paz, tranquilidad, bienestar. El azul es el color del cielo. Si a una persona le gusta, esto habla de modestia y melancolía; tal persona necesita descansar, se cansa rápidamente. El violeta - este color habla de una gran emocionalidad, sensibilidad, delicadeza, es el color de las personas armoniosamente desarrolladas. El negro es el color de la incertidumbre, que simboliza una percepción sombría de la vida. Cualquiera que ame el negro, a menudo percibe la vida en colores oscuros, es infeliz. El blanco es la síntesis de todos los colores, porque es el color ideal, el color del sueño. Este color puede ser preferido por una persona con cualquier carácter, no repele a nadie."},
       zh:{search:"按名称、代号或合约搜索",marquee:"频闪仪和音乐对健康人的大脑阿尔法节律有催眠作用，并积极刺激其心理活动！颜色是决定我们心理状态的因素之一。心理学家和精神病学家根据人们对特定颜色的偏好或喜爱，来确定一个人的性格、倾向、心态、心理甚至健康状况。颜色对人的影响非常大，尽管在日常生活中我们并不注意它。颜色使事物变得沉重、轻盈、寒冷、炎热。它对一个人及其器官的工作产生巨大影响。每种颜色都会在人类大脑中引起特定的反应。例如，如果一个人非常兴奋，只需将他放在一个有明亮粉色壁纸的房间里，他就会很快平静下来甚至入睡。然而，只需将颜色改为蓝色，这种虚弱感就消失了。这意味着颜色不仅影响情绪，还影响整个人体。红色是激情的颜色。如果这是最喜欢的颜色，那么这样的人是勇敢的、意志坚强的、专横的、脾气暴躁的、善于交际的。橙色是有直觉的人和充满激情的梦想家最喜欢的颜色，它意味着健康，象征着欢乐和温暖。黄色——这种颜色象征着平静和智慧。如果这是最喜欢的颜色，那么这样的人是善于交际的、好奇的、勇敢的。绿色是大自然的颜色。喜欢它的人害怕别人的影响，寻找一种方式来肯定自己。蓝色——象征真理。这是和平、宁静、幸福。蓝色是天空的颜色。如果一个人喜欢它，这说明他谦虚和忧郁；这样的人需要休息，他很快就会累。紫色——这种颜色诉说着非常强烈的情感、敏感、细腻，它是和谐发展的人的颜色。黑色是不确定性的颜色，象征着对生活的阴郁看法。任何喜欢黑色的人，经常以深色看待生活，是不快乐的。白色是所有颜色的综合，因为它是理想的颜色，梦想的颜色。任何性格的人都可以喜欢这种颜色，它不会排斥任何人。"},
       hi:{search:"नाम, टिकर या अनुबंध से खोजें",marquee:"स्ट्रोबोस्कोप और संगीत - एक स्वस्थ व्यक्ति के मस्तिष्क की अल्फा लयों पर सम्मोहक प्रभाव डालता है और उसकी मानसिक गतिविधि को सक्रिय रूप से उत्तेजित करता है! रंग हमारे मन की स्थिति निर्धारित करने वाले कारकों में से एक है। मनोवैज्ञानिक और मनोचिकित्सक, लोगों की किसी विशेष रंग की पसंद या प्रेम के आधार पर, एक व्यक्ति के चरित्र, उसकी प्रवृत्तियों, उसकी मानसिकता, मन और यहां तक कि उसकी स्वास्थ्य स्थिति का निर्धारण करते हैं। व्यक्ति पर रंग का प्रभाव बहुत बड़ा है, हालांकि दैनिक जीवन में हम इस पर ध्यान नहीं देते हैं। रंग चीजों को भारी, हल्का, ठंडा, गर्म बनाता है। इसका व्यक्ति पर, उसके अंगों के काम पर बहुत बड़ा प्रभाव पड़ता है। प्रत्येक रंग मानव मस्तिष्क में एक विशिष्ट प्रतिक्रिया उत्पन्न करता है। उदाहरण के लिए, यदि कोई व्यक्ति बहुत उत्तेजित है, तो उसे चमकीले गुलाबी वॉलपेपर वाले कमरे में रखना काफी है, क्योंकि वह बहुत जल्दी शांत हो जाता है और यहां तक कि सो जाता है। हालांकि, रंग को नीले में बदलना काफी था, क्योंकि यह कमजोरी गायब हो गई। इसका मतलब है कि रंग न केवल मूड को, बल्कि पूरे मानव शरीर को भी प्रभावित करता है। लाल जुनून का रंग है। यदि यह पसंदीदा रंग है, तो ऐसा व्यक्ति बहादुर, दृढ़ इच्छाशक्ति वाला, प्रभुत्व वाली, तेज-तर्रार, मिलनसार होता है। नारंगी अंतर्ज्ञान वाले लोगों और जुनूनी सपने देखने वालों का पसंदीदा रंग है, इसका अर्थ स्वास्थ्य है, खुशी, गर्मी का प्रतीक है। पीला - यह रंग शांति, बुद्धिमत्ता का प्रतीक है। यदि यह पसंदीदा रंग है, तो ऐसा व्यक्ति मिलनसार, जिज्ञासु, साहसी होता है। हरा प्रकृति का रंग है। जो इसे पसंद करता है वह किसी और के प्रभाव से डरता है, खुद को स्थापित करने का तरीका खोज रहा है। नीला - सत्य का प्रतीक है। यह शांति, शांति, कल्याण है। नीला आकाश का रंग है। यदि किसी व्यक्ति को यह पसंद है, तो यह विनम्रता और उदासी की बात करता है; ऐसे व्यक्ति को आराम की आवश्यकता है, वह जल्दी थक जाता है। बैंगनी - यह रंग बहुत बड़ी भावनात्मकता, संवेदनशीलता, कोमलता की बात करता है, यह सामंजस्यपूर्ण रूप से विकसित लोगों का रंग है। काला अनिश्चितता का रंग है, जीवन की उदास धारणा का प्रतीक है। जो कोई भी काले रंग से प्यार करता है, अक्सर जीवन को गहरे रंगों में देखता है, दुखी होता है। सफेद सभी रंगों का संश्लेषण है, क्योंकि यह आदर्श रंग है, सपने का रंग। इस रंग को किसी भी चरित्र वाले व्यक्ति द्वारा पसंद किया जा सकता है, यह किसी को भी विकर्षित नहीं करता है।"},
@@ -228,6 +280,7 @@
     document.querySelectorAll('.rainbow-dot[data-banner]').forEach(dot=>{ dot.addEventListener('mouseenter',()=>{clearTimeout(bannerTimeout);colorBannerImg.src=dot.dataset.banner;colorBannerImg.alt=dot.title||dot.dataset.banner;colorBanner.classList.add('active');}); dot.addEventListener('mouseleave',()=>{bannerTimeout=setTimeout(()=>colorBanner.classList.remove('active'),100);}); });
     colorBanner.addEventListener('mouseenter',()=>clearTimeout(bannerTimeout)); colorBanner.addEventListener('mouseleave',()=>colorBanner.classList.remove('active'));
 
+    // ===== СТРОБОСКОПЫ: круг 1 = контракт, круги 2-15 = даты =====
     const stroboscopes = [
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
       { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"11.12.2026", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
@@ -252,26 +305,18 @@
     function utf8ToBase64(str){ const bytes=new TextEncoder().encode(str); let b=''; for(let i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]); return btoa(b); }
     function generateCircleSVG(colors){ const size=500,c=size/2,mr=size/2-10,rw=mr/colors.length; let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`; for(let i=0;i<colors.length;i++){ const r=mr-(i*rw); svg+=`<circle cx="${c}" cy="${c}" r="${r}" fill="${colors[i]}"/>`; } svg+='</svg>'; return 'data:image/svg+xml;base64,'+utf8ToBase64(svg); }
 
-    // Лайки через localStorage (локальные)
-    function getLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); return l[id]||0; }
-    function incrementLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); l[id]=(l[id]||0)+1; localStorage.setItem('stroboscope_likes',JSON.stringify(l)); return l[id]; }
-
     function luminance(hex){ const c=hex.replace('#',''); const r=parseInt(c.substr(0,2),16)/255,g=parseInt(c.substr(2,2),16)/255,b=parseInt(c.substr(4,2),16)/255; const f=x=>x<=0.03928?x/12.92:Math.pow((x+0.055)/1.055,2.4); return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b); }
     function contrastRatio(a,b){ const l1=luminance(a),l2=luminance(b); return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); }
     function getContrastColor(base, palette){ let best=palette[0], bestC=0; palette.forEach(c=>{ const cr=contrastRatio(base,c); if(cr>bestC){bestC=cr;best=c;} }); return best; }
 
     async function fetchMarketCap(contract){
-      // Если contract это дата — не запрашиваем API
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
         const data = await res.json();
         if (data && data.pairs && data.pairs.length) {
           let totalMc = 0;
-          data.pairs.forEach(pair => {
-            const mc = pair.marketCap || pair.fdv || 0;
-            totalMc += mc;
-          });
+          data.pairs.forEach(pair => { const mc = pair.marketCap || pair.fdv || 0; totalMc += mc; });
           if (totalMc > 0) return formatCap(totalMc);
           const pair = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
           const mc = pair.marketCap || pair.fdv || 0;
@@ -292,10 +337,11 @@
       document.querySelectorAll('.cap-badge').forEach(badge => {
         const contract = badge.dataset.contract;
         if (!contract) return;
+        // Если это дата — показываем дату
+        if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) { badge.textContent = contract; return; }
         if (seen[contract]) { badge.textContent = seen[contract]; return; }
         fetchMarketCap(contract).then(val => {
           if (val) { seen[contract] = val; badge.textContent = val; }
-          else { badge.textContent = contract; } // Показываем дату если не контракт
         });
       });
     }
@@ -312,14 +358,8 @@
       fb.alt=item.name;
       circleDiv.appendChild(fb);
       const real=new Image();
-      real.onload=function(){
-        fb.remove();
-        circleDiv.appendChild(real);
-      };
-      real.onerror=function(){
-        console.log(`PNG ${item.image} not found — keeping SVG fallback`);
-        real.remove();
-      };
+      real.onload=function(){ fb.remove(); circleDiv.appendChild(real); };
+      real.onerror=function(){ console.log(`PNG ${item.image} not found — keeping SVG fallback`); real.remove(); };
       real.src=item.image;
 
       const heartColor = item.colors[0];
@@ -371,6 +411,10 @@
     searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.classList.remove('visible'); filteredStroboscopes=[...stroboscopes]; renderStroboscopes(filteredStroboscopes); searchInput.focus(); });
 
     buildLangDropdown(); applyLanguage(detectLanguage()); renderStroboscopes(filteredStroboscopes);
+    // Загружаем глобальные лайки при старте
+    loadGlobalLikes();
+    // Периодически обновляем лайки каждые 30 секунд (видеть чужие клики)
+    setInterval(loadGlobalLikes, 30000);
     setInterval(refreshAllCaps, 60000);
 
     document.addEventListener('DOMContentLoaded',()=>{ const canvas=document.querySelector('.js-canvas'); const ctx=canvas.getContext('2d'); const rc=()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;}; rc(); window.addEventListener('resize',rc); const parts=Array.from({length:100},()=>({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*2+1,s:Math.random()*0.5+0.1,a:Math.random()*Math.PI*2,c:`hsl(${Math.random()*360},70%,60%)`})); const anim=()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); parts.forEach(p=>{ p.x+=Math.cos(p.a)*p.s;p.y+=Math.sin(p.a)*p.s; if(p.x<0||p.x>canvas.width)p.a=Math.PI-p.a; if(p.y<0||p.y>canvas.height)p.a=-p.a; ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.c;ctx.globalAlpha=0.6;ctx.fill(); }); requestAnimationFrame(anim); }; anim(); });
