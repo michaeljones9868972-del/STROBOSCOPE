@@ -115,14 +115,22 @@
     @keyframes scroll-left { 0%{transform:translateX(100vw)}100%{transform:translateX(-100%)} }
 
     /* Агрессивное скрытие Netlify badge */
-    #netlify-badge, [data-netlify="true"], .netlify-badge, .netlify-footer,
-    [class*="netlify"], [id*="netlify"], iframe[src*="netlify"] {
+    iframe[src*="netlify"], 
+    [class*="netlify-badge"], 
+    [id*="netlify-badge"],
+    .netlify-badge,
+    #netlify-badge,
+    div[style*="netlify"] {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
       pointer-events: none !important;
       width: 0 !important;
       height: 0 !important;
+      position: fixed !important;
+      z-index: -9999 !important;
+      left: -9999px !important;
+      top: -9999px !important;
     }
 
     @media (max-width:1400px){.gallery-grid{gap:30px}.rainbow-dot{width:32px;height:32px}}
@@ -165,15 +173,24 @@
   <script>
     // Удаление Netlify badge через JavaScript
     function removeNetlifyBadge() {
-      const selectors = ['#netlify-badge', '[data-netlify="true"]', '.netlify-badge', '.netlify-footer',
-                         'iframe[src*="netlify"]', '[class*="netlify"]', '[id*="netlify"]'];
+      const selectors = [
+        'iframe[src*="netlify"]',
+        '[class*="netlify"]',
+        '[id*="netlify"]',
+        'div[style*="netlify"]'
+      ];
       selectors.forEach(sel => {
-        document.querySelectorAll(sel).forEach(el => el.remove());
+        document.querySelectorAll(sel).forEach(el => {
+          if (el.textContent?.includes('Powered by Netlify') || 
+              el.src?.includes('netlify') ||
+              el.className?.includes('netlify')) {
+            el.remove();
+          }
+        });
       });
     }
-    // Запускаем сразу и периодически
     removeNetlifyBadge();
-    setInterval(removeNetlifyBadge, 1000);
+    setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
     const flags = {
@@ -213,20 +230,20 @@
 
     const stroboscopes = [
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
-      { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"10.12.2026", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
-      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"11.12.2026", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
-      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"12.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
-      { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"13.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
-      { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"14.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
-      { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"15.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
-      { id:8, name:"Overdrive", ticker:"RAGE", kaomoji:"(ノಠ益ಠ)ノ", image:"8krug.png", contract:"16.12.2026", colors:['#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0','#ffffff','#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0'] },
-      { id:9, name:"Flux", ticker:"KISS", kaomoji:"(づ￣ ³￣)づ", image:"9krug.png", contract:"17.12.2026", colors:['#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61','#ffffff','#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61'] },
-      { id:10, name:"Hypnosis", ticker:"FLIP", kaomoji:"(╯°□°）╯︵ ┻━┻", image:"10krug.png", contract:"18.12.2026", colors:['#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37'] },
-      { id:11, name:"MOON", ticker:"STAR", kaomoji:"(★^O^★)", image:"11krug.png", contract:"19.12.2026", colors:['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
-      { id:12, name:"HODL", ticker:"DEAL", kaomoji:"(⌐■_■)", image:"12krug.png", contract:"20.12.2026", colors:['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
-      { id:13, name:"WAGMI", ticker:"MEOW", kaomoji:"(=^･ω･^=)", image:"13krug.png", contract:"21.12.2026", colors:['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
-      { id:14, name:"Ocean", ticker:"SOB", kaomoji:"(ಥ﹏ಥ)", image:"14krug.png", contract:"22.12.2026", colors:['#f6f6ec','#c2ad90','#88a0a4','#4d5466','#1c2246','#ffffff','#E8DFDD','#EEF0F4','#C2DBD9','#01C6C3','#00BCC9'] },
-      { id:15, name:"Zero", ticker:"SHRUG", kaomoji:"¯\\_(ツ)_/¯", image:"15krug.png", contract:"23.12.2026", colors:['#2B3034','#627C8C','#989398','#B9C7D2','#E93C35','#ffffff','#474745','#889293','#B7C1C3','#CCD6D8','#E3E8EB'] }
+      { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"11.12.2026", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
+      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"12.12.2026", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
+      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
+      { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
+      { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
+      { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"16.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
+      { id:8, name:"Overdrive", ticker:"RAGE", kaomoji:"(ノಠ益ಠ)ノ", image:"8krug.png", contract:"17.12.2026", colors:['#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0','#ffffff','#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0'] },
+      { id:9, name:"Flux", ticker:"KISS", kaomoji:"(づ￣ ³￣)づ", image:"9krug.png", contract:"18.12.2026", colors:['#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61','#ffffff','#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61'] },
+      { id:10, name:"Hypnosis", ticker:"FLIP", kaomoji:"(╯°□°）╯︵ ┻━┻", image:"10krug.png", contract:"19.12.2026", colors:['#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37'] },
+      { id:11, name:"MOON", ticker:"STAR", kaomoji:"(★^O^★)", image:"11krug.png", contract:"20.12.2026", colors:['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
+      { id:12, name:"HODL", ticker:"DEAL", kaomoji:"(⌐■_■)", image:"12krug.png", contract:"21.12.2026", colors:['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
+      { id:13, name:"WAGMI", ticker:"MEOW", kaomoji:"(=^･ω･^=)", image:"13krug.png", contract:"22.12.2026", colors:['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
+      { id:14, name:"Ocean", ticker:"SOB", kaomoji:"(ಥ﹏ಥ)", image:"14krug.png", contract:"23.12.2026", colors:['#f6f6ec','#c2ad90','#88a0a4','#4d5466','#1c2246','#ffffff','#E8DFDD','#EEF0F4','#C2DBD9','#01C6C3','#00BCC9'] },
+      { id:15, name:"Zero", ticker:"SHRUG", kaomoji:"¯\\_(ツ)_/¯", image:"15krug.png", contract:"24.12.2026", colors:['#2B3034','#627C8C','#989398','#B9C7D2','#E93C35','#ffffff','#474745','#889293','#B7C1C3','#CCD6D8','#E3E8EB'] }
     ];
 
     let filteredStroboscopes = [...stroboscopes];
@@ -235,6 +252,7 @@
     function utf8ToBase64(str){ const bytes=new TextEncoder().encode(str); let b=''; for(let i=0;i<bytes.length;i++)b+=String.fromCharCode(bytes[i]); return btoa(b); }
     function generateCircleSVG(colors){ const size=500,c=size/2,mr=size/2-10,rw=mr/colors.length; let svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">`; for(let i=0;i<colors.length;i++){ const r=mr-(i*rw); svg+=`<circle cx="${c}" cy="${c}" r="${r}" fill="${colors[i]}"/>`; } svg+='</svg>'; return 'data:image/svg+xml;base64,'+utf8ToBase64(svg); }
 
+    // Лайки через localStorage (локальные)
     function getLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); return l[id]||0; }
     function incrementLikes(id){ const l=JSON.parse(localStorage.getItem('stroboscope_likes')||'{}'); l[id]=(l[id]||0)+1; localStorage.setItem('stroboscope_likes',JSON.stringify(l)); return l[id]; }
 
@@ -242,10 +260,9 @@
     function contrastRatio(a,b){ const l1=luminance(a),l2=luminance(b); return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05); }
     function getContrastColor(base, palette){ let best=palette[0], bestC=0; palette.forEach(c=>{ const cr=contrastRatio(base,c); if(cr>bestC){bestC=cr;best=c;} }); return best; }
 
-    // Кэширование капитализации
-    const marketCapCache = {};
-    async function fetchMarketCap(contract) {
-      if (marketCapCache[contract]) return marketCapCache[contract];
+    async function fetchMarketCap(contract){
+      // Если contract это дата — не запрашиваем API
+      if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
         const data = await res.json();
@@ -255,16 +272,10 @@
             const mc = pair.marketCap || pair.fdv || 0;
             totalMc += mc;
           });
-          if (totalMc > 0) {
-            const formatted = formatCap(totalMc);
-            marketCapCache[contract] = formatted;
-            return formatted;
-          }
+          if (totalMc > 0) return formatCap(totalMc);
           const pair = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0))[0];
           const mc = pair.marketCap || pair.fdv || 0;
-          const formatted = formatCap(mc);
-          marketCapCache[contract] = formatted;
-          return formatted;
+          return formatCap(mc);
         }
       } catch(e) { console.warn('DexScreener error:', e); }
       return null;
@@ -284,6 +295,7 @@
         if (seen[contract]) { badge.textContent = seen[contract]; return; }
         fetchMarketCap(contract).then(val => {
           if (val) { seen[contract] = val; badge.textContent = val; }
+          else { badge.textContent = contract; } // Показываем дату если не контракт
         });
       });
     }
