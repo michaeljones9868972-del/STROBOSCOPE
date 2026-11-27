@@ -50,7 +50,7 @@
     let song, amplitude, fft, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
-    let detachedCircles = [];
+    let detachedRings = []; // теперь это КОЛЬЦА, не круги
     let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
     let lastDetachTime = 0;
@@ -59,7 +59,8 @@
       let cnv = createCanvas(windowWidth, windowHeight);
       cnv.style('position','fixed'); cnv.style('top','0'); cnv.style('left','0'); cnv.style('z-index','1');
       rectMode(CENTER); noStroke();
-      MAX_INIT_SIZE = max(width, height) * 0.5;
+      // УМЕНЬШЕН РАЗМЕР чтобы круг не выходил за экран
+      MAX_INIT_SIZE = min(width, height) * 0.48;
       MIN_SIZE = 8;
       initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
       amplitude = new p5.Amplitude(); amplitude.smooth(0.8);
@@ -108,7 +109,7 @@
     function togglePause() {
       if (!isAudioStarted) return;
       isPaused = !isPaused;
-      if (isPaused) { pausedLevel = level; song.pause(); updateSoundIcon(false); particles=[]; detachedCircles=[]; }
+      if (isPaused) { pausedLevel = level; song.pause(); updateSoundIcon(false); particles=[]; detachedRings=[]; }
       else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
     }
 
@@ -118,7 +119,6 @@
       let bassSum = 0; const bassEnd = Math.floor(bins * 0.1);
       for (let i=0;i<bassEnd;i++) bassSum += spec[i]/255;
       bassEnergy = bassSum / bassEnd;
-      // Более чувствительная детекция бита
       if (bassEnergy - prevBassEnergy > 0.05 && bassEnergy > 0.12) { 
         beatDetected = true; 
         beatDecay = 1.0; 
@@ -140,11 +140,11 @@
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
         lastLevel = level;
-        // Отделение крайнего круга при басах - БЕЗ ограничения по количеству
-        if (beatDetected && now - lastDetachTime > 500) {
+        // Отделение КОЛЬЦА при басах
+        if (beatDetected && now - lastDetachTime > 400) {
           let edge = findEdgeCircle();
           if (edge) {
-            detachCircle(edge);
+            detachRing(edge);
             lastDetachTime = now;
           }
         }
@@ -153,11 +153,10 @@
 
       for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
       drawCirclesBeat(level);
-      drawDetached();
+      drawDetachedRings();
 
       let count = sin(frameCount/150);
       let angleStep = PI/20 * count;
-      // УВЕЛИЧЕНА СКОРОСТЬ НА 10%
       initSize -= MAX_INIT_SIZE * 0.001144 * (10 + abs(count));
       initAngle += angleStep * 0.1;
       if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
@@ -166,26 +165,51 @@
     function findEdgeCircle() {
       let size = initSize * map(level, 0, 0.6, 1, 1.8);
       let maxDim = max(width, height);
-      // СНИЖЕН ПОРОГ для срабатывания
-      if (size >= maxDim * 0.70) return { size: size, color: cols[initColIndex % cols.length] };
+      // Срабатывает когда круг касается края экрана
+      if (size >= maxDim * 0.55) {
+        // Вычисляем размер КОЛЬЦА (толщина внешнего кольца)
+        let ringThickness = size * 0.12; // толщина ~12% от размера
+        return { 
+          outerSize: size, 
+          innerSize: size - ringThickness * 2,
+          color: cols[initColIndex % cols.length] 
+        };
+      }
       return null;
     }
 
-    function detachCircle(c) {
+    // Отделяем КОЛЬЦО, а не круг
+    function detachRing(r) {
       let angle = random(TWO_PI);
       let speed = random(2, 4);
-      detachedCircles.push({ size: c.size, color: c.color, x: width/2, y: height/2,
-        vx: cos(angle)*speed, vy: sin(angle)*speed, life: 220, maxLife: 220 });
+      detachedRings.push({ 
+        outerSize: r.outerSize, 
+        innerSize: r.innerSize,
+        color: r.color, 
+        x: width/2, y: height/2,
+        vx: cos(angle)*speed, vy: sin(angle)*speed, 
+        life: 180, maxLife: 180 
+      });
     }
 
-    function drawDetached() {
-      for (let i=detachedCircles.length-1;i>=0;i--) {
-        let d = detachedCircles[i];
-        d.x += d.vx; d.y += d.vy; d.life--; d.size *= 0.996;
+    // Рисуем КОЛЬЦО (круг с дыркой внутри)
+    function drawDetachedRings() {
+      for (let i=detachedRings.length-1;i>=0;i--) {
+        let d = detachedRings[i];
+        d.x += d.vx; d.y += d.vy; d.life--;
+        d.outerSize *= 0.997;
+        d.innerSize *= 0.997;
         let alpha = map(d.life, 0, d.maxLife, 0, 255);
-        noStroke(); fill(red(d.color), green(d.color), blue(d.color), alpha);
-        ellipse(d.x, d.y, d.size, d.size);
-        if (d.life <= 0 || d.size < 20) detachedCircles.splice(i,1);
+        
+        // Рисуем кольцо: большой круг + чёрный круг внутри = кольцо
+        noStroke();
+        fill(red(d.color), green(d.color), blue(d.color), alpha);
+        ellipse(d.x, d.y, d.outerSize, d.outerSize);
+        // "Вырезаем" внутреннюю часть чёрным фоном
+        fill(0, alpha);
+        ellipse(d.x, d.y, d.innerSize, d.innerSize);
+        
+        if (d.life <= 0 || d.outerSize < 20) detachedRings.splice(i,1);
       }
     }
 
@@ -220,7 +244,7 @@
         noStroke(); fill(red(this.color),green(this.color),blue(this.color),a); ellipse(this.pos.x,this.pos.y,this.size); }
       isDead(){ return this.lifespan<0; }
     }
-    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = max(width,height)*0.5; }
+    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = min(width,height)*0.48; }
   </script>
 </body>
 </html>
