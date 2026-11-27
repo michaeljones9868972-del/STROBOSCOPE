@@ -18,20 +18,44 @@
     .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px); pointer-events: none; }
     @keyframes aura-pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.2); } }
 
-    .top-controls { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.8); padding: 10px 16px; border-radius: 8px; border: 1px solid rgba(160,216,241,0.3); }
-    .social-links { display: flex; align-items: center; gap: 10px; }
-    .social-link { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: #a0d8f1; text-decoration: none; transition: all 0.3s; border-radius: 50%; }
-    .social-link:hover { color: #fff; background: rgba(160,216,241,0.2); transform: scale(1.1); }
-    .social-link svg { width: 20px; height: 20px; fill: currentColor; }
-    .support-container { position: relative; }
-    .support-link { color: #a0d8f1; text-decoration: none; font-size: 13px; font-family: 'Martian Mono', monospace; transition: all 0.3s; white-space: nowrap; background: none; border: none; cursor: pointer; padding: 0; }
-    .support-link:hover { color: #fff; text-shadow: 0 0 10px rgba(160,216,241,0.5); }
-    .support-tooltip { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px); z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4; }
-    .support-tooltip.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .divider { width: 1px; height: 24px; background: rgba(160,216,241,0.3); }
+    /* ===== ВЕРХНЯЯ СТРОКА: равномерное распределение ===== */
+    .top-bar {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .top-bar > * {
+      flex-shrink: 0;
+    }
 
-    .search-container { position: fixed; top: 20px; left: 20px; z-index: 100; background: rgba(0,0,0,0.8); padding: 12px; border-radius: 8px; border: 1px solid rgba(160,216,241,0.3); display: flex; align-items: center; gap: 8px; }
-    .search-container input { background: rgba(0,0,0,0.6); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace; font-size: 14px; border-radius: 4px; width: 320px; max-width: 45ch; outline: none; transition: all 0.3s; }
+    .search-container {
+      background: rgba(0,0,0,0.8);
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(160,216,241,0.3);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-container input {
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1;
+      padding: 10px 15px;
+      font-family: 'Martian Mono', monospace;
+      font-size: 14px;
+      border-radius: 4px;
+      width: 280px;
+      max-width: 45ch;
+      outline: none;
+      transition: all 0.3s;
+    }
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160,216,241,0.3); }
     .search-container input::placeholder { color: rgba(160,216,241,0.5); }
     .search-clear { background: none; border: none; color: #a0d8f1; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.3s; display: none; line-height: 1; }
@@ -40,23 +64,15 @@
 
     /* Заголовок PALETTE с анимацией перелива */
     .palette-title {
-      position: fixed;
-      top: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 99;
       display: flex;
       align-items: center;
-      gap: 80px; /* Увеличенное расстояние между PALETTE и CREATE */
+      gap: 60px;
       font-family: 'Martian Mono', monospace;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 700;
       letter-spacing: 3px;
     }
-    .palette-text {
-      display: flex;
-      gap: 2px;
-    }
+    .palette-text { display: flex; gap: 2px; }
     .palette-text span {
       display: inline-block;
       animation: paletteShimmer 3s ease-in-out infinite;
@@ -69,7 +85,6 @@
     .palette-text span:nth-child(5) { color: #00B0FF; animation-delay: 0.4s; }
     .palette-text span:nth-child(6) { color: #2979FF; animation-delay: 0.5s; }
     .palette-text span:nth-child(7) { color: #D500F9; animation-delay: 0.6s; }
-    .palette-text span:nth-child(8) { color: #FF1744; animation-delay: 0.7s; }
 
     @keyframes paletteShimmer {
       0%, 100% { opacity: 1; transform: scale(1); }
@@ -85,9 +100,7 @@
       transition: all 0.3s;
       perspective: 400px;
     }
-    .create-stroboscope:hover {
-      text-shadow: 0 0 20px rgba(255,255,255,0.8);
-    }
+    .create-stroboscope:hover { text-shadow: 0 0 20px rgba(255,255,255,0.8); }
     .create-stroboscope .soon-text {
       position: absolute;
       top: 100%;
@@ -121,16 +134,28 @@
       100% { transform: translateX(-50%) rotateY(1260deg); color: #FF1744; }
     }
 
-    /* Домик и радужные точки в одной строке */
-    .home-and-dots {
-      position: fixed;
-      top: 22px;
-      right: 20px;
-      z-index: 99;
+    /* Правая часть: радужные точки + домик + соцсети */
+    .right-controls {
       display: flex;
       align-items: center;
       gap: 12px;
     }
+
+    .rainbow-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,0,0,0.6);
+      padding: 6px 10px;
+      border-radius: 30px;
+      border: 1px solid rgba(160,216,241,0.2);
+      backdrop-filter: blur(8px);
+    }
+    .rainbow-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; animation: rainbowPulse 2.5s ease-in-out infinite; cursor: pointer; transition: transform 0.3s; }
+    .rainbow-dot:hover { transform: scale(1.2); }
+    .rainbow-dot:nth-child(1){background:#FF1744;animation-delay:0s}.rainbow-dot:nth-child(2){background:#FF9100;animation-delay:.15s}.rainbow-dot:nth-child(3){background:#FFEA00;animation-delay:.3s}.rainbow-dot:nth-child(4){background:#00E676;animation-delay:.45s}.rainbow-dot:nth-child(5){background:#00B0FF;animation-delay:.6s}.rainbow-dot:nth-child(6){background:#2979FF;animation-delay:.75s}.rainbow-dot:nth-child(7){background:#D500F9;animation-delay:.9s}
+    @keyframes rainbowPulse { 0%,100%{box-shadow:0 0 8px rgba(255,255,255,.6),0 0 16px rgba(255,255,255,.3);transform:scale(1)}50%{box-shadow:0 0 16px rgba(255,255,255,1),0 0 28px rgba(255,255,255,.7),0 0 40px rgba(255,255,255,.4);transform:scale(1.1)} }
+
     .home-icon {
       position: relative;
       width: 36px;
@@ -138,21 +163,13 @@
       cursor: pointer;
       transition: all 0.3s;
     }
-    .home-icon svg {
-      width: 100%;
-      height: 100%;
-      fill: #a0d8f1;
-      transition: all 0.3s;
-    }
-    .home-icon:hover svg {
-      fill: #fff;
-      transform: scale(1.1);
-    }
+    .home-icon svg { width: 100%; height: 100%; fill: #a0d8f1; transition: all 0.3s; }
+    .home-icon:hover svg { fill: #fff; transform: scale(1.1); }
     .home-icon .house-image {
       position: absolute;
       top: 100%;
       right: 0;
-      width: 36px; /* Размер как у радужных точек */
+      width: 36px;
       height: 36px;
       object-fit: cover;
       border-radius: 50%;
@@ -170,26 +187,21 @@
       box-shadow: 0 0 30px rgba(160,216,241,0.5);
     }
 
-    .rainbow-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 10px;
-      border-radius: 30px;
-      border: 1px solid rgba(160,216,241,0.2);
-      backdrop-filter: blur(8px);
-    }
-    .rainbow-dot { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; animation: rainbowPulse 2.5s ease-in-out infinite; cursor: pointer; transition: transform 0.3s; }
-    .rainbow-dot:hover { transform: scale(1.2); }
-    .rainbow-dot:nth-child(1){background:#FF1744;animation-delay:0s}.rainbow-dot:nth-child(2){background:#FF9100;animation-delay:.15s}.rainbow-dot:nth-child(3){background:#FFEA00;animation-delay:.3s}.rainbow-dot:nth-child(4){background:#00E676;animation-delay:.45s}.rainbow-dot:nth-child(5){background:#00B0FF;animation-delay:.6s}.rainbow-dot:nth-child(6){background:#2979FF;animation-delay:.75s}.rainbow-dot:nth-child(7){background:#D500F9;animation-delay:.9s}
-    @keyframes rainbowPulse { 0%,100%{box-shadow:0 0 8px rgba(255,255,255,.6),0 0 16px rgba(255,255,255,.3);transform:scale(1)}50%{box-shadow:0 0 16px rgba(255,255,255,1),0 0 28px rgba(255,255,255,.7),0 0 40px rgba(255,255,255,.4);transform:scale(1.1)} }
+    .social-links { display: flex; align-items: center; gap: 10px; }
+    .social-link { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: #a0d8f1; text-decoration: none; transition: all 0.3s; border-radius: 50%; }
+    .social-link:hover { color: #fff; background: rgba(160,216,241,0.2); transform: scale(1.1); }
+    .social-link svg { width: 20px; height: 20px; fill: currentColor; }
+    .support-container { position: relative; }
+    .support-link { color: #a0d8f1; text-decoration: none; font-size: 13px; font-family: 'Martian Mono', monospace; transition: all 0.3s; white-space: nowrap; background: none; border: none; cursor: pointer; padding: 0; }
+    .support-link:hover { color: #fff; text-shadow: 0 0 10px rgba(160,216,241,0.5); }
+    .support-tooltip { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px); z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4; }
+    .support-tooltip.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
     .color-banner { position: fixed; top: 75px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
     .color-banner.active { opacity: 1; pointer-events: auto; }
     .color-banner-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(255,255,255,0.15); }
 
-    .gallery-wrapper { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding-top: 130px; }
+    .gallery-wrapper { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; padding-top: 100px; }
     .gallery-page { height: 100vh; scroll-snap-align: center; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; padding: 0 40px; position: relative; }
     .gallery-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; max-width: 1800px; width: 100%; }
 
@@ -252,61 +264,85 @@
       position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
     }
 
-    @media (max-width:1400px){.gallery-grid{gap:30px}.rainbow-dot{width:32px;height:32px}}
-    @media (max-width:1100px){.gallery-grid{grid-template-columns:repeat(2,1fr);gap:25px}.gallery-page{padding:0 25px}.gallery-wrapper{padding-top:130px}.color-banner{top:130px}}
+    @media (max-width:1400px){.gallery-grid{gap:30px}.rainbow-dot{width:28px;height:28px}}
+    @media (max-width:1100px){
+      .gallery-grid{grid-template-columns:repeat(2,1fr);gap:25px}
+      .gallery-page{padding:0 25px}
+      .gallery-wrapper{padding-top:130px}
+      .color-banner{top:130px}
+      .top-bar{flex-wrap:wrap;gap:10px}
+      .palette-title{font-size:20px;gap:30px}
+    }
     @media (max-width:700px){
-      .gallery-grid{grid-template-columns:1fr;gap:20px;max-width:400px}.gallery-page{padding:0 15px}
-      .top-controls{top:10px;right:10px;padding:8px 12px;gap:8px}.search-container{top:10px;left:10px;padding:8px}
-      .search-container input{width:150px;font-size:11px;padding:6px 10px}.marquee-container{height:50px}.marquee-content{font-size:11px;padding:0 20px}
-      .support-link{display:none}.divider{display:none}
-      .gallery-wrapper{padding-top:110px}.color-banner{top:110px;bottom:50px;padding:10px}
-      .frame-kaomoji{font-size:22px}.frame-name{font-size:20px}.frame-contract{font-size:9px}
-      .heart-overlay{width:64px;height:64px}.heart-count{font-size:14px;max-width:46px}
+      .gallery-grid{grid-template-columns:1fr;gap:20px;max-width:400px}
+      .gallery-page{padding:0 15px}
+      .search-container input{width:150px;font-size:11px;padding:6px 10px}
+      .marquee-container{height:50px}
+      .marquee-content{font-size:11px;padding:0 20px}
+      .gallery-wrapper{padding-top:110px}
+      .color-banner{top:110px;bottom:50px;padding:10px}
+      .frame-kaomoji{font-size:22px}
+      .frame-name{font-size:20px}
+      .frame-contract{font-size:9px}
+      .heart-overlay{width:64px;height:64px}
+      .heart-count{font-size:14px;max-width:46px}
       .mcap-badge,.cap-badge{font-size:11px;padding:5px 12px}
-      .palette-title{font-size:20px;gap:40px}
-      .home-and-dots{right:10px;top:10px}
+      .palette-title{font-size:16px;gap:20px}
+      .rainbow-dot{width:24px;height:24px}
     }
   </style>
 </head>
 <body>
   <div class="a-hole"><canvas class="js-canvas"></canvas><div class="aura"></div><div class="overlay"></div></div>
   
-  <div class="palette-title">
-    <div class="palette-text">
-      <span>P</span><span>A</span><span>L</span><span>E</span><span>T</span><span>T</span><span>E</span>
+  <!-- ВЕРХНЯЯ СТРОКА: равномерное распределение -->
+  <div class="top-bar">
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="SEARCH BY NAME, TICKER, OR CONTRACT" maxlength="45">
+      <button class="search-clear" id="searchClear" title="Clear search">✕</button>
     </div>
-    <div class="create-stroboscope">
-      CREATE STROBOSCOPE
-      <div class="soon-text">SOON</div>
+
+    <div class="palette-title">
+      <div class="palette-text">
+        <span>P</span><span>A</span><span>L</span><span>E</span><span>T</span><span>T</span><span>E</span>
+      </div>
+      <div class="create-stroboscope">
+        CREATE STROBOSCOPE
+        <div class="soon-text">SOON</div>
+      </div>
+    </div>
+
+    <div class="right-controls">
+      <div class="rainbow-row" id="rainbowRow">
+        <div class="rainbow-dot" data-banner="red-banner.png" title="Red"></div>
+        <div class="rainbow-dot" data-banner="orange-banner.png" title="Orange"></div>
+        <div class="rainbow-dot" data-banner="yellow-banner.png" title="Yellow"></div>
+        <div class="rainbow-dot" data-banner="green-banner.png" title="Green"></div>
+        <div class="rainbow-dot" data-banner="blue-light-banner.png" title="Blue light"></div>
+        <div class="rainbow-dot" data-banner="blue-banner.png" title="Blue"></div>
+        <div class="rainbow-dot" data-banner="purple-banner.png" title="Purple"></div>
+      </div>
+
+      <div class="home-icon" id="homeIcon" title="Home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <img src="house.png" alt="Home" class="house-image">
+      </div>
+
+      <div class="social-links">
+        <a href="https://x.com/STROBOSCOP_E" target="_blank" class="social-link" aria-label="Twitter (X)">
+          <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://t.me/+cXrITgYMt2c2NjE0" target="_blank" class="social-link" aria-label="Telegram">
+          <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+        </a>
+        <div class="support-container">
+          <button class="support-link" id="supportBtn">@SUPPORT</button>
+          <div class="support-tooltip" id="supportTooltip">stroboscope@atomicmail.io<br><span style="color:#4ade80;font-size:11px">✓ Copied to clipboard!</span></div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="home-and-dots">
-    <div class="rainbow-row" id="rainbowRow">
-      <div class="rainbow-dot" data-banner="red-banner.png" title="Red"></div>
-      <div class="rainbow-dot" data-banner="orange-banner.png" title="Orange"></div>
-      <div class="rainbow-dot" data-banner="yellow-banner.png" title="Yellow"></div>
-      <div class="rainbow-dot" data-banner="green-banner.png" title="Green"></div>
-      <div class="rainbow-dot" data-banner="blue-light-banner.png" title="Blue light"></div>
-      <div class="rainbow-dot" data-banner="blue-banner.png" title="Blue"></div>
-      <div class="rainbow-dot" data-banner="purple-banner.png" title="Purple"></div>
-    </div>
-    <div class="home-icon" id="homeIcon" title="Home">
-      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-      <img src="house.png" alt="Home" class="house-image">
-    </div>
-  </div>
-
-  <div class="top-controls">
-    <div class="social-links">
-      <a href="https://x.com/STROBOSCOP_E" target="_blank" class="social-link" aria-label="Twitter (X)"><svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-      <a href="https://t.me/+cXrITgYMt2c2NjE0" target="_blank" class="social-link" aria-label="Telegram"><svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg></a>
-      <div class="support-container"><button class="support-link" id="supportBtn">@SUPPORT</button><div class="support-tooltip" id="supportTooltip">stroboscope@atomicmail.io<br><span style="color:#4ade80;font-size:11px">✓ Copied to clipboard!</span></div></div>
-    </div>
-  </div>
-  
-  <div class="search-container"><input type="text" id="searchInput" placeholder="SEARCH BY NAME, TICKER, OR CONTRACT" maxlength="45"><button class="search-clear" id="searchClear" title="Clear search">✕</button></div>
-  
   <div class="color-banner" id="colorBanner"><img src="" alt="" class="color-banner-img" id="colorBannerImg"></div>
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
@@ -341,9 +377,7 @@
             if (el) el.textContent = globalLikes[id];
           });
         }
-      } catch(e) {
-        console.warn('JSONBin load error:', e);
-      }
+      } catch(e) { console.warn('JSONBin load error:', e); }
     }
 
     function saveGlobalLikes() {
@@ -367,14 +401,12 @@
       return globalLikes[id];
     }
 
-    // CoinGecko API для точной капитализации
     const marketCapCache = {};
     async function fetchMarketCap(contract) {
       if (marketCapCache[contract]) return marketCapCache[contract];
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
       
       try {
-        // CoinGecko API (бесплатный, без ключа)
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${contract}&vs_currencies=usd&include_market_cap=true`);
         const data = await res.json();
         const tokenData = data[contract.toLowerCase()];
@@ -385,7 +417,6 @@
         }
       } catch(e) { console.warn('CoinGecko error:', e); }
       
-      // Fallback на DexScreener
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
         const data = await res.json();
@@ -419,10 +450,23 @@
       });
     }
 
+    // ===== ВСЕ 15 СТРОБОСКОПОВ =====
     const stroboscopes = [
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
       { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"11.12.2026", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
-      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"12.12.2026", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] }
+      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"12.12.2026", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
+      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
+      { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
+      { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
+      { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"16.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
+      { id:8, name:"Overdrive", ticker:"RAGE", kaomoji:"(ノಠ益ಠ)ノ", image:"8krug.png", contract:"17.12.2026", colors:['#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0','#ffffff','#B20000','#FD292F','#FE8535','#FDB10B','#FEF4C0'] },
+      { id:9, name:"Flux", ticker:"KISS", kaomoji:"(づ￣ ³￣)づ", image:"9krug.png", contract:"18.12.2026", colors:['#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61','#ffffff','#e1331b','#f85e28','#ccfcee','#7bd1b8','#3e6c61'] },
+      { id:10, name:"Hypnosis", ticker:"FLIP", kaomoji:"(╯°□°）╯︵ ┻━┻", image:"10krug.png", contract:"19.12.2026", colors:['#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37','#E3C515','#EE51B1','#A59CD3','#ffffff','#2C5D37'] },
+      { id:11, name:"MOON", ticker:"STAR", kaomoji:"(★^O^★)", image:"11krug.png", contract:"20.12.2026", colors:['#0a1628','#1a3a6e','#2a5298','#4169e1','#ffffff','#6b8cff','#8fa8d4','#a8b8c8','#c0c0c0','#d4d4d4','#e8e8e8','#ffd700','#ffe44d','#fff0a0','#0a1628','#4169e1','#ffd700'] },
+      { id:12, name:"HODL", ticker:"DEAL", kaomoji:"(⌐■_■)", image:"12krug.png", contract:"21.12.2026", colors:['#2d1b4e','#4d2f72','#6a3d8a','#9b59b6','#ffffff','#b070c4','#c587d2','#d74078','#e91e63','#f04080','#f7629d','#00bcd4','#26c6da','#4dd0e1','#2d1b4e','#9b59b6','#00bcd4'] },
+      { id:13, name:"WAGMI", ticker:"MEOW", kaomoji:"(=^･ω･^=)", image:"13krug.png", contract:"22.12.2026", colors:['#0d2818','#1a4828','#00cc6a','#00ff88','#ffffff','#33ff99','#66ffaa','#99ffbb','#ccffcc','#e0ffe0','#ffd700','#ffe44d','#fff0a0','#1a1a2e','#2a2a3e','#00ff88','#ffd700'] },
+      { id:14, name:"Ocean", ticker:"SOB", kaomoji:"(ಥ﹏ಥ)", image:"14krug.png", contract:"23.12.2026", colors:['#f6f6ec','#c2ad90','#88a0a4','#4d5466','#1c2246','#ffffff','#E8DFDD','#EEF0F4','#C2DBD9','#01C6C3','#00BCC9'] },
+      { id:15, name:"Zero", ticker:"SHRUG", kaomoji:"¯\\_(ツ)_/¯", image:"15krug.png", contract:"24.12.2026", colors:['#2B3034','#627C8C','#989398','#B9C7D2','#E93C35','#ffffff','#474745','#889293','#B7C1C3','#CCD6D8','#E3E8EB'] }
     ];
 
     let filteredStroboscopes = [...stroboscopes];
