@@ -18,7 +18,7 @@
     .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px); pointer-events: none; }
     @keyframes aura-pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.2); } }
 
-    /* ===== ВЕРХНЯЯ СТРОКА: равномерное распределение ===== */
+    /* ВЕРХНЯЯ СТРОКА */
     .top-bar {
       position: fixed;
       top: 20px;
@@ -30,9 +30,6 @@
       justify-content: space-between;
       gap: 20px;
     }
-    .top-bar > * {
-      flex-shrink: 0;
-    }
 
     .search-container {
       background: rgba(0,0,0,0.8);
@@ -42,6 +39,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
     .search-container input {
       background: rgba(0,0,0,0.6);
@@ -62,7 +60,6 @@
     .search-clear:hover { color: #fff; background: rgba(160,216,241,0.2); }
     .search-clear.visible { display: block; }
 
-    /* Заголовок PALETTE с анимацией перелива */
     .palette-title {
       display: flex;
       align-items: center;
@@ -71,6 +68,7 @@
       font-size: 26px;
       font-weight: 700;
       letter-spacing: 3px;
+      flex-shrink: 0;
     }
     .palette-text { display: flex; gap: 2px; }
     .palette-text span {
@@ -85,7 +83,6 @@
     .palette-text span:nth-child(5) { color: #00B0FF; animation-delay: 0.4s; }
     .palette-text span:nth-child(6) { color: #2979FF; animation-delay: 0.5s; }
     .palette-text span:nth-child(7) { color: #D500F9; animation-delay: 0.6s; }
-
     @keyframes paletteShimmer {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.3; transform: scale(0.9); }
@@ -122,7 +119,6 @@
       opacity: 1;
       animation-play-state: running;
     }
-
     @keyframes soonRotate {
       0%   { transform: translateX(-50%) rotateY(0deg); color: #FF1744; }
       14%  { transform: translateX(-50%) rotateY(180deg); color: #FF9100; }
@@ -134,11 +130,11 @@
       100% { transform: translateX(-50%) rotateY(1260deg); color: #FF1744; }
     }
 
-    /* Правая часть: радужные точки + домик + соцсети */
     .right-controls {
       display: flex;
       align-items: center;
       gap: 12px;
+      flex-shrink: 0;
     }
 
     .rainbow-row {
@@ -165,27 +161,80 @@
     }
     .home-icon svg { width: 100%; height: 100%; fill: #a0d8f1; transition: all 0.3s; }
     .home-icon:hover svg { fill: #fff; transform: scale(1.1); }
-    .home-icon .house-image {
-      position: absolute;
-      top: 100%;
+
+    /* Большой баннер дома при наведении — как color-banner */
+    .house-banner {
+      position: fixed;
+      top: 80px;
+      left: 0;
       right: 0;
-      width: 36px;
-      height: 36px;
-      object-fit: cover;
-      border-radius: 50%;
-      margin-top: 8px;
+      bottom: 60px;
+      z-index: 50;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.4s ease;
+      padding: 20px;
+    }
+    .house-banner.active { opacity: 1; pointer-events: auto; }
+    .house-banner-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 0 60px rgba(255,255,255,0.15);
+    }
+
+    .lang-selector { position: relative; }
+    .lang-btn {
+      background: none;
+      border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
       transition: all 0.3s;
-      box-shadow: 0 0 10px rgba(160,216,241,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
     }
-    .home-icon:hover .house-image {
-      opacity: 1;
-      width: 300px;
-      height: auto;
-      border-radius: 12px;
-      box-shadow: 0 0 30px rgba(160,216,241,0.5);
+    .lang-btn:hover { background: rgba(160,216,241,0.2); border-color: #a0d8f1; }
+    .lang-btn svg { width: 28px; height: 20px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
+    .lang-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: rgba(0,0,0,0.95);
+      border: 1px solid rgba(160,216,241,0.5);
+      border-radius: 8px;
+      padding: 10px;
+      display: none;
+      grid-template-columns: repeat(4,1fr);
+      gap: 8px;
+      min-width: 220px;
+      backdrop-filter: blur(10px);
+      z-index: 101;
     }
+    .lang-dropdown.active { display: grid; }
+    .lang-flag {
+      background: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
+    .lang-flag svg { width: 40px; height: 28px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
+    .lang-flag:hover { background: rgba(160,216,241,0.2); border-color: rgba(160,216,241,0.5); transform: scale(1.1); }
+    .lang-flag.active { border-color: #a0d8f1; background: rgba(160,216,241,0.3); box-shadow: 0 0 12px rgba(160,216,241,0.4); }
 
     .social-links { display: flex; align-items: center; gap: 10px; }
     .social-link { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: #a0d8f1; text-decoration: none; transition: all 0.3s; border-radius: 50%; }
@@ -197,7 +246,7 @@
     .support-tooltip { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px); z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4; }
     .support-tooltip.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-    .color-banner { position: fixed; top: 75px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
+    .color-banner { position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
     .color-banner.active { opacity: 1; pointer-events: auto; }
     .color-banner-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(255,255,255,0.15); }
 
@@ -269,7 +318,7 @@
       .gallery-grid{grid-template-columns:repeat(2,1fr);gap:25px}
       .gallery-page{padding:0 25px}
       .gallery-wrapper{padding-top:130px}
-      .color-banner{top:130px}
+      .color-banner,.house-banner{top:130px}
       .top-bar{flex-wrap:wrap;gap:10px}
       .palette-title{font-size:20px;gap:30px}
     }
@@ -280,7 +329,7 @@
       .marquee-container{height:50px}
       .marquee-content{font-size:11px;padding:0 20px}
       .gallery-wrapper{padding-top:110px}
-      .color-banner{top:110px;bottom:50px;padding:10px}
+      .color-banner,.house-banner{top:110px;bottom:50px;padding:10px}
       .frame-kaomoji{font-size:22px}
       .frame-name{font-size:20px}
       .frame-contract{font-size:9px}
@@ -295,7 +344,6 @@
 <body>
   <div class="a-hole"><canvas class="js-canvas"></canvas><div class="aura"></div><div class="overlay"></div></div>
   
-  <!-- ВЕРХНЯЯ СТРОКА: равномерное распределение -->
   <div class="top-bar">
     <div class="search-container">
       <input type="text" id="searchInput" placeholder="SEARCH BY NAME, TICKER, OR CONTRACT" maxlength="45">
@@ -325,7 +373,11 @@
 
       <div class="home-icon" id="homeIcon" title="Home">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        <img src="house.png" alt="Home" class="house-image">
+      </div>
+
+      <div class="lang-selector">
+        <button class="lang-btn" id="langBtn" aria-label="Select language"><span id="currentFlag"></span></button>
+        <div class="lang-dropdown" id="langDropdown"></div>
       </div>
 
       <div class="social-links">
@@ -343,6 +395,11 @@
     </div>
   </div>
 
+  <!-- Большой баннер дома -->
+  <div class="house-banner" id="houseBanner">
+    <img src="house.png" alt="Home" class="house-banner-img" id="houseBannerImg">
+  </div>
+
   <div class="color-banner" id="colorBanner"><img src="" alt="" class="color-banner-img" id="colorBannerImg"></div>
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
@@ -357,27 +414,110 @@
     setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
+    // ===== ФЛАГИ И ПЕРЕВОДЫ =====
+    const flags = {
+      en:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
+      es:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
+      zh:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#DE2910"/><polygon points="10,6 12.5,13 20,13 14,17 16,24 10,20 4,24 6,17 0,13 7.5,13" fill="#FFDE00"/></svg>`,
+      hi:`<svg viewBox="0 0 60 40"><rect width="60" height="13.33" fill="#FF9933"/><rect y="13.33" width="60" height="13.33" fill="#FFF"/><rect y="26.66" width="60" height="13.33" fill="#138808"/><circle cx="30" cy="20" r="5" fill="none" stroke="#000080" stroke-width="1"/></svg>`,
+      ar:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#165D32"/><rect x="12" y="26" width="36" height="2" fill="#fff"/></svg>`,
+      fr:`<svg viewBox="0 0 60 40"><rect width="20" height="40" fill="#002395"/><rect x="20" width="20" height="40" fill="#FFF"/><rect x="40" width="20" height="40" fill="#ED2939"/></svg>`,
+      de:`<svg viewBox="0 0 60 40"><rect width="60" height="13.33" fill="#000"/><rect y="13.33" width="60" height="13.33" fill="#DD0000"/><rect y="26.66" width="60" height="13.33" fill="#FFCE00"/></svg>`,
+      pt:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#009C3B"/><rect x="24" width="36" height="40" fill="#FFDF00"/><circle cx="24" cy="20" r="7" fill="#002776"/><circle cx="24" cy="20" r="5" fill="#FFDF00"/></svg>`
+    };
+    const langNames = { en:'English', es:'Español', zh:'中文', hi:'हिन्दी', ar:'العربية', fr:'Français', de:'Deutsch', pt:'Português' };
+    const translations = {
+      en:{search:"SEARCH BY NAME, TICKER, OR CONTRACT",marquee:"Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Red is the color of passion. Orange is the favorite color of people with intuition. Yellow symbolizes calmness and intelligence. Green is the color of nature. Blue symbolizes truth and peace. Violet speaks of great emotionality and sensitivity."},
+      es:{search:"BUSCAR POR NOMBRE, TICKER O CONTRATO",marquee:"El estroboscopio y la música tienen un efecto hipnótico sobre los ritmos alfa del cerebro. El color determina el estado de nuestra psique. Rojo es pasión. Naranja es intuición. Amarillo es calma. Verde es naturaleza. Azul es verdad. Violeta es emoción."},
+      zh:{search:"按名称、代号或合约搜索",marquee:"频闪仪和音乐对大脑阿尔法节律有催眠作用。颜色决定心理状态。红色是激情。橙色是直觉。黄色是平静。绿色是自然。蓝色是真理。紫色是情感。"},
+      hi:{search:"नाम, टिकर या अनुबंध से खोजें",marquee:"स्ट्रोबोस्कोप और संगीत मस्तिष्क की अल्फा लयों पर सम्मोहक प्रभाव डालते हैं। रंग मन की स्थिति निर्धारित करता है। लाल जुनून है। नारंगी अंतर्ज्ञान है। पीला शांति है। हरा प्रकृति है। नीला सत्य है। बैंगनी भावना है।"},
+      ar:{search:"البحث بالاسم أو الرمز أو العقد",marquee:"الستروبوسكوب والموسيقى لهما تأثير تنويمي على إيقاعات ألفا في الدماغ. اللون يحدد حالة النفس. الأحمر شغف. البرتقالي حدس. الأصفر هدوء. الأخضر طبيعة. الأزرق حقيقة. البنفسجي عاطفة."},
+      fr:{search:"RECHERCHER PAR NOM, TICKER OU CONTRAT",marquee:"Le stroboscope et la musique ont un effet hypnotique sur les rythmes alpha du cerveau. La couleur détermine l'état de notre psyché. Rouge est passion. Orange est intuition. Jaune est calme. Vert est nature. Bleu est vérité. Violet est émotion."},
+      de:{search:"SUCHE NACH NAME, TICKER ODER VERTRAG",marquee:"Stroboskop und Musik haben eine hypnotische Wirkung auf die Alpha-Rhythmen des Gehirns. Farbe bestimmt den Zustand unserer Psyche. Rot ist Leidenschaft. Orange ist Intuition. Gelb ist Ruhe. Grün ist Natur. Blau ist Wahrheit. Violett ist Emotion."},
+      pt:{search:"PESQUISAR POR NOME, TICKER OU CONTRATO",marquee:"O estroboscópio e a música têm um efeito hipnótico sobre os ritmos alfa do cérebro. A cor determina o estado da nossa psique. Vermelho é paixão. Laranja é intuição. Amarelo é calma. Verde é natureza. Azul é verdade. Violeta é emoção."}
+    };
+
+    let currentLang = 'en';
+    function detectLanguage(){ 
+      const s=localStorage.getItem('stroboscope_lang'); 
+      if(s&&translations[s])return s; 
+      const b=navigator.language||(navigator.languages&&navigator.languages[0])||'en'; 
+      const c=b.split('-')[0].toLowerCase(); 
+      if(translations[c])return c; 
+      return 'en'; 
+    }
+    function buildLangDropdown(){ 
+      const d=document.getElementById('langDropdown'); 
+      d.innerHTML=''; 
+      Object.keys(flags).forEach(code=>{ 
+        const btn=document.createElement('button'); 
+        btn.className='lang-flag'; 
+        btn.dataset.lang=code; 
+        btn.title=langNames[code]; 
+        btn.setAttribute('aria-label',langNames[code]); 
+        btn.innerHTML=flags[code]; 
+        btn.addEventListener('click',(e)=>{e.stopPropagation();applyLanguage(code);d.classList.remove('active');}); 
+        d.appendChild(btn); 
+      }); 
+    }
+    function applyLanguage(lang){ 
+      currentLang=lang; 
+      localStorage.setItem('stroboscope_lang',lang); 
+      document.documentElement.lang=lang; 
+      document.documentElement.dir=lang==='ar'?'rtl':'ltr'; 
+      document.getElementById('currentFlag').innerHTML=flags[lang]; 
+      const t=translations[lang]; 
+      if(!t)return; 
+      const si=document.getElementById('searchInput'); 
+      if(si)si.placeholder=t.search; 
+      const mq=document.getElementById('marqueeContent'); 
+      if(mq)mq.textContent=t.marquee; 
+      document.querySelectorAll('.lang-flag').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang)); 
+    }
+    const langBtn=document.getElementById('langBtn'), langDropdown=document.getElementById('langDropdown');
+    langBtn.addEventListener('click',(e)=>{e.stopPropagation();langDropdown.classList.toggle('active');});
+    document.addEventListener('click',()=>langDropdown.classList.remove('active'));
+
+    // ===== JSONBin лайки с надёжной обработкой =====
     const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
     const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
 
     let globalLikes = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
     let saveTimeout = null;
+    let likesInitialized = false;
 
     async function loadGlobalLikes() {
       try {
+        console.log('Loading likes from JSONBin...');
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
           headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
+        console.log('JSONBin response status:', res.status);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
+        console.log('JSONBin data:', data);
         if (data && data.record) {
-          globalLikes = data.record;
+          // Merge with existing to avoid losing data
+          Object.keys(data.record).forEach(id => {
+            globalLikes[id] = data.record[id] || 0;
+          });
+          likesInitialized = true;
+          console.log('Likes loaded:', globalLikes);
+          // Update UI
           Object.keys(globalLikes).forEach(id => {
             const el = document.getElementById(`hc-${id}`);
             if (el) el.textContent = globalLikes[id];
           });
         }
-      } catch(e) { console.warn('JSONBin load error:', e); }
+      } catch(e) { 
+        console.warn('JSONBin load error:', e);
+        // Fallback to localStorage
+        const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
+        Object.keys(l).forEach(id => {
+          if (globalLikes[id] === 0 && l[id]) globalLikes[id] = l[id];
+        });
+        likesInitialized = true;
+      }
     }
 
     function saveGlobalLikes() {
@@ -385,13 +525,24 @@
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(async () => {
         try {
-          await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+          console.log('Saving likes to JSONBin:', globalLikes);
+          const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
             method: 'PUT',
-            headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
+            headers: { 
+              'X-Master-Key': JSONBIN_API_KEY, 
+              'Content-Type': 'application/json' 
+            },
             body: JSON.stringify(globalLikes)
           });
-        } catch(e) { console.warn('JSONBin save error:', e); }
-      }, 800);
+          console.log('Save response:', res.status);
+          if (!res.ok) {
+            const errText = await res.text();
+            console.error('JSONBin save error:', errText);
+          }
+        } catch(e) { 
+          console.warn('JSONBin save error:', e); 
+        }
+      }, 500);
     }
 
     function getLikes(id) { return globalLikes[id] || 0; }
@@ -401,37 +552,63 @@
       return globalLikes[id];
     }
 
+    // ===== Капитализация: CoinGecko + DexScreener fallback =====
     const marketCapCache = {};
+    const cacheTimestamps = {};
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 минут
+
     async function fetchMarketCap(contract) {
-      if (marketCapCache[contract]) return marketCapCache[contract];
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
       
+      // Check cache
+      if (marketCapCache[contract] && cacheTimestamps[contract] && 
+          (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) {
+        return marketCapCache[contract];
+      }
+      
+      // Try CoinGecko first
       try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${contract}&vs_currencies=usd&include_market_cap=true`);
-        const data = await res.json();
-        const tokenData = data[contract.toLowerCase()];
-        if (tokenData && tokenData.usd_market_cap) {
-          const formatted = formatCap(tokenData.usd_market_cap);
-          marketCapCache[contract] = formatted;
-          return formatted;
-        }
-      } catch(e) { console.warn('CoinGecko error:', e); }
-      
-      try {
-        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
-        const data = await res.json();
-        if (data && data.pairs && data.pairs.length) {
-          let totalMc = 0;
-          data.pairs.forEach(pair => { const mc = pair.marketCap || pair.fdv || 0; totalMc += mc; });
-          if (totalMc > 0) {
-            const formatted = formatCap(totalMc);
+        if (res.ok) {
+          const data = await res.json();
+          const tokenData = data[contract.toLowerCase()];
+          if (tokenData && tokenData.usd_market_cap && tokenData.usd_market_cap > 0) {
+            const formatted = formatCap(tokenData.usd_market_cap);
             marketCapCache[contract] = formatted;
+            cacheTimestamps[contract] = Date.now();
+            console.log(`CoinGecko MC for ${contract}:`, formatted);
             return formatted;
           }
         }
-      } catch(e) { console.warn('DexScreener error:', e); }
+      } catch(e) { 
+        console.warn('CoinGecko error:', e); 
+      }
+      
+      // Fallback to DexScreener
+      try {
+        const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.pairs && data.pairs.length) {
+            // Take the pair with highest liquidity
+            const sorted = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
+            const bestPair = sorted[0];
+            const mc = bestPair.marketCap || bestPair.fdv || 0;
+            if (mc > 0) {
+              const formatted = formatCap(mc);
+              marketCapCache[contract] = formatted;
+              cacheTimestamps[contract] = Date.now();
+              console.log(`DexScreener MC for ${contract}:`, formatted);
+              return formatted;
+            }
+          }
+        }
+      } catch(e) { 
+        console.warn('DexScreener error:', e); 
+      }
       return null;
     }
+    
     function formatCap(n){
       if (!n || isNaN(n)) return '$0';
       if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
@@ -439,6 +616,7 @@
       if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
       return '$' + Math.round(n);
     }
+    
     async function refreshAllCaps(){
       document.querySelectorAll('.cap-badge').forEach(badge => {
         const contract = badge.dataset.contract;
@@ -446,6 +624,7 @@
         if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) { badge.textContent = contract; return; }
         fetchMarketCap(contract).then(val => {
           if (val) badge.textContent = val;
+          else badge.textContent = '$—';
         });
       });
     }
@@ -548,20 +727,38 @@
     searchInput.addEventListener('input',(e)=>{ const q=e.target.value.toLowerCase().trim(); if(q.length>0)searchClear.classList.add('visible'); else searchClear.classList.remove('visible'); if(q==='')filteredStroboscopes=[...stroboscopes]; else filteredStroboscopes=stroboscopes.filter(s=>s.name.toLowerCase().includes(q)||s.ticker.toLowerCase().includes(q)||s.kaomoji.includes(q)||s.contract.toLowerCase().includes(q)); renderStroboscopes(filteredStroboscopes); });
     searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.classList.remove('visible'); filteredStroboscopes=[...stroboscopes]; renderStroboscopes(filteredStroboscopes); searchInput.focus(); });
 
-    document.getElementById('homeIcon').addEventListener('click', () => {
+    // Домик - возврат на главную + показ большой картинки
+    const homeIcon = document.getElementById('homeIcon');
+    const houseBanner = document.getElementById('houseBanner');
+    let houseTimeout;
+    homeIcon.addEventListener('click', () => {
       galleryWrapper.scrollTo({ top: 0, behavior: 'smooth' });
     });
+    homeIcon.addEventListener('mouseenter', () => {
+      clearTimeout(houseTimeout);
+      houseBanner.classList.add('active');
+    });
+    homeIcon.addEventListener('mouseleave', () => {
+      houseTimeout = setTimeout(() => houseBanner.classList.remove('active'), 100);
+    });
+    houseBanner.addEventListener('mouseenter', () => clearTimeout(houseTimeout));
+    houseBanner.addEventListener('mouseleave', () => houseBanner.classList.remove('active'));
 
+    // Радужные точки
     const colorBanner=document.getElementById('colorBanner'), colorBannerImg=document.getElementById('colorBannerImg'); let bannerTimeout;
     document.querySelectorAll('.rainbow-dot[data-banner]').forEach(dot=>{ dot.addEventListener('mouseenter',()=>{clearTimeout(bannerTimeout);colorBannerImg.src=dot.dataset.banner;colorBannerImg.alt=dot.title||dot.dataset.banner;colorBanner.classList.add('active');}); dot.addEventListener('mouseleave',()=>{bannerTimeout=setTimeout(()=>colorBanner.classList.remove('active'),100);}); });
     colorBanner.addEventListener('mouseenter',()=>clearTimeout(bannerTimeout)); colorBanner.addEventListener('mouseleave',()=>colorBanner.classList.remove('active'));
 
+    // Поддержка
     const supportBtn=document.getElementById('supportBtn'), supportTooltip=document.getElementById('supportTooltip'), supportEmail='stroboscope@atomicmail.io';
     supportBtn.addEventListener('click',async(e)=>{e.stopPropagation();try{await navigator.clipboard.writeText(supportEmail);}catch(err){const t=document.createElement("textarea");t.value=supportEmail;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);}supportTooltip.classList.add('active');setTimeout(()=>supportTooltip.classList.remove('active'),2500);});
 
-    document.getElementById('marqueeContent').textContent = "Stroboscope and music - has a hypnotic effect on the alpha rhythms of the brain of a healthy person and actively stimulates his mental activity! Color is one of the factors that determine the state of our psyche. Red is the color of passion. Orange is the favorite color of people with intuition. Yellow symbolizes calmness and intelligence. Green is the color of nature. Blue symbolizes truth and peace. Violet speaks of great emotionality and sensitivity.";
-
+    // Инициализация
+    buildLangDropdown();
+    applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
+    
+    // Загружаем лайки сразу
     loadGlobalLikes();
     setInterval(loadGlobalLikes, 30000);
     setInterval(refreshAllCaps, 60000);
