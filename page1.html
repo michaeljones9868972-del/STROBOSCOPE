@@ -9,7 +9,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; cursor: pointer; }
     .sound-btn, .close-btn {
       position: fixed; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
@@ -50,7 +50,7 @@
     let song, amplitude, fft, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
-    let detachedRings = []; // теперь это КОЛЬЦА, не круги
+    let detachedRings = [];
     let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
     let lastDetachTime = 0;
@@ -59,8 +59,8 @@
       let cnv = createCanvas(windowWidth, windowHeight);
       cnv.style('position','fixed'); cnv.style('top','0'); cnv.style('left','0'); cnv.style('z-index','1');
       rectMode(CENTER); noStroke();
-      // УМЕНЬШЕН РАЗМЕР чтобы круг не выходил за экран
-      MAX_INIT_SIZE = min(width, height) * 0.48;
+      // УВЕЛИЧЕН РАЗМЕР чтобы круг достигал края экрана
+      MAX_INIT_SIZE = max(width, height) * 0.55;
       MIN_SIZE = 8;
       initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
       amplitude = new p5.Amplitude(); amplitude.smooth(0.8);
@@ -74,6 +74,12 @@
       });
       document.getElementById('closeBtn').addEventListener('click', (e) => {
         e.stopPropagation(); window.location.href = 'index.html';
+      });
+      // ПАУЗА ПО КЛИКУ НА ЭКРАН
+      document.addEventListener('click', (e) => {
+        if (e.target.tagName === 'CANVAS' || e.target === document.body) {
+          if (isAudioStarted) togglePause();
+        }
       });
       document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') { e.preventDefault(); if (!isAudioStarted) tryStartAudio(); else togglePause(); }
@@ -109,8 +115,23 @@
     function togglePause() {
       if (!isAudioStarted) return;
       isPaused = !isPaused;
-      if (isPaused) { pausedLevel = level; song.pause(); updateSoundIcon(false); particles=[]; detachedRings=[]; }
-      else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
+      if (isPaused) { 
+        pausedLevel = level; 
+        song.pause(); 
+        updateSoundIcon(false); 
+        particles=[]; 
+        detachedRings=[]; 
+        // Показываем кнопки при паузе
+        document.getElementById('soundBtn').classList.remove('hidden-btns');
+        document.getElementById('closeBtn').classList.remove('hidden-btns');
+      } else { 
+        song.loop(); 
+        updateSoundIcon(true); 
+        lastBurstTime = millis(); 
+        // Скрываем кнопки при воспроизведении
+        document.getElementById('soundBtn').classList.add('hidden-btns');
+        document.getElementById('closeBtn').classList.add('hidden-btns');
+      }
     }
 
     function analyzeAudio() {
@@ -165,10 +186,9 @@
     function findEdgeCircle() {
       let size = initSize * map(level, 0, 0.6, 1, 1.8);
       let maxDim = max(width, height);
-      // Срабатывает когда круг касается края экрана
-      if (size >= maxDim * 0.55) {
-        // Вычисляем размер КОЛЬЦА (толщина внешнего кольца)
-        let ringThickness = size * 0.12; // толщина ~12% от размера
+      // Срабатывает когда круг достигает края экрана
+      if (size >= maxDim * 0.50) {
+        let ringThickness = size * 0.12;
         return { 
           outerSize: size, 
           innerSize: size - ringThickness * 2,
@@ -178,7 +198,6 @@
       return null;
     }
 
-    // Отделяем КОЛЬЦО, а не круг
     function detachRing(r) {
       let angle = random(TWO_PI);
       let speed = random(2, 4);
@@ -192,7 +211,6 @@
       });
     }
 
-    // Рисуем КОЛЬЦО (круг с дыркой внутри)
     function drawDetachedRings() {
       for (let i=detachedRings.length-1;i>=0;i--) {
         let d = detachedRings[i];
@@ -201,11 +219,9 @@
         d.innerSize *= 0.997;
         let alpha = map(d.life, 0, d.maxLife, 0, 255);
         
-        // Рисуем кольцо: большой круг + чёрный круг внутри = кольцо
         noStroke();
         fill(red(d.color), green(d.color), blue(d.color), alpha);
         ellipse(d.x, d.y, d.outerSize, d.outerSize);
-        // "Вырезаем" внутреннюю часть чёрным фоном
         fill(0, alpha);
         ellipse(d.x, d.y, d.innerSize, d.innerSize);
         
@@ -244,7 +260,7 @@
         noStroke(); fill(red(this.color),green(this.color),blue(this.color),a); ellipse(this.pos.x,this.pos.y,this.size); }
       isDead(){ return this.lifespan<0; }
     }
-    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = min(width,height)*0.48; }
+    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = max(width,height)*0.55; }
   </script>
 </body>
 </html>
