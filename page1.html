@@ -42,10 +42,8 @@
   </button>
 
   <script>
-    // ===== ЦВЕТА ИЗ 3-ГО ФОТО (Neon палитра) =====
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff',
                 '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
-
     let MAX_INIT_SIZE, MIN_SIZE;
     let initSize, initAngle, initColIndex;
     let isPaused = false, pausedLevel = 0;
@@ -53,21 +51,14 @@
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
     let detachedCircles = [];
-    let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0;
-    let smoothLevel = 0, pulseIntensity = 0;
+    let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
-    let bassPulse = 1.0;
-    let lastBassPulse = 1.0;
-
-    // Для волнового эффекта
-    let wavePhase = 0;
-    let tunnelSpeed = 0;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
       cnv.style('position','fixed'); cnv.style('top','0'); cnv.style('left','0'); cnv.style('z-index','1');
       rectMode(CENTER); noStroke();
-      MAX_INIT_SIZE = max(width, height) * 0.55;
+      MAX_INIT_SIZE = max(width, height) * 0.5;
       MIN_SIZE = 8;
       initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
       amplitude = new p5.Amplitude(); amplitude.smooth(0.8);
@@ -120,42 +111,17 @@
       else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
     }
 
-    // ===== АУДИО-АНАЛИЗ: чёткая пульсация в такт басу =====
     function analyzeAudio() {
       if (!isAudioStarted || !fft) return;
-      const spec = fft.analyze();
-      const bins = spec.length;
-      let bassSum = 0, midSum = 0, highSum = 0;
-      const bassEnd = Math.floor(bins * 0.1);
-      const midEnd = Math.floor(bins * 0.5);
-      for (let i = 0; i < bins; i++) {
-        const val = spec[i] / 255;
-        if (i < bassEnd) bassSum += val;
-        else if (i < midEnd) midSum += val;
-        else highSum += val;
-      }
+      const spec = fft.analyze(); const bins = spec.length;
+      let bassSum = 0; const bassEnd = Math.floor(bins * 0.1);
+      for (let i=0;i<bassEnd;i++) bassSum += spec[i]/255;
       bassEnergy = bassSum / bassEnd;
-      let midEnergy = (midSum - bassSum) / Math.max(1, midEnd - bassEnd);
-      let highEnergy = (spec.reduce((a,b) => a + b/255, 0) - bassSum - midSum) / Math.max(1, bins - midEnd);
-
-      // Детекция бита - более чувствительная
-      const bassDelta = bassEnergy - prevBassEnergy;
-      if (bassDelta > 0.05 && bassEnergy > 0.1) {
-        beatDetected = true;
-        beatDecay = 1.0;
-        bassPulse = 1.4; // СИЛЬНАЯ пульсация на бит
-      }
-      prevBassEnergy = bassEnergy;
-      beatDecay *= 0.9;
-      // Плавное возвращение bassPulse к 1.0
-      bassPulse = bassPulse * 0.88 + 1.0 * 0.12;
-
-      smoothLevel = smoothLevel * 0.7 + amplitude.getLevel() * 0.3;
-      pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
-      level = smoothLevel + pulseIntensity * 0.3;
-
-      // Скорость туннеля зависит от уровня
-      tunnelSpeed = 0.5 + level * 2.0;
+      if (bassEnergy - prevBassEnergy > 0.08 && bassEnergy > 0.15) { beatDetected = true; beatDecay = 1.0; }
+      prevBassEnergy = bassEnergy; beatDecay *= 0.92;
+      smoothLevel = smoothLevel*0.7 + amplitude.getLevel()*0.3;
+      pulseIntensity = pulseIntensity*0.85 + beatDecay*0.15;
+      level = smoothLevel + pulseIntensity*0.3;
     }
 
     function draw() {
@@ -163,110 +129,63 @@
       if (isPaused) { drawCirclesStatic(pausedLevel); return; }
       if (isAudioStarted) {
         analyzeAudio();
-        let now = millis();
-        let delta = abs(level - lastLevel);
+        let now = millis(); let delta = abs(level - lastLevel);
         if (delta > 0.04 && level > 0.08 && now - lastBurstTime > minBurstInterval) {
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
         lastLevel = level;
-        // Отделение крайнего круга при басах - СНИЖЕННЫЙ ПОРОГ
+        // Отделение крайнего круга при басах
         if (beatDetected && detachedCircles.length === 0) {
           let edge = findEdgeCircle();
           if (edge) detachCircle(edge);
         }
         beatDetected = false;
-      } else {
-        level = 0.15 + 0.1*sin(frameCount/30);
-        bassEnergy = 0; bassPulse = 1.0; tunnelSpeed = 0.5;
-      }
-
-      // Обновление волновой фазы
-      wavePhase += 0.02 * tunnelSpeed;
+      } else { level = 0.15 + 0.1*sin(frameCount/30); bassEnergy = 0; }
 
       for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
-      drawCirclesWave(level);
+      drawCirclesBeat(level);
       drawDetached();
 
-      // Медленное вращение
-      initAngle += 0.003 * tunnelSpeed;
+      let count = sin(frameCount/150);
+      let angleStep = PI/20 * count;
+      initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
+      initAngle += angleStep * 0.1;
+      if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
     }
 
     function findEdgeCircle() {
-      let size = initSize * map(level, 0, 0.6, 1, 1.8) * bassPulse;
+      let size = initSize * map(level, 0, 0.6, 1, 1.8);
       let maxDim = max(width, height);
-      // СНИЖЕННЫЙ ПОРОГ для срабатывания
-      if (size >= maxDim * 0.65) return { size: size, color: cols[initColIndex % cols.length] };
+      if (size >= maxDim * 0.78) return { size: size, color: cols[initColIndex % cols.length] };
       return null;
     }
 
     function detachCircle(c) {
-      // Выстрел наружу с эффектом
       let angle = random(TWO_PI);
-      let speed = random(5, 10); // быстрее
-      detachedCircles.push({
-        size: c.size, color: c.color,
-        x: width/2, y: height/2,
-        vx: cos(angle)*speed, vy: sin(angle)*speed,
-        life: 180, maxLife: 180,
-        glow: 1.0
-      });
+      let speed = random(1.5, 3);
+      detachedCircles.push({ size: c.size, color: c.color, x: width/2, y: height/2,
+        vx: cos(angle)*speed, vy: sin(angle)*speed, life: 220, maxLife: 220 });
     }
 
     function drawDetached() {
       for (let i=detachedCircles.length-1;i>=0;i--) {
         let d = detachedCircles[i];
-        d.x += d.vx; d.y += d.vy; d.life--;
-        d.size *= 0.997;
-        d.glow *= 0.97;
+        d.x += d.vx; d.y += d.vy; d.life--; d.size *= 0.996;
         let alpha = map(d.life, 0, d.maxLife, 0, 255);
-        // Свечение при отделении
-        if (d.glow > 0.1) {
-          noStroke();
-          fill(red(d.color), green(d.color), blue(d.color), alpha * 0.3 * d.glow);
-          ellipse(d.x, d.y, d.size * 1.3, d.size * 1.3);
-        }
-        noStroke();
-        fill(red(d.color), green(d.color), blue(d.color), alpha);
+        noStroke(); fill(red(d.color), green(d.color), blue(d.color), alpha);
         ellipse(d.x, d.y, d.size, d.size);
         if (d.life <= 0 || d.size < 20) detachedCircles.splice(i,1);
       }
     }
 
-    // ===== ВОЛНОВОЙ ТУННЕЛЬ: ЧЁТКАЯ ПУЛЬСАЦИЯ В ТАКТ МУЗЫКЕ =====
-    function drawCirclesWave(l) {
-      let colIndex = initColIndex;
-      let angle = initAngle;
-      let numRings = 20;
-      let baseSize = MAX_INIT_SIZE * 0.05;
-      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
-
-      for (let i = numRings; i >= 0; i--) {
-        // Волновая модуляция - УМЕНЬШЕННАЯ АМПЛИТУДА
-        let waveOffset = i * 0.3;
-        let waveAmp = sin(wavePhase + waveOffset) * 0.05 * (1 + l); // было 0.15, стало 0.05
-        
-        let ringSize = baseSize + i * sizeStep;
-        // ПУЛЬСАЦИЯ В ТАКТ БАСУ - СИЛЬНАЯ
-        ringSize *= (1 + waveAmp) * bassPulse;
-
-        // Цвет с чередованием
-        let colorIdx = (colIndex + i) % cols.length;
-        let col = cols[colorIdx];
-
-        // Свечение для внешних колец при басах
-        if (i > numRings - 3 && bassPulse > 1.1) {
-          noStroke();
-          fill(red(col), green(col), blue(col), 40 * (bassPulse - 1));
-          ellipse(width/2, height/2, ringSize * 1.15, ringSize * 1.15);
-        }
-
-        push();
-        translate(width/2, height/2);
-        rotate(angle + i * 0.015);
-        noStroke();
-        fill(col);
-        ellipse(0, 0, ringSize, ringSize);
-        pop();
+    function drawCirclesBeat(l) {
+      let count = sin(frameCount/150); let angleStep = PI/20*count;
+      let colIndex = initColIndex; let size = initSize * map(l, 0, 0.6, 1, 1.8); let angle = initAngle;
+      while (size > MIN_SIZE) {
+        push(); translate(width/2,height/2); rotate(angle);
+        fill(cols[colIndex % cols.length]); ellipse(0,0,size,size); pop();
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE*1.5, 1, 0, false);
+        size *= 0.88; colIndex++;
       }
     }
 
@@ -281,7 +200,7 @@
       }
     }
 
-    function createBurst(color) { for (let i=0;i<80;i++) particles.push(new Particle(width/2, height/2, color)); }
+    function createBurst(color) { for (let i=0;i<60;i++) particles.push(new Particle(width/2, height/2, color)); }
     class Particle {
       constructor(x,y,col){ this.pos=createVector(x,y); this.vel=p5.Vector.random2D().mult(random(4,12));
         this.acc=createVector(0,0); this.lifespan=60; this.maxLife=60; this.color=col; this.size=random(2,5); }
@@ -290,7 +209,7 @@
         noStroke(); fill(red(this.color),green(this.color),blue(this.color),a); ellipse(this.pos.x,this.pos.y,this.size); }
       isDead(){ return this.lifespan<0; }
     }
-    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = max(width,height)*0.55; }
+    function windowResized(){ resizeCanvas(windowWidth, windowHeight); MAX_INIT_SIZE = max(width,height)*0.5; }
   </script>
 </body>
 </html>
