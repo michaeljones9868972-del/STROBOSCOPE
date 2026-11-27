@@ -53,6 +53,7 @@
     let detachedCircles = [];
     let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
+    let lastDetachTime = 0;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
@@ -117,8 +118,13 @@
       let bassSum = 0; const bassEnd = Math.floor(bins * 0.1);
       for (let i=0;i<bassEnd;i++) bassSum += spec[i]/255;
       bassEnergy = bassSum / bassEnd;
-      if (bassEnergy - prevBassEnergy > 0.08 && bassEnergy > 0.15) { beatDetected = true; beatDecay = 1.0; }
-      prevBassEnergy = bassEnergy; beatDecay *= 0.92;
+      // Более чувствительная детекция бита
+      if (bassEnergy - prevBassEnergy > 0.05 && bassEnergy > 0.12) { 
+        beatDetected = true; 
+        beatDecay = 1.0; 
+      }
+      prevBassEnergy = bassEnergy; 
+      beatDecay *= 0.92;
       smoothLevel = smoothLevel*0.7 + amplitude.getLevel()*0.3;
       pulseIntensity = pulseIntensity*0.85 + beatDecay*0.15;
       level = smoothLevel + pulseIntensity*0.3;
@@ -134,10 +140,13 @@
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
         lastLevel = level;
-        // Отделение крайнего круга при басах
-        if (beatDetected && detachedCircles.length === 0) {
+        // Отделение крайнего круга при басах - БЕЗ ограничения по количеству
+        if (beatDetected && now - lastDetachTime > 500) {
           let edge = findEdgeCircle();
-          if (edge) detachCircle(edge);
+          if (edge) {
+            detachCircle(edge);
+            lastDetachTime = now;
+          }
         }
         beatDetected = false;
       } else { level = 0.15 + 0.1*sin(frameCount/30); bassEnergy = 0; }
@@ -148,7 +157,8 @@
 
       let count = sin(frameCount/150);
       let angleStep = PI/20 * count;
-      initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
+      // УВЕЛИЧЕНА СКОРОСТЬ НА 10%
+      initSize -= MAX_INIT_SIZE * 0.001144 * (10 + abs(count));
       initAngle += angleStep * 0.1;
       if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
     }
@@ -156,13 +166,14 @@
     function findEdgeCircle() {
       let size = initSize * map(level, 0, 0.6, 1, 1.8);
       let maxDim = max(width, height);
-      if (size >= maxDim * 0.78) return { size: size, color: cols[initColIndex % cols.length] };
+      // СНИЖЕН ПОРОГ для срабатывания
+      if (size >= maxDim * 0.70) return { size: size, color: cols[initColIndex % cols.length] };
       return null;
     }
 
     function detachCircle(c) {
       let angle = random(TWO_PI);
-      let speed = random(1.5, 3);
+      let speed = random(2, 4);
       detachedCircles.push({ size: c.size, color: c.color, x: width/2, y: height/2,
         vx: cos(angle)*speed, vy: sin(angle)*speed, life: 220, maxLife: 220 });
     }
