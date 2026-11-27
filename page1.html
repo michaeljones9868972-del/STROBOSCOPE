@@ -57,6 +57,7 @@
     let smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
     let bassPulse = 1.0;
+    let lastBassPulse = 1.0;
 
     // Для волнового эффекта
     let wavePhase = 0;
@@ -119,7 +120,7 @@
       else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
     }
 
-    // ===== АУДИО-АНАЛИЗ: бас/средние/высокие раздельно =====
+    // ===== АУДИО-АНАЛИЗ: чёткая пульсация в такт басу =====
     function analyzeAudio() {
       if (!isAudioStarted || !fft) return;
       const spec = fft.analyze();
@@ -137,16 +138,17 @@
       let midEnergy = (midSum - bassSum) / Math.max(1, midEnd - bassEnd);
       let highEnergy = (spec.reduce((a,b) => a + b/255, 0) - bassSum - midSum) / Math.max(1, bins - midEnd);
 
-      // Детекция бита
+      // Детекция бита - более чувствительная
       const bassDelta = bassEnergy - prevBassEnergy;
-      if (bassDelta > 0.08 && bassEnergy > 0.15) {
+      if (bassDelta > 0.05 && bassEnergy > 0.1) {
         beatDetected = true;
         beatDecay = 1.0;
-        bassPulse = 1.25; // резкое расширение на бит
+        bassPulse = 1.4; // СИЛЬНАЯ пульсация на бит
       }
       prevBassEnergy = bassEnergy;
-      beatDecay *= 0.92;
-      bassPulse = bassPulse * 0.93 + 1.0 * 0.07; // плавное возвращение
+      beatDecay *= 0.9;
+      // Плавное возвращение bassPulse к 1.0
+      bassPulse = bassPulse * 0.88 + 1.0 * 0.12;
 
       smoothLevel = smoothLevel * 0.7 + amplitude.getLevel() * 0.3;
       pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
@@ -167,7 +169,7 @@
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
         lastLevel = level;
-        // Отделение крайнего круга при басах
+        // Отделение крайнего круга при басах - СНИЖЕННЫЙ ПОРОГ
         if (beatDetected && detachedCircles.length === 0) {
           let edge = findEdgeCircle();
           if (edge) detachCircle(edge);
@@ -192,20 +194,21 @@
     function findEdgeCircle() {
       let size = initSize * map(level, 0, 0.6, 1, 1.8) * bassPulse;
       let maxDim = max(width, height);
-      if (size >= maxDim * 0.75) return { size: size, color: cols[initColIndex % cols.length] };
+      // СНИЖЕННЫЙ ПОРОГ для срабатывания
+      if (size >= maxDim * 0.65) return { size: size, color: cols[initColIndex % cols.length] };
       return null;
     }
 
     function detachCircle(c) {
       // Выстрел наружу с эффектом
       let angle = random(TWO_PI);
-      let speed = random(4, 8); // быстрее чем раньше
+      let speed = random(5, 10); // быстрее
       detachedCircles.push({
         size: c.size, color: c.color,
         x: width/2, y: height/2,
         vx: cos(angle)*speed, vy: sin(angle)*speed,
         life: 180, maxLife: 180,
-        glow: 1.0 // свечение при отделении
+        glow: 1.0
       });
     }
 
@@ -229,19 +232,21 @@
       }
     }
 
-    // ===== ВОЛНОВОЙ ТУННЕЛЬ: круги "дышат" и идут на нас =====
+    // ===== ВОЛНОВОЙ ТУННЕЛЬ: ЧЁТКАЯ ПУЛЬСАЦИЯ В ТАКТ МУЗЫКЕ =====
     function drawCirclesWave(l) {
       let colIndex = initColIndex;
       let angle = initAngle;
-      let numRings = 25; // больше колец для эффекта туннеля
-      let baseSize = MAX_INIT_SIZE * 0.08; // базовый размер самого маленького кольца
-      let sizeStep = (MAX_INIT_SIZE * 0.95) / numRings;
+      let numRings = 20;
+      let baseSize = MAX_INIT_SIZE * 0.05;
+      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
 
       for (let i = numRings; i >= 0; i--) {
-        // Волновая модуляция: каждое кольцо пульсирует со своей фазой
+        // Волновая модуляция - УМЕНЬШЕННАЯ АМПЛИТУДА
         let waveOffset = i * 0.3;
-        let waveAmp = sin(wavePhase + waveOffset) * 0.15 * (1 + l * 2);
+        let waveAmp = sin(wavePhase + waveOffset) * 0.05 * (1 + l); // было 0.15, стало 0.05
+        
         let ringSize = baseSize + i * sizeStep;
+        // ПУЛЬСАЦИЯ В ТАКТ БАСУ - СИЛЬНАЯ
         ringSize *= (1 + waveAmp) * bassPulse;
 
         // Цвет с чередованием
@@ -249,15 +254,15 @@
         let col = cols[colorIdx];
 
         // Свечение для внешних колец при басах
-        if (i > numRings - 3 && bassPulse > 1.05) {
+        if (i > numRings - 3 && bassPulse > 1.1) {
           noStroke();
-          fill(red(col), green(col), blue(col), 30 * (bassPulse - 1));
-          ellipse(width/2, height/2, ringSize * 1.1, ringSize * 1.1);
+          fill(red(col), green(col), blue(col), 40 * (bassPulse - 1));
+          ellipse(width/2, height/2, ringSize * 1.15, ringSize * 1.15);
         }
 
         push();
         translate(width/2, height/2);
-        rotate(angle + i * 0.02); // лёгкое вращение каждого кольца
+        rotate(angle + i * 0.015);
         noStroke();
         fill(col);
         ellipse(0, 0, ringSize, ringSize);
