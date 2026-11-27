@@ -59,7 +59,6 @@
   </button>
 
   <script>
-    // Цвета из вашего референса
     let cols = ['#FE00EC', '#2B4F8D', '#011034', '#02C9AF', '#049CE4', '#ffffff'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, MIN_SIZE;
     let initSize, initAngle, initColIndex;
@@ -70,7 +69,7 @@
     let detachedCircles = [];
     let DETACH_LIFE = 240;
     let bassEnergy = 0, prevBassEnergy = 0;
-    let beatDetected = false, beatDecay = 0;
+    let beatDecay = 0;
     let smoothLevel = 0, pulseIntensity = 0;
     let lastDetachTime = 0;
     let wavePhase = 0; 
@@ -90,18 +89,20 @@
       amplitude.smooth(0.8);
       fft = new p5.FFT(0.8, 1024);
 
-      // Загрузка звука с защитой от ошибок
-      song = loadSound('m1.mp3', 
-        () => {
-          amplitude.setInput(song);
-          fft.setInput(song);
-          console.log("Аудио загружено!");
-        }, 
-        (err) => { 
-          console.warn('m1.mp3 не найден или ошибка:', err); 
-          // Если звука нет, анимация всё равно будет работать в холостом режиме
-        }
-      );
+      // Пытаемся загрузить звук, но НЕ ломаем анимацию, если его нет
+      try {
+        song = loadSound('m1.mp3', 
+          () => {
+            amplitude.setInput(song);
+            fft.setInput(song);
+          }, 
+          (err) => { 
+            console.log('Аудиофайл не найден. Анимация работает в демо-режиме.'); 
+          }
+        );
+      } catch(e) {
+        console.log("Ошибка загрузки звука");
+      }
 
       const soundBtn = document.getElementById('soundBtn');
       const closeBtn = document.getElementById('closeBtn');
@@ -129,23 +130,18 @@
     }
 
     function tryStartAudio() {
-      if (!song || isAudioStarted) {
-        // Если песни нет, всё равно запускаем анимацию
-        if (!song) { isAudioStarted = true; hideButtons(); }
-        return;
-      }
       userStartAudio().then(() => {
         isAudioStarted = true;
-        song.loop();
-        lastBurstTime = millis();
-        updateSoundIcon(true);
+        if (song && song.isLoaded()) {
+          song.loop();
+          updateSoundIcon(true);
+        }
         hideButtons();
+        lastBurstTime = millis();
         const elem = document.documentElement;
         if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
-      }).catch(() => {
-        // Даже если браузер не дал звук, анимация должна идти
-        isAudioStarted = true;
-        hideButtons();
+      }).catch((err) => {
+        console.log("Браузер заблокировал звук", err);
       });
     }
 
@@ -204,28 +200,35 @@
     }
 
     function analyzeAudio() {
-      if (!isAudioStarted || !fft || !song || !song.isPlaying()) return;
-      const spectrum = fft.analyze();
-      const bins = spectrum.length;
-      let bassSum = 0;
-      const bassEnd = Math.floor(bins * 0.1);
-      for (let i = 0; i < bassEnd; i++) bassSum += spectrum[i] / 255;
-      bassEnergy = bassSum / bassEnd;
-      const bassDelta = bassEnergy - prevBassEnergy;
-      if (bassDelta > 0.06 && bassEnergy > 0.12) {
-        beatDetected = true;
-        beatDecay = 1.0;
+      if (!song || !song.isPlaying()) return;
+      
+      try {
+        const spectrum = fft.analyze();
+        const bins = spectrum.length;
+        let bassSum = 0;
+        const bassEnd = Math.floor(bins * 0.1);
+        for (let i = 0; i < bassEnd; i++) bassSum += spectrum[i] / 255;
+        bassEnergy = bassSum / bassEnd;
+        
+        if (bassEnergy - prevBassEnergy > 0.06 && bassEnergy > 0.12) {
+          beatDecay = 1.0;
+        }
+        prevBassEnergy = bassEnergy;
+        beatDecay *= 0.92;
+        
+        const rawLevel = amplitude.getLevel();
+        smoothLevel = smoothLevel * 0.7 + rawLevel * 0.3;
+        pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
+        level = smoothLevel + pulseIntensity * 0.3;
+      } catch(e) {
+        // игнорируем ошибки анализа
       }
-      prevBassEnergy = bassEnergy;
-      beatDecay *= 0.92;
-      const rawLevel = amplitude.getLevel();
-      smoothLevel = smoothLevel * 0.7 + rawLevel * 0.3;
-      pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
-      level = smoothLevel + pulseIntensity * 0.3;
     }
 
     function draw() {
       background(0);
+      
+      // Если пауза - рисуем статику
       if (isPaused) {
         drawCirclesStatic(pausedLevel);
         return;
@@ -233,7 +236,8 @@
 
       wavePhase += 0.05;
 
-      if (isAudioStarted) {
+      // Логика: если музыка играет - анализируем. Если нет - пульсируем сами
+      if (isAudioStarted && song && song.isPlaying()) {
         analyzeAudio();
         let now = millis();
         let delta = abs(level - lastLevel);
@@ -251,19 +255,22 @@
           lastDetachTime = now;
         }
       } else {
-        // Если звук еще не включен, круги всё равно пульсируют
-        level = 0.15 + 0.1 * sin(frameCount / 30);
+        // ДЕМО-РЕЖИМ: если звука нет, просто красиво пульсируем
+        level = 0.2 + 0.15 * sin(frameCount / 20);
         bassEnergy = 0;
       }
 
+      // Рисуем частицы
       for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(); particles[i].show();
         if (particles[i].isDead()) particles.splice(i, 1);
       }
       
+      // Рисуем круги
       drawCirclesBeat(level);
       drawDetached();
 
+      // Логика сжатия туннеля
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
       initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count) + sin(wavePhase) * 2);
