@@ -59,7 +59,7 @@
   </button>
 
   <script>
-    // Цвета взяты с вашего 3-го фото (неоновый туннель)
+    // Цвета из вашего референса
     let cols = ['#FE00EC', '#2B4F8D', '#011034', '#02C9AF', '#049CE4', '#ffffff'];
     let MAX_INIT_SIZE, MAX_ANGLE_STEP, MIN_SIZE;
     let initSize, initAngle, initColIndex;
@@ -73,7 +73,7 @@
     let beatDetected = false, beatDecay = 0;
     let smoothLevel = 0, pulseIntensity = 0;
     let lastDetachTime = 0;
-    let wavePhase = 0; // Для волнообразного движения
+    let wavePhase = 0; 
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
@@ -90,10 +90,18 @@
       amplitude.smooth(0.8);
       fft = new p5.FFT(0.8, 1024);
 
-      song = loadSound('m1.mp3', () => {
-        amplitude.setInput(song);
-        fft.setInput(song);
-      }, (err) => { console.error('m1.mp3 error:', err); });
+      // Загрузка звука с защитой от ошибок
+      song = loadSound('m1.mp3', 
+        () => {
+          amplitude.setInput(song);
+          fft.setInput(song);
+          console.log("Аудио загружено!");
+        }, 
+        (err) => { 
+          console.warn('m1.mp3 не найден или ошибка:', err); 
+          // Если звука нет, анимация всё равно будет работать в холостом режиме
+        }
+      );
 
       const soundBtn = document.getElementById('soundBtn');
       const closeBtn = document.getElementById('closeBtn');
@@ -121,7 +129,11 @@
     }
 
     function tryStartAudio() {
-      if (!song || isAudioStarted) return;
+      if (!song || isAudioStarted) {
+        // Если песни нет, всё равно запускаем анимацию
+        if (!song) { isAudioStarted = true; hideButtons(); }
+        return;
+      }
       userStartAudio().then(() => {
         isAudioStarted = true;
         song.loop();
@@ -130,7 +142,11 @@
         hideButtons();
         const elem = document.documentElement;
         if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
-      }).catch(() => {});
+      }).catch(() => {
+        // Даже если браузер не дал звук, анимация должна идти
+        isAudioStarted = true;
+        hideButtons();
+      });
     }
 
     function hideButtons() {
@@ -145,12 +161,12 @@
 
     function toggleMute() {
       if (!isAudioStarted) return;
-      if (song.isPlaying()) {
+      if (song && song.isPlaying()) {
         song.pause();
         updateSoundIcon(false);
         showButtons();
       } else {
-        song.loop();
+        if(song) song.loop();
         updateSoundIcon(true);
         hideButtons();
         lastBurstTime = millis();
@@ -174,13 +190,13 @@
       isPaused = !isPaused;
       if (isPaused) {
         pausedLevel = level;
-        song.pause();
+        if(song) song.pause();
         updateSoundIcon(false);
         showButtons();
         particles = [];
         detachedCircles = [];
       } else {
-        song.loop();
+        if(song) song.loop();
         updateSoundIcon(true);
         hideButtons();
         lastBurstTime = millis();
@@ -188,7 +204,7 @@
     }
 
     function analyzeAudio() {
-      if (!isAudioStarted || !fft) return;
+      if (!isAudioStarted || !fft || !song || !song.isPlaying()) return;
       const spectrum = fft.analyze();
       const bins = spectrum.length;
       let bassSum = 0;
@@ -215,7 +231,6 @@
         return;
       }
 
-      // Волнообразное движение (как на 1 фото)
       wavePhase += 0.05;
 
       if (isAudioStarted) {
@@ -229,7 +244,6 @@
         }
         lastLevel = level;
 
-        // Отделение крайнего круга при касании края экрана (бас)
         const currentMaxSize = initSize * map(level, 0, 0.6, 1, 1.8);
         const maxDim = max(width, height);
         if (currentMaxSize >= maxDim * 0.95 && detachedCircles.length === 0 && now - lastDetachTime > 2000) {
@@ -237,6 +251,7 @@
           lastDetachTime = now;
         }
       } else {
+        // Если звук еще не включен, круги всё равно пульсируют
         level = 0.15 + 0.1 * sin(frameCount / 30);
         bassEnergy = 0;
       }
@@ -251,7 +266,6 @@
 
       let count = sin(frameCount / 150);
       let angleStep = PI / 20 * count;
-      // Плавное уменьшение с волновым эффектом
       initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count) + sin(wavePhase) * 2);
       initAngle += angleStep * 0.1;
       if (initSize < MAX_INIT_SIZE * 0.88) {
@@ -301,7 +315,6 @@
       let angle = initAngle;
       while (size > MIN_SIZE) {
         push(); translate(width / 2, height / 2); rotate(angle);
-        // Добавляем волновой сдвиг цвета
         let colorShift = Math.sin(wavePhase + size * 0.05) * 2;
         fill(cols[(colIndex + Math.floor(colorShift)) % cols.length]); 
         ellipse(0, 0, size, size); pop();
