@@ -9,81 +9,111 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/addons/p5.sound.min.js"></script>
   <style>
     body { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; cursor: pointer; }
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; }
+    
     .sound-btn, .close-btn {
-      position: fixed; z-index: 1000;
-      display: flex; align-items: center; justify-content: center;
-      border-radius: 50%; background: rgba(0,0,0,0.7);
-      border: 2px solid rgba(160,216,241,0.6); cursor: pointer;
-      transition: all 0.4s ease; backdrop-filter: blur(8px);
+      position: fixed;
+      z-index: 1000;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid rgba(160, 216, 241, 0.6);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(8px);
     }
-    .sound-btn { bottom: 30px; right: 30px; width: 60px; height: 60px; }
+    .sound-btn { bottom: 30px; right: 30px; }
     .close-btn { top: 20px; right: 20px; width: 50px; height: 50px; }
-    .sound-btn svg { width: 32px; height: 32px; fill: #fff; }
-    .close-btn svg { width: 24px; height: 24px; fill: #fff; }
-    .sound-btn:hover, .close-btn:hover { transform: scale(1.1); }
-    .sound-btn.active { border-color: #4ade80; box-shadow: 0 0 20px rgba(74,222,128,0.5); }
+    .sound-btn:hover, .close-btn:hover {
+      background: rgba(160, 216, 241, 0.2);
+      border-color: rgba(160, 216, 241, 1);
+      transform: scale(1.1);
+    }
+    .sound-btn svg { width: 32px; height: 32px; fill: #ffffff; }
+    .close-btn svg { width: 24px; height: 24px; fill: #ffffff; }
+    .sound-btn.active { border-color: #4ade80; box-shadow: 0 0 20px rgba(74, 222, 128, 0.5); }
     .sound-btn.active svg { fill: #4ade80; }
-    .close-btn:hover { background: rgba(255,50,50,0.3); border-color: #ff6464; }
-    .hidden-btns { opacity: 0 !important; pointer-events: none !important; }
-    iframe[src*="netlify"], .netlify-badge, #netlify-badge, [class*="netlify-badge"], [id*="netlify-badge"] {
-      display: none !important; visibility: hidden !important; opacity: 0 !important;
-      pointer-events: none !important; width: 0 !important; height: 0 !important;
-      position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
+    .close-btn:hover { background: rgba(255, 50, 50, 0.3); border-color: rgba(255, 100, 100, 1); }
+    
+    /* Кнопки скрыты во время игры */
+    .sound-btn.hidden, .close-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
     }
   </style>
 </head>
 <body>
   <button class="sound-btn" id="soundBtn" title="Play sound">
-    <svg id="soundIcon" viewBox="0 0 24 24"><path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+    <svg id="soundIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>
+    </svg>
   </button>
-  <button class="close-btn" id="closeBtn" title="Close (Esc)">
-    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+  
+  <button class="close-btn" id="closeBtn" title="Close">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+    </svg>
   </button>
 
   <script>
-    let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff',
-                '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
-    let BASE_R;
-    let isPaused = false;
+    let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff', '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
+    let MAX_INIT_SIZE, MAX_ANGLE_STEP, MIN_SIZE;
+    let initSize, initAngle, initColIndex;
+    let isPaused = false, pausedLevel = 0;
     let song, amplitude, fft, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
     let isAudioStarted = false;
-    let detachedRings = [];
-    let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
-    let beatDetected = false;
+    let detachedCircles = [];
+    let DETACH_LIFE = 240;
+    let bassEnergy = 0, prevBassEnergy = 0;
+    let beatDetected = false, beatDecay = 0;
+    let smoothLevel = 0, pulseIntensity = 0;
     let lastDetachTime = 0;
-
-    // Туннель
-    let tunnelPhase = 0;
-    const NUM_RINGS = 18;
-    let tunnelProgress = 0;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
-      cnv.style('position','fixed'); cnv.style('top','0'); cnv.style('left','0'); cnv.style('z-index','1');
+      cnv.style('position', 'fixed');
+      cnv.style('top', '0');
+      cnv.style('left', '0');
+      cnv.style('z-index', '1');
       rectMode(CENTER); noStroke();
-      // УМЕНЬШЕННЫЙ базовый размер — круг вписан в экран с запасом
-      BASE_R = min(width, height) * 0.42;
-      amplitude = new p5.Amplitude(); amplitude.smooth(0.8);
-      fft = new p5.FFT(0.8, 1024);
-      song = loadSound('m1.mp3', () => { amplitude.setInput(song); fft.setInput(song); },
-        (e) => console.error('m1.mp3:', e));
+      MAX_INIT_SIZE = max(width, height) * 0.45;
+      MAX_ANGLE_STEP = PI / 20; MIN_SIZE = 8;
+      initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
 
-      document.getElementById('soundBtn').addEventListener('click', (e) => {
+      amplitude = new p5.Amplitude();
+      amplitude.smooth(0.8);
+      fft = new p5.FFT(0.8, 1024);
+
+      song = loadSound('m1.mp3', () => {
+        amplitude.setInput(song);
+        fft.setInput(song);
+      }, (err) => { console.error('m1.mp3 error:', err); });
+
+      const soundBtn = document.getElementById('soundBtn');
+      const closeBtn = document.getElementById('closeBtn');
+
+      soundBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (!isAudioStarted) tryStartAudio(); else toggleMute();
+        if (!isAudioStarted) tryStartAudio();
+        else toggleMute();
       });
-      document.getElementById('closeBtn').addEventListener('click', (e) => {
-        e.stopPropagation(); window.location.href = 'index.html';
+
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.location.href = 'index.html';
       });
-      document.addEventListener('click', (e) => {
-        if (e.target.tagName === 'CANVAS' || e.target === document.body) {
-          if (isAudioStarted) togglePause();
-        }
-      });
+
       document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') { e.preventDefault(); if (!isAudioStarted) tryStartAudio(); else togglePause(); }
+        if (e.code === 'Space') {
+          e.preventDefault();
+          if (!isAudioStarted) tryStartAudio();
+          else togglePause();
+        }
         if (e.key === 'Escape') window.location.href = 'index.html';
         if (e.key === 'm' || e.key === 'M') toggleMute();
       });
@@ -92,147 +122,222 @@
     function tryStartAudio() {
       if (!song || isAudioStarted) return;
       userStartAudio().then(() => {
-        isAudioStarted = true; song.loop(); lastBurstTime = millis();
+        isAudioStarted = true;
+        song.loop();
+        lastBurstTime = millis();
         updateSoundIcon(true);
-        document.getElementById('soundBtn').classList.add('hidden-btns');
-        document.getElementById('closeBtn').classList.add('hidden-btns');
-      }).catch(()=>{});
+        hideButtons();
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) elem.requestFullscreen().catch(() => {});
+      }).catch(() => {});
+    }
+
+    function hideButtons() {
+      document.getElementById('soundBtn').classList.add('hidden');
+      document.getElementById('closeBtn').classList.add('hidden');
+    }
+
+    function showButtons() {
+      document.getElementById('soundBtn').classList.remove('hidden');
+      document.getElementById('closeBtn').classList.remove('hidden');
     }
 
     function toggleMute() {
       if (!isAudioStarted) return;
-      if (song.isPlaying()) { song.pause(); updateSoundIcon(false); }
-      else { song.loop(); updateSoundIcon(true); lastBurstTime = millis(); }
+      if (song.isPlaying()) {
+        song.pause();
+        updateSoundIcon(false);
+        showButtons();
+      } else {
+        song.loop();
+        updateSoundIcon(true);
+        hideButtons();
+        lastBurstTime = millis();
+      }
     }
 
-    function updateSoundIcon(p) {
-      const b = document.getElementById('soundBtn'), i = document.getElementById('soundIcon');
-      if (p) { b.classList.add('active'); i.innerHTML='<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>'; }
-      else { b.classList.remove('active'); i.innerHTML='<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>'; }
+    function updateSoundIcon(isPlaying) {
+      const soundBtn = document.getElementById('soundBtn');
+      const soundIcon = document.getElementById('soundIcon');
+      if (isPlaying) {
+        soundBtn.classList.add('active');
+        soundIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+      } else {
+        soundBtn.classList.remove('active');
+        soundIcon.innerHTML = '<path d="M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+      }
     }
 
     function togglePause() {
       if (!isAudioStarted) return;
       isPaused = !isPaused;
       if (isPaused) {
-        song.pause(); updateSoundIcon(false); particles=[]; detachedRings=[];
-        document.getElementById('soundBtn').classList.remove('hidden-btns');
-        document.getElementById('closeBtn').classList.remove('hidden-btns');
+        pausedLevel = level;
+        song.pause();
+        updateSoundIcon(false);
+        showButtons();
+        particles = [];
+        detachedCircles = [];
       } else {
-        song.loop(); updateSoundIcon(true); lastBurstTime = millis();
-        document.getElementById('soundBtn').classList.add('hidden-btns');
-        document.getElementById('closeBtn').classList.add('hidden-btns');
+        song.loop();
+        updateSoundIcon(true);
+        hideButtons();
+        lastBurstTime = millis();
       }
     }
 
     function analyzeAudio() {
       if (!isAudioStarted || !fft) return;
-      const spec = fft.analyze(); const bins = spec.length;
-      let bassSum = 0; const bassEnd = Math.floor(bins * 0.1);
-      for (let i=0;i<bassEnd;i++) bassSum += spec[i]/255;
+      const spectrum = fft.analyze();
+      const bins = spectrum.length;
+      let bassSum = 0;
+      const bassEnd = Math.floor(bins * 0.1);
+      for (let i = 0; i < bassEnd; i++) bassSum += spectrum[i] / 255;
       bassEnergy = bassSum / bassEnd;
-      if (bassEnergy - prevBassEnergy > 0.05 && bassEnergy > 0.12) {
-        beatDetected = true; beatDecay = 1.0;
+      const bassDelta = bassEnergy - prevBassEnergy;
+      if (bassDelta > 0.06 && bassEnergy > 0.12) {
+        beatDetected = true;
+        beatDecay = 1.0;
       }
-      prevBassEnergy = bassEnergy; beatDecay *= 0.92;
-      smoothLevel = smoothLevel*0.7 + amplitude.getLevel()*0.3;
-      pulseIntensity = pulseIntensity*0.85 + beatDecay*0.15;
-      level = smoothLevel + pulseIntensity*0.3;
+      prevBassEnergy = bassEnergy;
+      beatDecay *= 0.92;
+      const rawLevel = amplitude.getLevel();
+      smoothLevel = smoothLevel * 0.7 + rawLevel * 0.3;
+      pulseIntensity = pulseIntensity * 0.85 + beatDecay * 0.15;
+      level = smoothLevel + pulseIntensity * 0.3;
     }
 
     function draw() {
       background(0);
-      if (isPaused) { drawTunnel(false); drawDetachedRings(); return; }
+      if (isPaused) {
+        drawCirclesStatic(pausedLevel);
+        return;
+      }
       if (isAudioStarted) {
         analyzeAudio();
         let now = millis();
-        if (level > 0.08 && now - lastBurstTime > minBurstInterval) {
-          particles = []; createBurst(cols[0]); lastBurstTime = now;
+        let delta = abs(level - lastLevel);
+        if (delta > 0.04 && level > 0.08 && now - lastBurstTime > minBurstInterval) {
+          particles = [];
+          createBurst(initSize, cols[initColIndex % cols.length]);
+          lastBurstTime = now;
         }
-        beatDetected = false;
+        lastLevel = level;
+
+        // Отделение крайнего круга при касании края экрана
+        const currentMaxSize = initSize * map(level, 0, 0.6, 1, 1.8);
+        const maxDim = max(width, height);
+        if (currentMaxSize >= maxDim * 0.95 && detachedCircles.length === 0 && now - lastDetachTime > 2000) {
+          detachCircle({ size: currentMaxSize, color: cols[initColIndex % cols.length] });
+          lastDetachTime = now;
+        }
       } else {
-        level = 0.15 + 0.1*sin(frameCount/30);
+        level = 0.15 + 0.1 * sin(frameCount / 30);
+        bassEnergy = 0;
       }
 
-      // Скорость туннеля
-      let speed = 0.012 + level * 0.045;
-      tunnelPhase += speed;
-      tunnelProgress += speed;
-      if (tunnelProgress > 1) tunnelProgress -= 1;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update(); particles[i].show();
+        if (particles[i].isDead()) particles.splice(i, 1);
+      }
+      drawCirclesBeat(level);
+      drawDetached();
 
-      for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
-      drawTunnel(true);
-      drawDetachedRings();
-
-      // Отделение кольца при касании края + басе
-      let now = millis();
-      let beatScale = 1 + beatDecay * 0.25 + level * 0.15;
-      let outerR = BASE_R * beatScale;
-      let edgeLimit = min(width, height) * 0.5;
-      // Когда внешний круг касается края экрана И есть бас — отделяем
-      if (outerR >= edgeLimit * 0.92 && beatDecay > 0.3 && now - lastDetachTime > 300) {
-        detachOuterRing();
-        lastDetachTime = now;
+      let count = sin(frameCount / 150);
+      let angleStep = PI / 20 * count;
+      initSize -= MAX_INIT_SIZE * 0.00104 * (10 + abs(count));
+      initAngle += angleStep * 0.1;
+      if (initSize < MAX_INIT_SIZE * 0.88) {
+        initSize /= 0.88;
+        initColIndex = (initColIndex + cols.length - 1) % cols.length;
       }
     }
 
-    function drawTunnel(animate) {
-      let cx = width/2, cy = height/2;
-      let beatScale = animate ? (1 + beatDecay * 0.25 + level * 0.15) : 1;
-
-      for (let i = NUM_RINGS; i >= 0; i--) {
-        let t = i / NUM_RINGS;
-        let r = (BASE_R * 0.05) + (BASE_R - BASE_R * 0.05) * Math.pow(t, 1.15);
-        r *= beatScale;
-
-        let colorIdx = Math.floor(i + tunnelProgress * NUM_RINGS) % cols.length;
-        let col = cols[colorIdx];
-
-        fill(col);
-        ellipse(cx, cy, r*2, r*2);
-      }
-    }
-
-    function detachOuterRing() {
-      let cx = width/2, cy = height/2;
-      let beatScale = 1 + beatDecay * 0.25 + level * 0.15;
-      let outerR = BASE_R * beatScale;
-      let innerR = BASE_R * 0.92 * beatScale;
-
-      let ang = random(TWO_PI);
-      let spd = random(4, 7);
-      detachedRings.push({
-        outerR: outerR, innerR: innerR,
-        color: cols[Math.floor(NUM_RINGS + tunnelProgress * NUM_RINGS) % cols.length],
-        x: cx, y: cy,
-        vx: cos(ang)*spd, vy: sin(ang)*spd,
-        life: 140, maxLife: 140
+    function detachCircle(circle) {
+      // Направление наружу — плавно, медленно
+      let angle = random(TWO_PI);
+      let speed = random(1.2, 2.5);
+      detachedCircles.push({
+        size: circle.size,
+        color: circle.color,
+        x: width / 2,
+        y: height / 2,
+        vx: cos(angle) * speed,
+        vy: sin(angle) * speed,
+        life: DETACH_LIFE,
+        maxLife: DETACH_LIFE
       });
     }
 
-    function drawDetachedRings() {
-      for (let i=detachedRings.length-1;i>=0;i--) {
-        let d = detachedRings[i];
-        d.x += d.vx; d.y += d.vy; d.life--;
-        let alpha = map(d.life, 0, d.maxLife, 0, 255);
+    function drawDetached() {
+      for (let i = detachedCircles.length - 1; i >= 0; i--) {
+        let d = detachedCircles[i];
+        d.x += d.vx;
+        d.y += d.vy;
+        d.life--;
+        d.size *= 0.998; // почти не уменьшается — плавно уходит
+
+        let alpha = map(d.life, 0, d.maxLife * 0.4, 0, 255);
+        alpha = min(alpha, 255);
+        noStroke();
         fill(red(d.color), green(d.color), blue(d.color), alpha);
-        ellipse(d.x, d.y, d.outerR*2, d.outerR*2);
-        fill(0, alpha);
-        ellipse(d.x, d.y, d.innerR*2, d.innerR*2);
-        if (d.life <= 0) detachedRings.splice(i,1);
+        ellipse(d.x, d.y, d.size, d.size);
+
+        if (d.life <= 0) detachedCircles.splice(i, 1);
       }
     }
 
-    function createBurst(color) { for (let i=0;i<60;i++) particles.push(new Particle(width/2, height/2, color)); }
-    class Particle {
-      constructor(x,y,col){ this.pos=createVector(x,y); this.vel=p5.Vector.random2D().mult(random(4,12));
-        this.acc=createVector(0,0); this.lifespan=60; this.maxLife=60; this.color=col; this.size=random(2,5); }
-      update(){ this.vel.add(this.acc); this.pos.add(this.vel); this.lifespan--; }
-      show(){ let a=map(this.lifespan,0,this.maxLife,0,255); if(this.lifespan<15)a*=sin(frameCount*0.2+this.lifespan)*0.5+0.5;
-        noStroke(); fill(red(this.color),green(this.color),blue(this.color),a); ellipse(this.pos.x,this.pos.y,this.size); }
-      isDead(){ return this.lifespan<0; }
+    function drawCirclesBeat(currentLevel) {
+      let count = sin(frameCount / 150);
+      let angleStep = PI / 20 * count;
+      let colIndex = initColIndex;
+      let size = initSize * map(currentLevel, 0, 0.6, 1, 1.8);
+      let angle = initAngle;
+      while (size > MIN_SIZE) {
+        push(); translate(width / 2, height / 2); rotate(angle);
+        fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+        size *= 0.88; colIndex++;
+      }
     }
-    function windowResized(){ resizeCanvas(windowWidth, windowHeight); BASE_R = min(width,height)*0.42; }
+
+    function drawCirclesStatic(currentLevel) {
+      let angleStep = PI / 20;
+      let colIndex = initColIndex;
+      let size = initSize * map(currentLevel, 0, 0.5, 1, 1.5);
+      let angle = initAngle;
+      while (size > MIN_SIZE) {
+        push(); translate(width / 2, height / 2); rotate(angle);
+        fill(cols[colIndex % cols.length]); ellipse(0, 0, size, size); pop();
+        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE * 1.5, 1, 0, false);
+        size *= 0.88; colIndex++;
+      }
+    }
+
+    function createBurst(size, color) {
+      for (let i = 0; i < 60; i++) particles.push(new Particle(width / 2, height / 2, color));
+    }
+
+    class Particle {
+      constructor(x, y, col) {
+        this.pos = createVector(x, y);
+        this.vel = p5.Vector.random2D().mult(random(4, 12));
+        this.acc = createVector(0, 0);
+        this.lifespan = 60; this.maxLife = this.lifespan;
+        this.color = col; this.size = random(2, 5);
+      }
+      update() { this.vel.add(this.acc); this.pos.add(this.vel); this.lifespan--; }
+      show() {
+        let alpha = map(this.lifespan, 0, this.maxLife, 0, 255);
+        if (this.lifespan < 15) alpha *= sin(frameCount * 0.2 + this.lifespan) * 0.5 + 0.5;
+        noStroke();
+        fill(red(this.color), green(this.color), blue(this.color), alpha);
+        ellipse(this.pos.x, this.pos.y, this.size);
+      }
+      isDead() { return this.lifespan < 0; }
+    }
+
+    function windowResized() { resizeCanvas(windowWidth, windowHeight); }
   </script>
 </body>
 </html>
