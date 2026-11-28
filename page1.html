@@ -45,7 +45,7 @@
     let cols = ['#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034', '#ffffff',
                 '#FE00EC', '#049CE4', '#02C9AF', '#2B4F8D', '#011034'];
     let MAX_INIT_SIZE, MIN_SIZE;
-    let initSize, initAngle, initColIndex;
+    let initColIndex;
     let isPaused = false, pausedLevel = 0;
     let song, amplitude, fft, level = 0, lastLevel = 0;
     let particles = [], lastBurstTime = 0, minBurstInterval = 300;
@@ -57,7 +57,8 @@
     
     // Для волнового эффекта туннеля
     let wavePhase = 0;
-    let numRings = 15;
+    let globalRotation = 0; // общее вращение всей композиции
+    let numRings = 12;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
@@ -65,7 +66,7 @@
       rectMode(CENTER); noStroke();
       MAX_INIT_SIZE = max(width, height) * 0.55;
       MIN_SIZE = 8;
-      initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
+      initColIndex = 0;
       amplitude = new p5.Amplitude(); amplitude.smooth(0.8);
       fft = new p5.FFT(0.8, 1024);
       song = loadSound('m1.mp3', () => { amplitude.setInput(song); fft.setInput(song); },
@@ -168,79 +169,94 @@
         beatDetected = false;
       } else { level = 0.15 + 0.1*sin(frameCount/30); bassEnergy = 0; }
 
-      // Обновление волновой фазы
+      // Обновление волновой фазы и общего вращения
       wavePhase += 0.03 + level * 0.05;
+      globalRotation += 0.003; // медленное общее вращение
 
       for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
       drawTunnel();
       drawDetachedRings();
     }
 
-    // Эффект туннеля как на Envato - концентрические кольца с волновой пульсацией
+    // Туннель: все кольца СТРОГО по центру, без индивидуального смещения
     function drawTunnel() {
-      let baseSize = MAX_INIT_SIZE * 0.1;
-      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
+      let cx = width/2;
+      let cy = height/2;
+      let baseSize = MAX_INIT_SIZE * 0.08;
+      let sizeStep = (MAX_INIT_SIZE * 0.92) / numRings;
       
       // Рисуем от внешнего к внутреннему
       for (let i = numRings; i >= 0; i--) {
-        // Волновая модуляция - каждое кольцо пульсирует со своей фазой
-        let waveOffset = i * 0.4;
-        let waveAmp = sin(wavePhase + waveOffset) * 0.08;
+        // Волновая пульсация — одинаковая для всех, но со сдвигом фазы
+        let waveOffset = i * 0.5;
+        let waveAmp = sin(wavePhase + waveOffset) * 0.06;
         
         let ringSize = baseSize + i * sizeStep;
-        ringSize *= (1 + waveAmp) * (1 + level * 0.3);
+        ringSize *= (1 + waveAmp) * (1 + level * 0.2);
         
         // Цвет с чередованием
         let colorIdx = (initColIndex + i) % cols.length;
         let col = cols[colorIdx];
         
-        // Рисуем кольцо
+        // Рисуем кольцо: внешний круг + чёрный внутренний = кольцо
+        push();
+        translate(cx, cy);
+        rotate(globalRotation); // только общее вращение
+        
         noStroke();
         fill(col);
-        ellipse(width/2, height/2, ringSize, ringSize);
+        ellipse(0, 0, ringSize, ringSize);
         
-        // Чёрная дырка внутри для создания кольца (кроме самого маленького)
+        // Чёрная "дырка" внутри для создания кольца
         if (i > 0) {
+          let innerWaveAmp = sin(wavePhase + (i-1) * 0.5) * 0.06;
           let innerSize = baseSize + (i-1) * sizeStep;
-          innerSize *= (1 + sin(wavePhase + (i-1) * 0.4) * 0.08) * (1 + level * 0.3);
+          innerSize *= (1 + innerWaveAmp) * (1 + level * 0.2);
           fill(0);
-          ellipse(width/2, height/2, innerSize, innerSize);
+          ellipse(0, 0, innerSize, innerSize);
         }
+        pop();
       }
     }
 
     function drawTunnelStatic() {
-      let baseSize = MAX_INIT_SIZE * 0.1;
-      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
+      let cx = width/2;
+      let cy = height/2;
+      let baseSize = MAX_INIT_SIZE * 0.08;
+      let sizeStep = (MAX_INIT_SIZE * 0.92) / numRings;
       
       for (let i = numRings; i >= 0; i--) {
         let ringSize = baseSize + i * sizeStep;
         let colorIdx = (initColIndex + i) % cols.length;
         let col = cols[colorIdx];
         
+        push();
+        translate(cx, cy);
         noStroke();
         fill(col);
-        ellipse(width/2, height/2, ringSize, ringSize);
+        ellipse(0, 0, ringSize, ringSize);
         
         if (i > 0) {
           let innerSize = baseSize + (i-1) * sizeStep;
           fill(0);
-          ellipse(width/2, height/2, innerSize, innerSize);
+          ellipse(0, 0, innerSize, innerSize);
         }
+        pop();
       }
     }
 
     // Отделение крайнего кольца при басах
     function detachOuterRing() {
-      let baseSize = MAX_INIT_SIZE * 0.1;
-      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
-      let outerSize = baseSize + numRings * sizeStep;
-      let innerSize = baseSize + (numRings-1) * sizeStep;
+      let baseSize = MAX_INIT_SIZE * 0.08;
+      let sizeStep = (MAX_INIT_SIZE * 0.92) / numRings;
       
-      // Применяем текущую пульсацию
-      let waveAmp = sin(wavePhase + numRings * 0.4) * 0.08;
-      outerSize *= (1 + waveAmp) * (1 + level * 0.3);
-      innerSize *= (1 + sin(wavePhase + (numRings-1) * 0.4) * 0.08) * (1 + level * 0.3);
+      let outerWaveAmp = sin(wavePhase + numRings * 0.5) * 0.06;
+      let outerSize = baseSize + numRings * sizeStep;
+      outerSize *= (1 + outerWaveAmp) * (1 + level * 0.2);
+      
+      let innerWaveAmp = sin(wavePhase + (numRings-1) * 0.5) * 0.06;
+      let innerSize = baseSize + (numRings-1) * sizeStep;
+      innerSize *= (1 + innerWaveAmp) * (1 + level * 0.2);
       
       let angle = random(TWO_PI);
       let speed = random(3, 6);
