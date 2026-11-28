@@ -200,7 +200,7 @@
       position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
     }
 
-    /* ===== ЭКРАН PALETTE (как на скриншоте 1) ===== */
+    /* ===== ЭКРАН PALETTE ===== */
     .palette-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; z-index: 2000; display: none;
@@ -219,7 +219,6 @@
     }
     .palette-close:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
-    /* 4 категории сверху */
     .palette-top-categories {
       display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
     }
@@ -232,17 +231,24 @@
     .palette-top-cat:hover { background: #fff; }
     .palette-top-cat.active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
 
-    /* Полоса цветов */
     .palette-color-strip {
       display: flex; justify-content: center; gap: 4px; margin-bottom: 30px;
     }
     .palette-strip-color {
       width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
       border: 2px solid rgba(255,255,255,0.3); transition: transform 0.2s;
+      position: relative;
     }
     .palette-strip-color:hover { transform: scale(1.2); }
+    .palette-strip-color::after {
+      content: attr(data-color); position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%); background: rgba(0,0,0,0.95); color: #fff;
+      padding: 3px 8px; border-radius: 3px; font-size: 10px; font-family: 'Martian Mono', monospace;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    .palette-strip-color:hover::after { opacity: 1; }
 
-    /* Основной контент: 2 колонки */
     .palette-main {
       display: grid; grid-template-columns: 1fr 300px; gap: 40px;
       flex: 1; overflow: hidden;
@@ -265,42 +271,47 @@
       background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px;
       border: 1px solid rgba(255,255,255,0.1);
     }
+    /* FIX 1: Copy button - не перекрывает контент */
     .palette-item-copy {
-      position: absolute; top: -10px; right: 10px;
-      background: rgba(0,0,0,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.3);
-      padding: 4px 12px; border-radius: 4px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 11px; font-weight: 700;
-      transition: all 0.3s;
+      position: absolute; top: 8px; right: 8px; z-index: 20;
+      background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.4);
+      padding: 4px 10px; border-radius: 4px; cursor: pointer;
+      font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 700;
+      transition: all 0.3s; letter-spacing: 0.5px;
     }
-    .palette-item-copy:hover { background: rgba(255,255,255,0.2); }
+    .palette-item-copy:hover { background: rgba(255,255,255,0.2); border-color: #fff; transform: scale(1.05); }
     .palette-item-copy.copied { background: #4ade80; color: #000; border-color: #4ade80; }
 
-    /* Прямоугольник палитры */
     .palette-rect {
       width: 100%; height: 120px; border-radius: 6px;
       display: flex; overflow: hidden; margin-top: 10px;
+      position: relative;
     }
     .palette-rect-color {
-      flex: 1; height: 100%; cursor: pointer; transition: transform 0.2s;
+      flex: 1; height: 100%; cursor: pointer; transition: transform 0.2s, flex 0.2s;
+      position: relative;
     }
-    .palette-rect-color:hover { transform: scaleY(1.1); }
-    .palette-rect-hex {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-family: 'Martian Mono', monospace; font-size: 14px; font-weight: 700;
-      color: #fff; text-shadow: 0 0 4px rgba(0,0,0,0.8);
-      pointer-events: none;
+    .palette-rect-color:hover { flex: 2; z-index: 5; }
+    /* FIX 4: Тултип с цветом при наведении */
+    .palette-rect-color::after {
+      content: attr(data-color); position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%) scale(0.8); background: rgba(0,0,0,0.95); color: #fff;
+      padding: 4px 10px; border-radius: 4px; font-size: 11px; font-family: 'Martian Mono', monospace;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: all 0.2s;
+      border: 1px solid rgba(255,255,255,0.3); letter-spacing: 0.5px;
     }
+    .palette-rect-color:hover::after { opacity: 1; transform: translateX(-50%) scale(1); }
 
-    /* Круг */
     .palette-circle-wrap {
       width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
       margin-top: 10px;
     }
     .palette-circle-canvas {
       width: 100%; height: 100%; border-radius: 50%;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
-    /* Правая панель с GIF */
     .palette-gif-panel {
       background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;
       border: 1px solid rgba(255,255,255,0.1);
@@ -313,7 +324,7 @@
       border: 1px solid rgba(255,255,255,0.2); overflow: hidden;
       display: flex; align-items: center; justify-content: center;
     }
-    .palette-gif-canvas { width: 100%; height: 100%; }
+    .palette-gif-canvas { width: 100%; height: 100%; image-rendering: -webkit-optimize-contrast; }
     .palette-gif-copy {
       background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: #fff;
       padding: 12px; border-radius: 8px; cursor: pointer;
@@ -416,14 +427,13 @@
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
 
-  <!-- ЭКРАН PALETTE (как на скриншоте 1) -->
+  <!-- ЭКРАН PALETTE -->
   <div class="palette-modal" id="paletteModal">
     <div class="palette-modal-header">
       <div class="palette-modal-title">PALETTE COLLECTION</div>
       <button class="palette-close" id="paletteClose">✕</button>
     </div>
 
-    <!-- 4 категории -->
     <div class="palette-top-categories" id="paletteTopCategories">
       <button class="palette-top-cat active" data-cat="warm">Тёплые</button>
       <button class="palette-top-cat" data-cat="cool">Холодные</button>
@@ -431,18 +441,16 @@
       <button class="palette-top-cat" data-cat="contrast">Контрастные</button>
     </div>
 
-    <!-- Полоса цветов -->
     <div class="palette-color-strip" id="paletteColorStrip"></div>
 
-    <!-- Основной контент -->
     <div class="palette-main">
       <div class="palette-list-wrap" id="paletteListWrap"></div>
       <div class="palette-gif-panel">
         <div class="palette-gif-title">ANIMATED PREVIEW</div>
         <div class="palette-gif-canvas-wrap">
-          <canvas class="palette-gif-canvas" id="gifCanvas" width="400" height="400"></canvas>
+          <canvas class="palette-gif-canvas" id="gifCanvas" width="800" height="800"></canvas>
         </div>
-        <button class="palette-gif-copy" id="gifCopyBtn">COPY GIF</button>
+        <button class="palette-gif-copy" id="gifCopyBtn">COPY PNG</button>
       </div>
     </div>
   </div>
@@ -488,7 +496,7 @@
     langBtn.addEventListener('click',(e)=>{e.stopPropagation();langDropdown.classList.toggle('active');});
     document.addEventListener('click',()=>langDropdown.classList.remove('active'));
 
-    // ===== ЛАЙКИ: надёжная система с инициализацией bin =====
+    // ===== ЛАЙКИ =====
     const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
     const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
     const DEFAULT_LIKES = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
@@ -497,19 +505,13 @@
     let likesInitAttempts = 0;
 
     async function initLikesBin() {
-      // Попытка инициализировать bin если он пуст/удалён
       try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
           method: 'PUT',
           headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify(DEFAULT_LIKES)
         });
-        if (res.ok) {
-          console.log('Likes bin initialized');
-          globalLikes = { ...DEFAULT_LIKES };
-          updateAllHeartDisplays();
-          return true;
-        }
+        if (res.ok) { globalLikes = { ...DEFAULT_LIKES }; updateAllHeartDisplays(); return true; }
       } catch(e) { console.warn('Init bin error:', e); }
       return false;
     }
@@ -520,33 +522,21 @@
           headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
         if (!res.ok) {
-          console.warn('JSONBin load failed, status:', res.status);
-          if (res.status === 404 && likesInitAttempts < 2) {
-            likesInitAttempts++;
-            await initLikesBin();
-          }
+          if (res.status === 404 && likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); }
           return;
         }
         const data = await res.json();
         if (data && data.record && Object.keys(data.record).length > 0) {
-          // Merge: берём максимум между локальным и серверным
           Object.keys(DEFAULT_LIKES).forEach(id => {
             const serverVal = data.record[id] || 0;
             const localVal = globalLikes[id] || 0;
             globalLikes[id] = Math.max(serverVal, localVal);
           });
           updateAllHeartDisplays();
-          console.log('Likes loaded:', globalLikes);
         } else {
-          // Bin пуст - инициализируем
-          if (likesInitAttempts < 2) {
-            likesInitAttempts++;
-            await initLikesBin();
-          }
+          if (likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); }
         }
       } catch(e) { 
-        console.warn('JSONBin load error:', e);
-        // Fallback на localStorage
         const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
         Object.keys(DEFAULT_LIKES).forEach(id => {
           if (l[id] !== undefined) globalLikes[id] = Math.max(globalLikes[id]||0, l[id]);
@@ -565,12 +555,7 @@
             headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(globalLikes)
           });
-          if (!res.ok) {
-            console.warn('JSONBin save failed:', res.status);
-            if (res.status === 404) await initLikesBin();
-          } else {
-            console.log('Likes saved:', globalLikes);
-          }
+          if (!res.ok) { if (res.status === 404) await initLikesBin(); }
         } catch(e) { console.warn('JSONBin save error:', e); }
       }, 300);
     }
@@ -581,7 +566,6 @@
       saveGlobalLikes();
       return globalLikes[id];
     }
-
     function updateAllHeartDisplays() {
       Object.keys(globalLikes).forEach(id => {
         const el = document.getElementById(`hc-${id}`);
@@ -652,7 +636,7 @@
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
       { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
       { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
-      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"Grass7B4RdKfBCjTKgSqnXkqjwiGvQyFbuSCUJr3XXjs", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
+      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
       { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
       { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
       { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"16.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
@@ -745,12 +729,11 @@
     const CATEGORIES = ['warm', 'cool', 'pastel', 'contrast'];
     const CAT_NAMES = { warm: 'Тёплые', cool: 'Холодные', pastel: 'Пастельные', contrast: 'Контрастные' };
 
-    // Уникальные имена для каждой палитры (80 на категорию = 320 всего)
     const PALETTE_NAME_PARTS = {
-      warm: ['Sunset','Autumn','Desert','Spice','Clay','Ember','Copper','Rustic','Amber','Coral','Terracotta','Saffron','Cinnamon','Pumpkin','Maple','Honey','Ginger','Cayenne','Paprika','Turmeric','Cumin','Clove','Nutmeg','Cardamom','Vanilla','Caramel','Toffee','Butterscotch','Goldenrod','Marigold','Daffodil','Sunflower','Dandelion','Buttercup','Primrose','Crocus','Tulip','Poppy','Flame','Blaze','Fire','Heat','Warmth','Glow','Radiance','Shine','Spark','Flare','Burst','Flare','Dawn','Dusk','Twilight','Horizon','Solstice','Equinox','Tropic','Sahara','Savanna','Steppe','Pampa','Outback','Mojave','Sahel','Kalahari','Namib','Gobi','Taklamakan','Atacama','Sonoran','Chihuahuan','Karakum','Kyzylkum','Thar','Dasht-e','Lut','Rub','Al','Nefud','Ténéré','Simpson','Gibson','Tanami','Strzelecki','Sturt','Painted','White','Black','Red','Great','Little'],
-      cool: ['Ocean','Arctic','Glacier','Ice','Sapphire','Cobalt','Azure','Cerulean','Teal','Aqua','Turquoise','Cyan','Indigo','Navy','Midnight','Storm','Rain','River','Lake','Puddle','Frost','Snow','Iceberg','Polar','Blue','Whale','Dolphin','Seafoam','Lagoon','Mint','Peppermint','Eucalyptus','Sage','Sea','Sky','Powder','Baby','Cornflower','Periwinkle','Lavender','Lilac','Mauve','Violet','Purple','Plum','Grape','Berry','Raisin','Fig','Date','Prune','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry'],
-      pastel: ['Cotton','Bubble','Baby','Lavender','Lilac','Mauve','Rose','Blush','Cream','Vanilla','Lemon','Mint','Pistachio','Seafoam','Powder','Dusty','Muted','Soft','Pale','Light','Faded','Whisper','Cloud','Peach','Apricot','Melon','Cantaloupe','Honeydew','Limeade','Key','Lemon','Butter','Coconut','Almond','Oat','Rice','Soy','Cashew','Hazelnut','Macadamia','Brazil','Pine','Sunflower','Pumpkin','Squash','Gourd','Melon','Watermelon','Cantaloupe','Honeydew','Papaya','Mango','Pineapple','Guava','Passion','Dragon','Star','Kiwi','Banana','Plantain','Avocado','Lime','Lemon','Orange','Grapefruit','Pomelo','Tangerine','Clementine','Mandarin','Kumquat','Loquat','Lychee','Longan','Rambutan','Durian','Jackfruit','Breadfruit','Soursop','Cherimoya','Custard','Sugar','Atemoya','Ilama','Rollinia','Biribá','Pond','Bullock','Custard'],
-      contrast: ['Noir','Blanc','Schwarz','Weiss','Negro','Blanco','Preto','Branco','Bianco','Nero','Siyah','Beyaz','Kuro','Shiro','Hei','Bai','Den','Hvit','Musta','Valkoinen','Czarny','Bialy','Cerno','Bilo','Fekete','Fehér','Negru','Alb','Crno','Belo','Črno','Belo','Meln','Balts','Juodas','Baltas','Must','Valge','Svart','Hvít','Dubh','Bán','Du','Gwyn','Dubh','Geal','Gorm','Geal','Yin','Yang','Chess','Zebra','Panda','Orca','Tuxedo','Penguin','Magpie','Badger','Skunk','Dalmatian','Cow','Cross','Check','Stripe','Spot','Print','Block','Tile','Grid','Matrix','Pixel','Bit','Byte','Code','Data','Info','Logic','Binary','Digital','Analog','Signal','Noise','Wave','Pulse']
+      warm: ['Sunset','Autumn','Desert','Spice','Clay','Ember','Copper','Rustic','Amber','Coral','Terracotta','Saffron','Cinnamon','Pumpkin','Maple','Honey','Ginger','Cayenne','Paprika','Turmeric','Cumin','Clove','Nutmeg','Cardamom','Vanilla','Caramel','Toffee','Butterscotch','Goldenrod','Marigold','Daffodil','Sunflower','Dandelion','Buttercup','Primrose','Crocus','Tulip','Poppy','Flame','Blaze','Fire','Heat','Warmth','Glow','Radiance','Shine','Spark','Flare','Burst','Dawn','Dusk','Twilight','Horizon','Solstice','Equinox','Tropic','Sahara','Savanna','Steppe','Pampa','Outback','Mojave','Sahel','Kalahari','Namib','Gobi','Taklamakan','Atacama','Sonoran','Chihuahuan','Karakum','Kyzylkum','Thar','Dasht-e','Lut','Rub','Al','Nefud','Ténéré','Simpson','Gibson','Tanami','Strzelecki','Sturt','Painted'],
+      cool: ['Ocean','Arctic','Glacier','Ice','Sapphire','Cobalt','Azure','Cerulean','Teal','Aqua','Turquoise','Cyan','Indigo','Navy','Midnight','Storm','Rain','River','Lake','Puddle','Frost','Snow','Iceberg','Polar','Blue','Whale','Dolphin','Seafoam','Lagoon','Mint','Peppermint','Eucalyptus','Sage','Sea','Sky','Powder','Baby','Cornflower','Periwinkle','Lavender','Lilac','Mauve','Violet','Purple','Plum','Grape','Berry','Raisin','Fig','Date','Prune','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Melon','Cantaloupe','Honeydew','Limeade','Key','Lemon','Butter','Coconut','Almond','Oat','Rice','Soy','Cashew','Hazelnut','Macadamia','Brazil','Pine','Boreal','Alpine','Nordic','Baltic','Celtic','Gaelic','Fjord','Loch','Bayou','Creek','Brook','Spring'],
+      pastel: ['Cotton','Bubble','Baby','Lavender','Lilac','Mauve','Rose','Blush','Cream','Vanilla','Lemon','Mint','Pistachio','Seafoam','Powder','Dusty','Muted','Soft','Pale','Light','Faded','Whisper','Cloud','Peach','Apricot','Melon','Cantaloupe','Honeydew','Limeade','Key','Butter','Coconut','Almond','Oat','Rice','Soy','Cashew','Hazelnut','Macadamia','Pine','Sunflower','Pumpkin','Squash','Gourd','Watermelon','Papaya','Mango','Guava','Passion','Dragon','Star','Kiwi','Banana','Plantain','Avocado','Lime','Orange','Grapefruit','Pomelo','Tangerine','Clementine','Mandarin','Kumquat','Loquat','Lychee','Longan','Rambutan','Durian','Jackfruit','Breadfruit','Soursop','Cherimoya','Custard','Sugar','Atemoya','Ilama','Rollinia','Biribá','Pond'],
+      contrast: ['Noir','Blanc','Schwarz','Weiss','Negro','Blanco','Preto','Branco','Bianco','Nero','Siyah','Beyaz','Kuro','Shiro','Hei','Bai','Den','Hvit','Musta','Valkoinen','Czarny','Bialy','Cerno','Bilo','Fekete','Fehér','Negru','Alb','Crno','Belo','Črno','Meln','Balts','Juodas','Baltas','Must','Valge','Svart','Hvít','Dubh','Bán','Du','Gwyn','Geal','Gorm','Yin','Yang','Chess','Zebra','Panda','Orca','Tuxedo','Penguin','Magpie','Badger','Skunk','Dalmatian','Cow','Cross','Check','Stripe','Spot','Print','Block','Tile','Grid','Matrix','Pixel','Bit','Byte','Code','Data','Info','Logic','Binary','Digital','Analog','Signal','Noise','Wave','Pulse']
     };
 
     function hslToHex(h, s, l) {
@@ -766,7 +749,7 @@
       switch(category) {
         case 'warm':
           for (let i = 0; i < 10; i++) {
-            const h = (seed * 3 + i * 8) % 60; // 0-60 (красный-жёлтый)
+            const h = (seed * 3 + i * 8) % 60;
             const s = 70 + ((seed + i) % 30);
             const l = 30 + i * 6;
             colors.push(hslToHex(h, s, l));
@@ -774,7 +757,7 @@
           break;
         case 'cool':
           for (let i = 0; i < 10; i++) {
-            const h = 180 + ((seed * 3 + i * 15) % 80); // 180-260 (синий-фиолетовый)
+            const h = 180 + ((seed * 3 + i * 15) % 80);
             const s = 60 + ((seed + i) % 40);
             const l = 30 + i * 6;
             colors.push(hslToHex(h, s, l));
@@ -869,6 +852,7 @@
         const div = document.createElement('div');
         div.className = 'palette-strip-color';
         div.style.background = c;
+        div.dataset.color = c;
         div.title = c;
         div.addEventListener('click', () => {
           navigator.clipboard.writeText(c);
@@ -877,11 +861,30 @@
       });
     }
 
+    // FIX 5: High-quality circle drawing - matches stroboscope style
+    function drawCircleOnCanvas(canvas, colors) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      const c = size / 2;
+      const mr = size / 2 - Math.max(2, size * 0.01);
+      const rw = mr / colors.length;
+      
+      ctx.clearRect(0, 0, size, size);
+      
+      // Рисуем концентрические кольца от внешнего к внутреннему (как в SVG стробоскопа)
+      for (let i = 0; i < colors.length; i++) {
+        const r = mr - (i * rw);
+        ctx.beginPath();
+        ctx.arc(c, c, r, 0, Math.PI * 2);
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+      }
+    }
+
     function renderPaletteList() {
       paletteListWrap.innerHTML = '';
       const filtered = getFilteredPalettes();
       
-      // Группируем по 6 (3 строки × 2 колонки)
       for (let i = 0; i < filtered.length; i += 6) {
         const row = document.createElement('div');
         row.className = 'palette-row';
@@ -896,20 +899,18 @@
           item.dataset.idx = j;
           
           if (isLeft) {
-            // Прямоугольник палитры
+            // FIX 4: Убран номер цвета, добавлен data-color для тултипа при наведении
             item.innerHTML = `
-              <button class="palette-item-copy" data-copy="colors-${j}">COPY</button>
-              <div class="palette-rect" style="position:relative;">
-                ${p.colors.map(c => `<div class="palette-rect-color" style="background:${c}" title="${c}"></div>`).join('')}
-                <div class="palette-rect-hex">${p.colors[4] || p.colors[0]}</div>
+              <button class="palette-item-copy" data-action="colors" data-idx="${j}">COPY</button>
+              <div class="palette-rect">
+                ${p.colors.map(c => `<div class="palette-rect-color" style="background:${c}" data-color="${c}" title="${c}"></div>`).join('')}
               </div>
             `;
           } else {
-            // Круг
             item.innerHTML = `
-              <button class="palette-item-copy" data-copy="gif-${j}">COPY</button>
+              <button class="palette-item-copy" data-action="circle" data-idx="${j}">COPY PNG</button>
               <div class="palette-circle-wrap">
-                <canvas class="palette-circle-canvas" width="200" height="200" data-idx="${j}"></canvas>
+                <canvas class="palette-circle-canvas" width="512" height="512" data-idx="${j}"></canvas>
               </div>
             `;
           }
@@ -919,93 +920,133 @@
         paletteListWrap.appendChild(row);
       }
       
-      // Кнопки COPY
+      // Обработчики кнопок COPY
       document.querySelectorAll('.palette-item-copy').forEach(btn => {
         btn.addEventListener('click', (e) => {
           e.stopPropagation();
-          const action = btn.dataset.copy;
-          const idx = parseInt(action.split('-')[1]);
+          const action = btn.dataset.action;
+          const idx = parseInt(btn.dataset.idx);
           const p = filtered[idx];
           if (!p) return;
           
-          if (action.startsWith('colors-')) {
+          if (action === 'colors') {
+            // FIX 2: Копируем цвета
             const colorsStr = p.colors.join(', ');
-            navigator.clipboard.writeText(colorsStr);
-          } else {
-            // Копируем GIF как data URL
-            const canvas = document.querySelector(`.palette-circle-canvas[data-idx="${idx}"]`);
-            if (canvas) {
-              canvas.toBlob(blob => {
-                if (blob) {
-                  navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                }
-              });
-            }
+            navigator.clipboard.writeText(colorsStr).then(() => {
+              btn.textContent = 'COPIED!';
+              btn.classList.add('copied');
+              setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
+            });
+          } else if (action === 'circle') {
+            // FIX 2 & 5: Копируем высококачественный PNG круга
+            copyHighResCircle(p.colors, btn);
           }
-          btn.textContent = 'COPIED!';
-          btn.classList.add('copied');
-          setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
         });
       });
       
-      // Рисуем круги
+      // Клик по цвету в палитре - копирует hex
+      document.querySelectorAll('.palette-rect-color').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const color = el.dataset.color;
+          if (color) {
+            navigator.clipboard.writeText(color).catch(() => {});
+            el.style.outline = '3px solid #4ade80';
+            setTimeout(() => { el.style.outline = ''; }, 500);
+          }
+        });
+      });
+      
+      // Рисуем круги на canvas
       setTimeout(() => {
         document.querySelectorAll('.palette-circle-canvas').forEach(canvas => {
           const idx = parseInt(canvas.dataset.idx);
           const p = filtered[idx];
-          if (p) drawStaticCircle(canvas, p.colors);
+          if (p) drawCircleOnCanvas(canvas, p.colors);
         });
       }, 50);
     }
 
-    function drawStaticCircle(canvas, colors) {
-      const ctx = canvas.getContext('2d');
-      const w = canvas.width, h = canvas.height;
-      const cx = w/2, cy = h/2;
-      const maxR = Math.min(w,h) * 0.48;
-      const numRings = colors.length;
+    // FIX 2 & 5: Функция копирования высококачественного круга
+    function copyHighResCircle(colors, btn) {
+      const origText = btn.textContent;
+      btn.textContent = '...';
       
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, w, h);
+      // Создаём canvas максимально высокого разрешения (4096x4096)
+      const hiResCanvas = document.createElement('canvas');
+      hiResCanvas.width = 4096;
+      hiResCanvas.height = 4096;
+      drawCircleOnCanvas(hiResCanvas, colors);
       
-      for (let i = numRings - 1; i >= 0; i--) {
-        const t = i / numRings;
-        const r = maxR * Math.pow(t, 1.1);
-        ctx.fillStyle = colors[i % colors.length];
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      hiResCanvas.toBlob(blob => {
+        if (!blob) {
+          btn.textContent = 'ERROR';
+          setTimeout(() => { btn.textContent = origText; }, 1500);
+          return;
+        }
+        
+        // Пытаемся скопировать в буфер обмена
+        if (navigator.clipboard && window.ClipboardItem) {
+          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
+            btn.textContent = 'COPIED!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = origText; btn.classList.remove('copied'); }, 1500);
+          }).catch(() => {
+            // Fallback: скачать файл
+            downloadCanvas(hiResCanvas, 'stroboscope-circle.png');
+            btn.textContent = 'DOWNLOADED!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = origText; btn.classList.remove('copied'); }, 1500);
+          });
+        } else {
+          // Fallback для старых браузеров
+          downloadCanvas(hiResCanvas, 'stroboscope-circle.png');
+          btn.textContent = 'DOWNLOADED!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = origText; btn.classList.remove('copied'); }, 1500);
+        }
+      }, 'image/png', 1.0);
+    }
+
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
     }
 
     function startGifAnimation(colors) {
       if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
       gifPhase = 0;
       const ctx = gifCanvas.getContext('2d');
-      const w = gifCanvas.width, h = gifCanvas.height;
-      const cx = w/2, cy = h/2;
-      const maxR = Math.min(w,h) * 0.45;
-      const numRings = colors.length;
+      const size = gifCanvas.width;
+      const c = size / 2;
+      const mr = size / 2 - Math.max(2, size * 0.01);
+      const rw = mr / colors.length;
       
       function drawFrame() {
+        ctx.clearRect(0, 0, size, size);
+        // Фон
         ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, w, h);
-        for (let i = numRings - 1; i >= 0; i--) {
-          const t = i / numRings;
-          const r = maxR * Math.pow(t, 1.1);
-          const colorIdx = (i + Math.floor(gifPhase)) % numRings;
-          ctx.fillStyle = colors[colorIdx];
+        ctx.beginPath();
+        ctx.arc(c, c, mr + 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        for (let i = 0; i < colors.length; i++) {
+          const r = mr - (i * rw);
+          const colorIdx = (i + Math.floor(gifPhase)) % colors.length;
           ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.arc(c, c, r, 0, Math.PI * 2);
+          ctx.fillStyle = colors[colorIdx];
           ctx.fill();
         }
-        gifPhase += 0.15;
+        gifPhase += 0.12;
         gifAnimFrame = requestAnimationFrame(drawFrame);
       }
       drawFrame();
     }
 
-    // Прокрутка колёсиком с фиксацией по 3 строки (6 элементов)
+    // Прокрутка колёсиком
     let scrollTimeout;
     paletteListWrap.addEventListener('wheel', (e) => {
       e.preventDefault();
@@ -1018,7 +1059,6 @@
         const maxScroll = paletteListWrap.scrollHeight - paletteListWrap.clientHeight;
         const clamped = Math.max(0, Math.min(targetScroll, maxScroll));
         
-        // Зацикливание
         if (clamped >= maxScroll - 10) {
           paletteListWrap.scrollTo({ top: 0, behavior: 'smooth' });
         } else if (clamped <= 0 && direction < 0) {
@@ -1029,7 +1069,6 @@
       }, 50);
     }, { passive: false });
 
-    // Открытие/закрытие PALETTE
     paletteBtn.addEventListener('click', () => {
       paletteModal.classList.add('active');
       renderTopCategories();
@@ -1044,49 +1083,37 @@
       if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
     });
 
-    // COPY GIF
+    // FIX 2 & 5: COPY PNG из правой панели - высокое качество
     gifCopyBtn.addEventListener('click', () => {
       gifCopyBtn.textContent = 'GENERATING...';
       const filtered = getFilteredPalettes();
       const p = filtered[currentPaletteIndex % filtered.length];
-      if (!p) { gifCopyBtn.textContent = 'COPY GIF'; return; }
+      if (!p) { gifCopyBtn.textContent = 'COPY PNG'; return; }
       
-      // Создаём временный canvas 1000x1000 для GIF
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = 1000; tempCanvas.height = 1000;
-      const ctx = tempCanvas.getContext('2d');
-      const cx = 500, cy = 500, maxR = 480;
-      const numRings = p.colors.length;
+      const hiResCanvas = document.createElement('canvas');
+      hiResCanvas.width = 4096;
+      hiResCanvas.height = 4096;
+      drawCircleOnCanvas(hiResCanvas, p.colors);
       
-      // Рисуем один кадр (статичный круг)
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, 1000, 1000);
-      for (let i = numRings - 1; i >= 0; i--) {
-        const t = i / numRings;
-        const r = maxR * Math.pow(t, 1.1);
-        ctx.fillStyle = p.colors[i % numRings];
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      tempCanvas.toBlob(blob => {
-        if (blob) {
+      hiResCanvas.toBlob(blob => {
+        if (!blob) { gifCopyBtn.textContent = 'COPY PNG'; return; }
+        
+        if (navigator.clipboard && window.ClipboardItem) {
           navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
             gifCopyBtn.textContent = 'COPIED!';
             gifCopyBtn.classList.add('copied');
-            setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; gifCopyBtn.classList.remove('copied'); }, 1500);
+            setTimeout(() => { gifCopyBtn.textContent = 'COPY PNG'; gifCopyBtn.classList.remove('copied'); }, 1500);
           }).catch(() => {
-            // Fallback
-            const link = document.createElement('a');
-            link.download = 'stroboscope-palette.png';
-            link.href = tempCanvas.toDataURL();
-            link.click();
+            downloadCanvas(hiResCanvas, 'stroboscope-palette.png');
             gifCopyBtn.textContent = 'DOWNLOADED!';
-            setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; }, 1500);
+            setTimeout(() => { gifCopyBtn.textContent = 'COPY PNG'; }, 1500);
           });
+        } else {
+          downloadCanvas(hiResCanvas, 'stroboscope-palette.png');
+          gifCopyBtn.textContent = 'DOWNLOADED!';
+          setTimeout(() => { gifCopyBtn.textContent = 'COPY PNG'; }, 1500);
         }
-      }, 'image/png');
+      }, 'image/png', 1.0);
     });
 
     // Инициализация
