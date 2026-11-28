@@ -18,15 +18,31 @@
     .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px); pointer-events: none; }
     @keyframes aura-pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.2); } }
 
-    .top-bar { position: fixed; top: 20px; left: 20px; right: 20px; z-index: 100; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .search-container { background: rgba(0,0,0,0.8); padding: 12px; border-radius: 8px; border: 1px solid rgba(160,216,241,0.3); display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .search-container input { background: rgba(0,0,0,0.6); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace; font-size: 14px; border-radius: 4px; width: 280px; outline: none; transition: all 0.3s; }
+    .top-bar {
+      position: fixed; top: 20px; left: 20px; right: 20px; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    }
+    .search-container {
+      background: rgba(0,0,0,0.8); padding: 12px; border-radius: 8px;
+      border: 1px solid rgba(160,216,241,0.3); display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+    }
+    .search-container input {
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace;
+      font-size: 14px; border-radius: 4px; width: 280px; outline: none; transition: all 0.3s;
+    }
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160,216,241,0.3); }
     .search-container input::placeholder { color: rgba(160,216,241,0.5); }
 
-    .palette-title { display: flex; align-items: center; gap: 60px; font-family: 'Martian Mono', monospace; font-size: 26px; font-weight: 700; letter-spacing: 3px; flex-shrink: 0; }
+    .palette-title {
+      display: flex; align-items: center; gap: 60px;
+      font-family: 'Martian Mono', monospace; font-size: 26px; font-weight: 700; letter-spacing: 3px; flex-shrink: 0;
+    }
     .palette-text { display: flex; gap: 2px; cursor: pointer; }
-    .palette-text span { display: inline-block; animation: paletteShimmer 3s ease-in-out infinite; text-shadow: 0 0 10px currentColor; }
+    .palette-text span {
+      display: inline-block; animation: paletteShimmer 3s ease-in-out infinite;
+      text-shadow: 0 0 10px currentColor;
+    }
     .palette-text span:nth-child(1) { color: #FF1744; animation-delay: 0s; }
     .palette-text span:nth-child(2) { color: #FF9100; animation-delay: 0.1s; }
     .palette-text span:nth-child(3) { color: #FFEA00; animation-delay: 0.2s; }
@@ -36,14 +52,35 @@
     .palette-text span:nth-child(7) { color: #D500F9; animation-delay: 0.6s; }
     @keyframes paletteShimmer { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.9); } }
 
-    .create-stroboscope { font-family: 'Dancing Script', cursive; font-size: 24px; color: #fff; cursor: pointer; position: relative; transition: all 0.3s; perspective: 400px; }
+    .create-stroboscope {
+      font-family: 'Dancing Script', cursive; font-size: 24px; color: #fff;
+      cursor: pointer; position: relative; transition: all 0.3s; perspective: 400px;
+    }
     .create-stroboscope:hover { text-shadow: 0 0 20px rgba(255,255,255,0.8); }
-    .create-stroboscope .soon-text { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-family: 'Martian Mono', monospace; font-size: 16px; font-weight: 700; white-space: nowrap; margin-top: 8px; opacity: 0; pointer-events: none; transition: opacity 0.3s; animation: soonRotate 4s linear infinite; animation-play-state: paused; }
+    .create-stroboscope .soon-text {
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      font-family: 'Martian Mono', monospace; font-size: 16px; font-weight: 700;
+      white-space: nowrap; margin-top: 8px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s; animation: soonRotate 4s linear infinite; animation-play-state: paused;
+    }
     .create-stroboscope:hover .soon-text { opacity: 1; animation-play-state: running; }
-    @keyframes soonRotate { 0%{transform:translateX(-50%) rotateY(0deg);color:#FF1744} 14%{transform:translateX(-50%) rotateY(180deg);color:#FF9100} 28%{transform:translateX(-50%) rotateY(360deg);color:#FFEA00} 42%{transform:translateX(-50%) rotateY(540deg);color:#00E676} 57%{transform:translateX(-50%) rotateY(720deg);color:#00B0FF} 71%{transform:translateX(-50%) rotateY(900deg);color:#2979FF} 85%{transform:translateX(-50%) rotateY(1080deg);color:#D500F9} 100%{transform:translateX(-50%) rotateY(1260deg);color:#FF1744} }
+    @keyframes soonRotate {
+      0%   { transform: translateX(-50%) rotateY(0deg); color: #FF1744; }
+      14%  { transform: translateX(-50%) rotateY(180deg); color: #FF9100; }
+      28%  { transform: translateX(-50%) rotateY(360deg); color: #FFEA00; }
+      42%  { transform: translateX(-50%) rotateY(540deg); color: #00E676; }
+      57%  { transform: translateX(-50%) rotateY(720deg); color: #00B0FF; }
+      71%  { transform: translateX(-50%) rotateY(900deg); color: #2979FF; }
+      85%  { transform: translateX(-50%) rotateY(1080deg); color: #D500F9; }
+      100% { transform: translateX(-50%) rotateY(1260deg); color: #FF1744; }
+    }
 
     .right-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-    .rainbow-row { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 30px; border: 1px solid rgba(160,216,241,0.2); backdrop-filter: blur(8px); }
+    .rainbow-row {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 30px;
+      border: 1px solid rgba(160,216,241,0.2); backdrop-filter: blur(8px);
+    }
     .rainbow-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; animation: rainbowPulse 2.5s ease-in-out infinite; cursor: pointer; transition: transform 0.3s; }
     .rainbow-dot:hover { transform: scale(1.2); }
     .rainbow-dot:nth-child(1){background:#FF1744;animation-delay:0s}.rainbow-dot:nth-child(2){background:#FF9100;animation-delay:.15s}.rainbow-dot:nth-child(3){background:#FFEA00;animation-delay:.3s}.rainbow-dot:nth-child(4){background:#00E676;animation-delay:.45s}.rainbow-dot:nth-child(5){background:#00B0FF;animation-delay:.6s}.rainbow-dot:nth-child(6){background:#2979FF;animation-delay:.75s}.rainbow-dot:nth-child(7){background:#D500F9;animation-delay:.9s}
@@ -52,17 +89,34 @@
     .home-icon { position: relative; width: 36px; height: 36px; cursor: pointer; transition: all 0.3s; }
     .home-icon svg { width: 100%; height: 100%; fill: #a0d8f1; transition: all 0.3s; }
     .home-icon:hover svg { fill: #fff; transform: scale(1.1); }
-    .house-banner { position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
+    .house-banner {
+      position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50;
+      background: #000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px;
+    }
     .house-banner.active { opacity: 1; pointer-events: auto; }
     .house-banner-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(255,255,255,0.15); }
 
     .lang-selector { position: relative; }
-    .lang-btn { background: none; border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; line-height: 0; }
+    .lang-btn {
+      background: none; border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1;
+      padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; line-height: 0;
+    }
     .lang-btn:hover { background: rgba(160,216,241,0.2); border-color: #a0d8f1; }
     .lang-btn svg { width: 28px; height: 20px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
-    .lang-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); border-radius: 8px; padding: 10px; display: none; grid-template-columns: repeat(4,1fr); gap: 8px; min-width: 220px; backdrop-filter: blur(10px); z-index: 101; }
+    .lang-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5);
+      border-radius: 8px; padding: 10px; display: none;
+      grid-template-columns: repeat(4,1fr); gap: 8px; min-width: 220px;
+      backdrop-filter: blur(10px); z-index: 101;
+    }
     .lang-dropdown.active { display: grid; }
-    .lang-flag { background: none; border: 1px solid transparent; cursor: pointer; padding: 4px; border-radius: 6px; transition: all 0.3s; display: flex; align-items: center; justify-content: center; line-height: 0; }
+    .lang-flag {
+      background: none; border: 1px solid transparent; cursor: pointer; padding: 4px;
+      border-radius: 6px; transition: all 0.3s; display: flex; align-items: center; justify-content: center; line-height: 0;
+    }
     .lang-flag svg { width: 40px; height: 28px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
     .lang-flag:hover { background: rgba(160,216,241,0.2); border-color: rgba(160,216,241,0.5); transform: scale(1.1); }
     .lang-flag.active { border-color: #a0d8f1; background: rgba(160,216,241,0.3); box-shadow: 0 0 12px rgba(160,216,241,0.4); }
@@ -74,7 +128,14 @@
     .support-container { position: relative; }
     .support-link { color: #a0d8f1; text-decoration: none; font-size: 13px; font-family: 'Martian Mono', monospace; transition: all 0.3s; white-space: nowrap; background: none; border: none; cursor: pointer; padding: 0; }
     .support-link:hover { color: #fff; text-shadow: 0 0 10px rgba(160,216,241,0.5); }
-    .support-tooltip { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px); z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4; }
+    .support-tooltip {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px);
+      z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4;
+    }
     .support-tooltip.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
     .color-banner { position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
@@ -89,13 +150,27 @@
     .stroboscope-item.visible { opacity: 1; transform: translateY(0); }
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
 
-    .mcap-badge, .cap-badge { position: absolute; z-index: 10; padding: 8px 18px; border-radius: 24px; background: rgba(0,0,0,0.7); border: 2px solid rgba(160,216,241,0.5); box-shadow: 0 0 20px rgba(160,216,241,0.3), 0 0 40px rgba(160,216,241,0.15); font-family: 'Martian Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 1px; backdrop-filter: blur(8px); transition: all 0.3s; pointer-events: none; color: #a0d8f1; }
+    .mcap-badge, .cap-badge {
+      position: absolute; z-index: 10; padding: 8px 18px; border-radius: 24px;
+      background: rgba(0,0,0,0.7); border: 2px solid rgba(160,216,241,0.5);
+      box-shadow: 0 0 20px rgba(160,216,241,0.3), 0 0 40px rgba(160,216,241,0.15);
+      font-family: 'Martian Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 1px;
+      backdrop-filter: blur(8px); transition: all 0.3s; pointer-events: none; color: #a0d8f1;
+    }
     .mcap-badge { top: -14px; left: -14px; }
     .cap-badge { top: -14px; right: -14px; }
 
-    .stroboscope-circle { position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 50%; overflow: hidden; background: transparent; border: none; box-shadow: 0 0 40px rgba(160,216,241,0.4), 0 0 80px rgba(160,216,241,0.2); transition: all 0.3s; flex-shrink: 0; }
+    .stroboscope-circle {
+      position: relative; width: 100%; aspect-ratio: 1/1; border-radius: 50%; overflow: hidden;
+      background: transparent; border: none;
+      box-shadow: 0 0 40px rgba(160,216,241,0.4), 0 0 80px rgba(160,216,241,0.2);
+      transition: all 0.3s; flex-shrink: 0;
+    }
     .stroboscope-item:hover .stroboscope-circle { box-shadow: 0 0 60px rgba(160,216,241,0.6), 0 0 120px rgba(160,216,241,0.3); }
-    .stroboscope-circle img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; pointer-events: none; user-select: none; display: block; }
+    .stroboscope-circle img {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      object-fit: cover; border-radius: 50%; pointer-events: none; user-select: none; display: block;
+    }
 
     .heart-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; cursor: pointer; }
     .heart-svg { width: 100%; height: 100%; animation: heartPulse 1.4s ease-in-out infinite; filter: drop-shadow(0 0 10px currentColor); transition: transform 0.3s; }
@@ -119,35 +194,38 @@
     .marquee-content { white-space: nowrap; animation: scroll-left 360s linear infinite; font-size: 15px; color: #a0d8f1; padding: 0 50px; font-family: 'Martian Mono', monospace; letter-spacing: 0.5px; }
     @keyframes scroll-left { 0%{transform:translateX(100vw)}100%{transform:translateX(-100%)} }
 
-    iframe[src*="netlify"], .netlify-badge, #netlify-badge, [class*="netlify-badge"], [id*="netlify-badge"] { display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important; width: 0 !important; height: 0 !important; position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important; }
+    iframe[src*="netlify"], .netlify-badge, #netlify-badge, [class*="netlify-badge"], [id*="netlify-badge"] {
+      display: none !important; visibility: hidden !important; opacity: 0 !important;
+      pointer-events: none !important; width: 0 !important; height: 0 !important;
+      position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
+    }
 
-    /* ===== PALETTE MODAL ===== */
+    /* ===== ЭКРАН PALETTE (как на скриншоте 1) ===== */
     .palette-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; z-index: 2000; display: none;
-      flex-direction: column; padding: 30px 50px;
-      overflow: hidden;
+      flex-direction: column; padding: 30px 60px;
     }
     .palette-modal.active { display: flex; }
     .palette-modal-header {
       display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 15px; flex-shrink: 0;
+      padding-bottom: 20px;
     }
-    .palette-modal-title { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: 3px; }
+    .palette-modal-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 3px; }
     .palette-close {
       background: none; border: 2px solid rgba(255,255,255,0.3); color: #fff;
-      width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-      font-size: 18px; transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+      font-size: 20px; transition: all 0.3s; display: flex; align-items: center; justify-content: center;
     }
     .palette-close:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
-    /* 4 категории */
+    /* 4 категории сверху */
     .palette-top-categories {
-      display: flex; justify-content: center; gap: 12px; margin-bottom: 12px; flex-shrink: 0;
+      display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
     }
     .palette-top-cat {
       background: rgba(255,255,255,0.9); color: #000;
-      padding: 6px 18px; border-radius: 4px; cursor: pointer;
+      padding: 6px 16px; border-radius: 4px; cursor: pointer;
       font-family: 'Martian Mono', monospace; font-size: 13px; font-weight: 600;
       border: none; transition: all 0.3s;
     }
@@ -156,128 +234,80 @@
 
     /* Полоса цветов */
     .palette-color-strip {
-      display: flex; justify-content: center; gap: 4px; margin-bottom: 20px; flex-shrink: 0;
+      display: flex; justify-content: center; gap: 4px; margin-bottom: 30px;
     }
     .palette-strip-color {
       width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
       border: 2px solid rgba(255,255,255,0.3); transition: transform 0.2s;
-      position: relative;
     }
-    .palette-strip-color:hover { transform: scale(1.2); border-color: #fff; }
-    .palette-strip-color.active { border-color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+    .palette-strip-color:hover { transform: scale(1.2); }
 
-    /* Основной контент: 3 колонки */
+    /* Основной контент: 2 колонки */
     .palette-main {
-      display: grid; grid-template-columns: 1fr 1.2fr 300px; gap: 25px;
-      flex: 1; overflow: hidden; min-height: 0;
+      display: grid; grid-template-columns: 1fr 300px; gap: 40px;
+      flex: 1; overflow: hidden;
     }
-
-    /* Левая колонка: палитра + MY PALETTE */
-    .palette-left {
-      display: flex; flex-direction: column; gap: 20px; overflow-y: auto;
-      padding-right: 5px;
+    .palette-list-wrap {
+      overflow-y: auto; scroll-snap-type: y mandatory;
+      scroll-behavior: smooth; padding-right: 10px;
     }
-    .palette-left::-webkit-scrollbar { width: 6px; }
-    .palette-left::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-    .palette-left::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+    .palette-list-wrap::-webkit-scrollbar { width: 6px; }
+    .palette-list-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .palette-list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
 
-    .palette-rect-card {
+    .palette-row {
+      scroll-snap-align: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+      margin-bottom: 30px;
+    }
+    .palette-item {
       position: relative;
       background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px;
       border: 1px solid rgba(255,255,255,0.1);
     }
-    .palette-rect-copy {
-      position: absolute; top: -10px; right: 15px;
-      background: rgba(0,0,0,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.4);
-      padding: 4px 14px; border-radius: 4px; cursor: pointer;
+    .palette-item-copy {
+      position: absolute; top: -10px; right: 10px;
+      background: rgba(0,0,0,0.8); color: #fff; border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 12px; border-radius: 4px; cursor: pointer;
       font-family: 'Martian Mono', monospace; font-size: 11px; font-weight: 700;
-      transition: all 0.3s; z-index: 5;
+      transition: all 0.3s;
     }
-    .palette-rect-copy:hover { background: rgba(255,255,255,0.2); }
-    .palette-rect-copy.copied { background: #4ade80; color: #000; border-color: #4ade80; }
+    .palette-item-copy:hover { background: rgba(255,255,255,0.2); }
+    .palette-item-copy.copied { background: #4ade80; color: #000; border-color: #4ade80; }
 
+    /* Прямоугольник палитры */
     .palette-rect {
-      width: 100%; height: 110px; border-radius: 6px;
-      display: flex; overflow: hidden; margin-top: 8px; position: relative;
+      width: 100%; height: 120px; border-radius: 6px;
+      display: flex; overflow: hidden; margin-top: 10px;
     }
     .palette-rect-color {
       flex: 1; height: 100%; cursor: pointer; transition: transform 0.2s;
-      position: relative;
     }
-    .palette-rect-color:hover { transform: scaleY(1.08); z-index: 2; }
-    .palette-rect-color .color-tooltip {
+    .palette-rect-color:hover { transform: scaleY(1.1); }
+    .palette-rect-hex {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      font-family: 'Martian Mono', monospace; font-size: 11px; font-weight: 700;
-      color: #fff; text-shadow: 0 0 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.9);
-      pointer-events: none; opacity: 0; transition: opacity 0.2s;
-      white-space: nowrap;
+      font-family: 'Martian Mono', monospace; font-size: 14px; font-weight: 700;
+      color: #fff; text-shadow: 0 0 4px rgba(0,0,0,0.8);
+      pointer-events: none;
     }
-    .palette-rect-color:hover .color-tooltip { opacity: 1; }
 
-    /* MY PALETTE блок */
-    .my-palette-card {
-      background: rgba(255,255,255,0.05); border-radius: 8px; padding: 20px;
-      border: 1px solid rgba(255,255,255,0.1);
+    /* Круг */
+    .palette-circle-wrap {
+      width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+      margin-top: 10px;
     }
-    .my-palette-title {
-      font-family: 'Dancing Script', cursive; font-size: 28px; font-weight: 700;
-      color: #fff; text-align: center; margin-bottom: 15px;
-      text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-    .my-palette-colors {
-      font-family: 'Martian Mono', monospace; font-size: 13px; color: #a0d8f1;
-      line-height: 1.6; word-break: break-all; margin-bottom: 15px;
-      max-height: 80px; overflow-y: auto;
-    }
-    .my-palette-colors::-webkit-scrollbar { width: 4px; }
-    .my-palette-colors::-webkit-scrollbar-thumb { background: rgba(160,216,241,0.3); border-radius: 2px; }
-    .create-btn {
-      display: block; margin: 0 auto;
-      background: rgba(255,255,255,0.1); border: 2px solid #fff; color: #fff;
-      padding: 10px 30px; border-radius: 25px; cursor: pointer;
-      font-family: 'Dancing Script', cursive; font-size: 22px; font-weight: 700;
-      transition: all 0.3s; letter-spacing: 1px;
-    }
-    .create-btn:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-    .create-btn.created { background: #4ade80; border-color: #4ade80; color: #000; }
-
-    /* Центральная колонка: большой круг PNG */
-    .palette-center {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      position: relative;
-    }
-    .palette-circle-card {
-      position: relative;
-      width: 100%; max-width: 500px; aspect-ratio: 1/1;
-      background: rgba(255,255,255,0.03); border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center;
-      padding: 20px;
-    }
-    .palette-circle-copy {
-      position: absolute; top: -10px; right: 20px;
-      background: rgba(0,0,0,0.9); color: #fff; border: 1px solid rgba(255,255,255,0.4);
-      padding: 4px 14px; border-radius: 4px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 11px; font-weight: 700;
-      transition: all 0.3s; z-index: 5;
-    }
-    .palette-circle-copy:hover { background: rgba(255,255,255,0.2); }
-    .palette-circle-copy.copied { background: #4ade80; color: #000; border-color: #4ade80; }
     .palette-circle-canvas {
       width: 100%; height: 100%; border-radius: 50%;
-      image-rendering: -webkit-optimize-contrast;
     }
 
-    /* Правая колонка: GIF превью */
-    .palette-right {
-      display: flex; flex-direction: column; gap: 15px;
-    }
-    .palette-gif-card {
+    /* Правая панель с GIF */
+    .palette-gif-panel {
       background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;
       border: 1px solid rgba(255,255,255,0.1);
-      display: flex; flex-direction: column; gap: 15px; flex: 1;
+      display: flex; flex-direction: column; gap: 15px;
+      position: sticky; top: 0;
     }
-    .palette-gif-title { font-size: 14px; color: #fff; font-weight: 700; text-align: center; letter-spacing: 2px; }
+    .palette-gif-title { font-size: 16px; color: #fff; font-weight: 700; text-align: center; letter-spacing: 2px; }
     .palette-gif-canvas-wrap {
       width: 100%; aspect-ratio: 1/1; background: #000; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.2); overflow: hidden;
@@ -287,7 +317,7 @@
     .palette-gif-copy {
       background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: #fff;
       padding: 12px; border-radius: 8px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 13px; font-weight: 700;
+      font-family: 'Martian Mono', monospace; font-size: 14px; font-weight: 700;
       transition: all 0.3s; text-align: center; letter-spacing: 1px;
     }
     .palette-gif-copy:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
@@ -302,7 +332,7 @@
       .top-bar{flex-wrap:wrap;gap:10px}
       .palette-title{font-size:20px;gap:30px}
       .palette-main{grid-template-columns: 1fr;}
-      .palette-right{flex-direction:row;}
+      .palette-gif-panel{display:none;}
     }
     @media (max-width:700px){
       .gallery-grid{grid-template-columns:1fr;gap:20px;max-width:400px}
@@ -321,7 +351,7 @@
       .palette-title{font-size:16px;gap:20px}
       .rainbow-dot{width:24px;height:24px}
       .palette-modal{padding:15px;}
-      .palette-main{grid-template-columns:1fr;}
+      .palette-row{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -386,38 +416,33 @@
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
 
-  <!-- PALETTE MODAL -->
+  <!-- ЭКРАН PALETTE (как на скриншоте 1) -->
   <div class="palette-modal" id="paletteModal">
     <div class="palette-modal-header">
       <div class="palette-modal-title">PALETTE COLLECTION</div>
       <button class="palette-close" id="paletteClose">✕</button>
     </div>
 
+    <!-- 4 категории -->
     <div class="palette-top-categories" id="paletteTopCategories">
-      <button class="palette-top-cat active" data-cat="warm">Warm</button>
-      <button class="palette-top-cat" data-cat="cool">Cool</button>
-      <button class="palette-top-cat" data-cat="pastel">Pastel</button>
-      <button class="palette-top-cat" data-cat="contrast">Contrast</button>
+      <button class="palette-top-cat active" data-cat="warm">Тёплые</button>
+      <button class="palette-top-cat" data-cat="cool">Холодные</button>
+      <button class="palette-top-cat" data-cat="pastel">Пастельные</button>
+      <button class="palette-top-cat" data-cat="contrast">Контрастные</button>
     </div>
 
+    <!-- Полоса цветов -->
     <div class="palette-color-strip" id="paletteColorStrip"></div>
 
+    <!-- Основной контент -->
     <div class="palette-main">
-      <div class="palette-left" id="paletteLeft"></div>
-      <div class="palette-center">
-        <div class="palette-circle-card">
-          <button class="palette-circle-copy" id="circleCopyBtn">COPY PNG</button>
-          <canvas class="palette-circle-canvas" id="bigCircleCanvas" width="1000" height="1000"></canvas>
+      <div class="palette-list-wrap" id="paletteListWrap"></div>
+      <div class="palette-gif-panel">
+        <div class="palette-gif-title">ANIMATED PREVIEW</div>
+        <div class="palette-gif-canvas-wrap">
+          <canvas class="palette-gif-canvas" id="gifCanvas" width="400" height="400"></canvas>
         </div>
-      </div>
-      <div class="palette-right">
-        <div class="palette-gif-card">
-          <div class="palette-gif-title">ANIMATED PREVIEW</div>
-          <div class="palette-gif-canvas-wrap">
-            <canvas class="palette-gif-canvas" id="gifCanvas" width="400" height="400"></canvas>
-          </div>
-          <button class="palette-gif-copy" id="gifCopyBtn">COPY GIF</button>
-        </div>
+        <button class="palette-gif-copy" id="gifCopyBtn">COPY GIF</button>
       </div>
     </div>
   </div>
@@ -432,6 +457,7 @@
     setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
+    // ===== ФЛАГИ =====
     const flags = {
       en:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -462,7 +488,7 @@
     langBtn.addEventListener('click',(e)=>{e.stopPropagation();langDropdown.classList.toggle('active');});
     document.addEventListener('click',()=>langDropdown.classList.remove('active'));
 
-    // ===== ЛАЙКИ =====
+    // ===== ЛАЙКИ: надёжная система с инициализацией bin =====
     const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
     const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
     const DEFAULT_LIKES = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
@@ -471,6 +497,7 @@
     let likesInitAttempts = 0;
 
     async function initLikesBin() {
+      // Попытка инициализировать bin если он пуст/удалён
       try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
           method: 'PUT',
@@ -494,22 +521,32 @@
         });
         if (!res.ok) {
           console.warn('JSONBin load failed, status:', res.status);
-          if (res.status === 404 && likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); }
+          if (res.status === 404 && likesInitAttempts < 2) {
+            likesInitAttempts++;
+            await initLikesBin();
+          }
           return;
         }
         const data = await res.json();
         if (data && data.record && Object.keys(data.record).length > 0) {
+          // Merge: берём максимум между локальным и серверным
           Object.keys(DEFAULT_LIKES).forEach(id => {
             const serverVal = data.record[id] || 0;
             const localVal = globalLikes[id] || 0;
             globalLikes[id] = Math.max(serverVal, localVal);
           });
           updateAllHeartDisplays();
+          console.log('Likes loaded:', globalLikes);
         } else {
-          if (likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); }
+          // Bin пуст - инициализируем
+          if (likesInitAttempts < 2) {
+            likesInitAttempts++;
+            await initLikesBin();
+          }
         }
       } catch(e) { 
         console.warn('JSONBin load error:', e);
+        // Fallback на localStorage
         const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
         Object.keys(DEFAULT_LIKES).forEach(id => {
           if (l[id] !== undefined) globalLikes[id] = Math.max(globalLikes[id]||0, l[id]);
@@ -528,7 +565,12 @@
             headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(globalLikes)
           });
-          if (!res.ok && res.status === 404) await initLikesBin();
+          if (!res.ok) {
+            console.warn('JSONBin save failed:', res.status);
+            if (res.status === 404) await initLikesBin();
+          } else {
+            console.log('Likes saved:', globalLikes);
+          }
         } catch(e) { console.warn('JSONBin save error:', e); }
       }, 300);
     }
@@ -554,7 +596,9 @@
 
     async function fetchMarketCap(contract) {
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
-      if (marketCapCache[contract] && cacheTimestamps[contract] && (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) return marketCapCache[contract];
+      if (marketCapCache[contract] && cacheTimestamps[contract] && (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) {
+        return marketCapCache[contract];
+      }
       try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${contract}&vs_currencies=usd&include_market_cap=true`);
         if (res.ok) {
@@ -562,7 +606,8 @@
           const tokenData = data[contract.toLowerCase()];
           if (tokenData && tokenData.usd_market_cap && tokenData.usd_market_cap > 0) {
             const formatted = formatCap(tokenData.usd_market_cap);
-            marketCapCache[contract] = formatted; cacheTimestamps[contract] = Date.now();
+            marketCapCache[contract] = formatted;
+            cacheTimestamps[contract] = Date.now();
             return formatted;
           }
         }
@@ -573,10 +618,12 @@
           const data = await res.json();
           if (data && data.pairs && data.pairs.length) {
             const sorted = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
-            const mc = sorted[0].marketCap || sorted[0].fdv || 0;
+            const bestPair = sorted[0];
+            const mc = bestPair.marketCap || bestPair.fdv || 0;
             if (mc > 0) {
               const formatted = formatCap(mc);
-              marketCapCache[contract] = formatted; cacheTimestamps[contract] = Date.now();
+              marketCapCache[contract] = formatted;
+              cacheTimestamps[contract] = Date.now();
               return formatted;
             }
           }
@@ -584,7 +631,13 @@
       } catch(e) { console.warn('DexScreener error:', e); }
       return null;
     }
-    function formatCap(n){ if (!n || isNaN(n)) return '$0'; if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B'; if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M'; if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k'; return '$' + Math.round(n); }
+    function formatCap(n){
+      if (!n || isNaN(n)) return '$0';
+      if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+      if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
+      return '$' + Math.round(n);
+    }
     async function refreshAllCaps(){
       document.querySelectorAll('.cap-badge').forEach(badge => {
         const contract = badge.dataset.contract;
@@ -599,7 +652,7 @@
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
       { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
       { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
-      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
+      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"Grass7B4RdKfBCjTKgSqnXkqjwiGvQyFbuSCUJr3XXjs", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
       { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
       { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
       { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"16.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
@@ -690,10 +743,11 @@
 
     // ===== 320 ПАЛИТР =====
     const CATEGORIES = ['warm', 'cool', 'pastel', 'contrast'];
-    const CAT_NAMES = { warm: 'Warm', cool: 'Cool', pastel: 'Pastel', contrast: 'Contrast' };
+    const CAT_NAMES = { warm: 'Тёплые', cool: 'Холодные', pastel: 'Пастельные', contrast: 'Контрастные' };
 
+    // Уникальные имена для каждой палитры (80 на категорию = 320 всего)
     const PALETTE_NAME_PARTS = {
-      warm: ['Sunset','Autumn','Desert','Spice','Clay','Ember','Copper','Rustic','Amber','Coral','Terracotta','Saffron','Cinnamon','Pumpkin','Maple','Honey','Ginger','Cayenne','Paprika','Turmeric','Cumin','Clove','Nutmeg','Cardamom','Vanilla','Caramel','Toffee','Butterscotch','Goldenrod','Marigold','Daffodil','Sunflower','Dandelion','Buttercup','Primrose','Crocus','Tulip','Poppy','Flame','Blaze','Fire','Heat','Warmth','Glow','Radiance','Shine','Spark','Flare','Burst','Dawn','Dusk','Twilight','Horizon','Solstice','Equinox','Tropic','Sahara','Savanna','Steppe','Pampa','Outback','Mojave','Sahel','Kalahari','Namib','Gobi','Taklamakan','Atacama','Sonoran','Chihuahuan','Karakum','Kyzylkum','Thar','Lut','Rub','Nefud','Ténéré','Simpson','Gibson','Tanami','Strzelecki','Sturt','Painted','White','Black','Red','Great','Little'],
+      warm: ['Sunset','Autumn','Desert','Spice','Clay','Ember','Copper','Rustic','Amber','Coral','Terracotta','Saffron','Cinnamon','Pumpkin','Maple','Honey','Ginger','Cayenne','Paprika','Turmeric','Cumin','Clove','Nutmeg','Cardamom','Vanilla','Caramel','Toffee','Butterscotch','Goldenrod','Marigold','Daffodil','Sunflower','Dandelion','Buttercup','Primrose','Crocus','Tulip','Poppy','Flame','Blaze','Fire','Heat','Warmth','Glow','Radiance','Shine','Spark','Flare','Burst','Flare','Dawn','Dusk','Twilight','Horizon','Solstice','Equinox','Tropic','Sahara','Savanna','Steppe','Pampa','Outback','Mojave','Sahel','Kalahari','Namib','Gobi','Taklamakan','Atacama','Sonoran','Chihuahuan','Karakum','Kyzylkum','Thar','Dasht-e','Lut','Rub','Al','Nefud','Ténéré','Simpson','Gibson','Tanami','Strzelecki','Sturt','Painted','White','Black','Red','Great','Little'],
       cool: ['Ocean','Arctic','Glacier','Ice','Sapphire','Cobalt','Azure','Cerulean','Teal','Aqua','Turquoise','Cyan','Indigo','Navy','Midnight','Storm','Rain','River','Lake','Puddle','Frost','Snow','Iceberg','Polar','Blue','Whale','Dolphin','Seafoam','Lagoon','Mint','Peppermint','Eucalyptus','Sage','Sea','Sky','Powder','Baby','Cornflower','Periwinkle','Lavender','Lilac','Mauve','Violet','Purple','Plum','Grape','Berry','Raisin','Fig','Date','Prune','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry'],
       pastel: ['Cotton','Bubble','Baby','Lavender','Lilac','Mauve','Rose','Blush','Cream','Vanilla','Lemon','Mint','Pistachio','Seafoam','Powder','Dusty','Muted','Soft','Pale','Light','Faded','Whisper','Cloud','Peach','Apricot','Melon','Cantaloupe','Honeydew','Limeade','Key','Lemon','Butter','Coconut','Almond','Oat','Rice','Soy','Cashew','Hazelnut','Macadamia','Brazil','Pine','Sunflower','Pumpkin','Squash','Gourd','Melon','Watermelon','Cantaloupe','Honeydew','Papaya','Mango','Pineapple','Guava','Passion','Dragon','Star','Kiwi','Banana','Plantain','Avocado','Lime','Lemon','Orange','Grapefruit','Pomelo','Tangerine','Clementine','Mandarin','Kumquat','Loquat','Lychee','Longan','Rambutan','Durian','Jackfruit','Breadfruit','Soursop','Cherimoya','Custard','Sugar','Atemoya','Ilama','Rollinia','Biribá','Pond','Bullock','Custard'],
       contrast: ['Noir','Blanc','Schwarz','Weiss','Negro','Blanco','Preto','Branco','Bianco','Nero','Siyah','Beyaz','Kuro','Shiro','Hei','Bai','Den','Hvit','Musta','Valkoinen','Czarny','Bialy','Cerno','Bilo','Fekete','Fehér','Negru','Alb','Crno','Belo','Črno','Belo','Meln','Balts','Juodas','Baltas','Must','Valge','Svart','Hvít','Dubh','Bán','Du','Gwyn','Dubh','Geal','Gorm','Geal','Yin','Yang','Chess','Zebra','Panda','Orca','Tuxedo','Penguin','Magpie','Badger','Skunk','Dalmatian','Cow','Cross','Check','Stripe','Spot','Print','Block','Tile','Grid','Matrix','Pixel','Bit','Byte','Code','Data','Info','Logic','Binary','Digital','Analog','Signal','Noise','Wave','Pulse']
@@ -712,7 +766,7 @@
       switch(category) {
         case 'warm':
           for (let i = 0; i < 10; i++) {
-            const h = (seed * 3 + i * 8) % 60;
+            const h = (seed * 3 + i * 8) % 60; // 0-60 (красный-жёлтый)
             const s = 70 + ((seed + i) % 30);
             const l = 30 + i * 6;
             colors.push(hslToHex(h, s, l));
@@ -720,7 +774,7 @@
           break;
         case 'cool':
           for (let i = 0; i < 10; i++) {
-            const h = 180 + ((seed * 3 + i * 15) % 80);
+            const h = 180 + ((seed * 3 + i * 15) % 80); // 180-260 (синий-фиолетовый)
             const s = 60 + ((seed + i) % 40);
             const l = 30 + i * 6;
             colors.push(hslToHex(h, s, l));
@@ -737,8 +791,11 @@
         case 'contrast':
           const baseH = (seed * 13) % 360;
           for (let i = 0; i < 10; i++) {
-            if (i % 2 === 0) colors.push(hslToHex(baseH, 80, 20 + i * 3));
-            else colors.push(hslToHex((baseH + 180) % 360, 80, 70 + i * 2));
+            if (i % 2 === 0) {
+              colors.push(hslToHex(baseH, 80, 20 + i * 3));
+            } else {
+              colors.push(hslToHex((baseH + 180) % 360, 80, 70 + i * 2));
+            }
           }
           break;
       }
@@ -764,30 +821,23 @@
       }
     });
 
-    // ===== PALETTE УПРАВЛЕНИЕ =====
+    // ===== УПРАВЛЕНИЕ PALETTE =====
     const paletteModal = document.getElementById('paletteModal');
     const paletteBtn = document.getElementById('paletteBtn');
     const paletteClose = document.getElementById('paletteClose');
-    const paletteLeft = document.getElementById('paletteLeft');
+    const paletteListWrap = document.getElementById('paletteListWrap');
     const paletteTopCategories = document.getElementById('paletteTopCategories');
     const paletteColorStrip = document.getElementById('paletteColorStrip');
-    const bigCircleCanvas = document.getElementById('bigCircleCanvas');
     const gifCanvas = document.getElementById('gifCanvas');
-    const circleCopyBtn = document.getElementById('circleCopyBtn');
     const gifCopyBtn = document.getElementById('gifCopyBtn');
 
     let currentPaletteCat = 'warm';
     let currentPaletteIndex = 0;
-    let activeStripColor = null;
     let gifAnimFrame = null;
     let gifPhase = 0;
 
     function getFilteredPalettes() {
-      let filtered = allPalettes.filter(p => p.category === currentPaletteCat);
-      if (activeStripColor) {
-        filtered = filtered.filter(p => p.colors.some(c => c.toUpperCase() === activeStripColor.toUpperCase()));
-      }
-      return filtered;
+      return allPalettes.filter(p => p.category === currentPaletteCat);
     }
 
     function renderTopCategories() {
@@ -799,102 +849,118 @@
         btn.dataset.cat = cat;
         btn.addEventListener('click', () => {
           currentPaletteCat = cat;
-          activeStripColor = null;
-          currentPaletteIndex = 0;
           renderTopCategories();
-          renderColorStrip();
-          renderPaletteLeft();
-          updateBigCircle();
-          startGifAnimation(getFilteredPalettes()[0]?.colors || allPalettes[0].colors);
+          renderPaletteList();
+          updateColorStrip();
+          currentPaletteIndex = 0;
+          const filtered = getFilteredPalettes();
+          if (filtered.length > 0) startGifAnimation(filtered[0].colors);
         });
         paletteTopCategories.appendChild(btn);
       });
     }
 
-    function renderColorStrip() {
+    function updateColorStrip() {
       paletteColorStrip.innerHTML = '';
       const filtered = getFilteredPalettes();
-      const p = filtered[currentPaletteIndex % filtered.length] || allPalettes[0];
+      const p = filtered[currentPaletteIndex % filtered.length];
+      if (!p) return;
       p.colors.forEach(c => {
         const div = document.createElement('div');
-        div.className = 'palette-strip-color' + (activeStripColor && activeStripColor.toUpperCase() === c.toUpperCase() ? ' active' : '');
+        div.className = 'palette-strip-color';
         div.style.background = c;
         div.title = c;
         div.addEventListener('click', () => {
-          if (activeStripColor && activeStripColor.toUpperCase() === c.toUpperCase()) {
-            activeStripColor = null;
-          } else {
-            activeStripColor = c;
-          }
-          currentPaletteIndex = 0;
-          renderColorStrip();
-          renderPaletteLeft();
-          updateBigCircle();
-          const fp = getFilteredPalettes();
-          if (fp.length > 0) startGifAnimation(fp[0].colors);
+          navigator.clipboard.writeText(c);
         });
         paletteColorStrip.appendChild(div);
       });
     }
 
-    function renderPaletteLeft() {
-      paletteLeft.innerHTML = '';
+    function renderPaletteList() {
+      paletteListWrap.innerHTML = '';
       const filtered = getFilteredPalettes();
       
-      // Показываем текущую палитру (прямоугольник)
-      const p = filtered[currentPaletteIndex % filtered.length] || allPalettes[0];
-      const rectCard = document.createElement('div');
-      rectCard.className = 'palette-rect-card';
-      rectCard.innerHTML = `
-        <button class="palette-rect-copy" id="rectCopyBtn">COPY</button>
-        <div class="palette-rect">
-          ${p.colors.map((c, i) => `<div class="palette-rect-color" style="background:${c}" title="${c}"><div class="color-tooltip">${c}</div></div>`).join('')}
-        </div>
-      `;
-      paletteLeft.appendChild(rectCard);
-
-      // MY PALETTE блок
-      const myPaletteCard = document.createElement('div');
-      myPaletteCard.className = 'my-palette-card';
-      const colorsStr = p.colors.join(', ') + ', #ffffff';
-      myPaletteCard.innerHTML = `
-        <div class="my-palette-title">MY PALETTE</div>
-        <div class="my-palette-colors" id="myPaletteColors">${colorsStr}</div>
-        <button class="create-btn" id="createBtn">CREATE</button>
-      `;
-      paletteLeft.appendChild(myPaletteCard);
-
-      // COPY кнопка
-      document.getElementById('rectCopyBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        const colorsText = p.colors.join(', ');
-        navigator.clipboard.writeText(colorsText).then(() => {
-          e.target.textContent = 'COPIED!';
-          e.target.classList.add('copied');
-          setTimeout(() => { e.target.textContent = 'COPY'; e.target.classList.remove('copied'); }, 1500);
+      // Группируем по 6 (3 строки × 2 колонки)
+      for (let i = 0; i < filtered.length; i += 6) {
+        const row = document.createElement('div');
+        row.className = 'palette-row';
+        row.dataset.index = i;
+        
+        for (let j = i; j < Math.min(i + 6, filtered.length); j++) {
+          const p = filtered[j];
+          const isLeft = (j - i) % 2 === 0;
+          
+          const item = document.createElement('div');
+          item.className = 'palette-item';
+          item.dataset.idx = j;
+          
+          if (isLeft) {
+            // Прямоугольник палитры
+            item.innerHTML = `
+              <button class="palette-item-copy" data-copy="colors-${j}">COPY</button>
+              <div class="palette-rect" style="position:relative;">
+                ${p.colors.map(c => `<div class="palette-rect-color" style="background:${c}" title="${c}"></div>`).join('')}
+                <div class="palette-rect-hex">${p.colors[4] || p.colors[0]}</div>
+              </div>
+            `;
+          } else {
+            // Круг
+            item.innerHTML = `
+              <button class="palette-item-copy" data-copy="gif-${j}">COPY</button>
+              <div class="palette-circle-wrap">
+                <canvas class="palette-circle-canvas" width="200" height="200" data-idx="${j}"></canvas>
+              </div>
+            `;
+          }
+          
+          row.appendChild(item);
+        }
+        paletteListWrap.appendChild(row);
+      }
+      
+      // Кнопки COPY
+      document.querySelectorAll('.palette-item-copy').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const action = btn.dataset.copy;
+          const idx = parseInt(action.split('-')[1]);
+          const p = filtered[idx];
+          if (!p) return;
+          
+          if (action.startsWith('colors-')) {
+            const colorsStr = p.colors.join(', ');
+            navigator.clipboard.writeText(colorsStr);
+          } else {
+            // Копируем GIF как data URL
+            const canvas = document.querySelector(`.palette-circle-canvas[data-idx="${idx}"]`);
+            if (canvas) {
+              canvas.toBlob(blob => {
+                if (blob) {
+                  navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                }
+              });
+            }
+          }
+          btn.textContent = 'COPIED!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
         });
       });
-
-      // CREATE кнопка
-      document.getElementById('createBtn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        updateBigCircle(p.colors);
-        startGifAnimation(p.colors);
-        e.target.textContent = 'CREATED!';
-        e.target.classList.add('created');
-        setTimeout(() => { e.target.textContent = 'CREATE'; e.target.classList.remove('created'); }, 1500);
-      });
-
-      // Ограничение 100 символов для поля цветов
-      const colorsEl = document.getElementById('myPaletteColors');
-      if (colorsEl.textContent.length > 100) {
-        colorsEl.textContent = colorsEl.textContent.substring(0, 100) + '...';
-      }
+      
+      // Рисуем круги
+      setTimeout(() => {
+        document.querySelectorAll('.palette-circle-canvas').forEach(canvas => {
+          const idx = parseInt(canvas.dataset.idx);
+          const p = filtered[idx];
+          if (p) drawStaticCircle(canvas, p.colors);
+        });
+      }, 50);
     }
 
-    function updateBigCircle(colors) {
-      const ctx = bigCircleCanvas.getContext('2d');
-      const w = bigCircleCanvas.width, h = bigCircleCanvas.height;
+    function drawStaticCircle(canvas, colors) {
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width, h = canvas.height;
       const cx = w/2, cy = h/2;
       const maxR = Math.min(w,h) * 0.48;
       const numRings = colors.length;
@@ -939,62 +1005,88 @@
       drawFrame();
     }
 
-    // COPY PNG (большой круг)
-    circleCopyBtn.addEventListener('click', () => {
-      bigCircleCanvas.toBlob(blob => {
-        if (blob) {
-          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
-            circleCopyBtn.textContent = 'COPIED!';
-            circleCopyBtn.classList.add('copied');
-            setTimeout(() => { circleCopyBtn.textContent = 'COPY PNG'; circleCopyBtn.classList.remove('copied'); }, 1500);
-          }).catch(() => {
-            const link = document.createElement('a');
-            link.download = 'stroboscope-circle.png';
-            link.href = bigCircleCanvas.toDataURL();
-            link.click();
-            circleCopyBtn.textContent = 'DOWNLOADED!';
-            setTimeout(() => { circleCopyBtn.textContent = 'COPY PNG'; }, 1500);
-          });
+    // Прокрутка колёсиком с фиксацией по 3 строки (6 элементов)
+    let scrollTimeout;
+    paletteListWrap.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const rowHeight = paletteListWrap.querySelector('.palette-row')?.offsetHeight || 200;
+        const direction = e.deltaY > 0 ? 1 : -1;
+        const currentScroll = paletteListWrap.scrollTop;
+        const targetScroll = Math.round(currentScroll / (rowHeight * 3)) * (rowHeight * 3) + direction * (rowHeight * 3);
+        const maxScroll = paletteListWrap.scrollHeight - paletteListWrap.clientHeight;
+        const clamped = Math.max(0, Math.min(targetScroll, maxScroll));
+        
+        // Зацикливание
+        if (clamped >= maxScroll - 10) {
+          paletteListWrap.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (clamped <= 0 && direction < 0) {
+          paletteListWrap.scrollTo({ top: maxScroll, behavior: 'smooth' });
+        } else {
+          paletteListWrap.scrollTo({ top: clamped, behavior: 'smooth' });
         }
-      }, 'image/png');
+      }, 50);
+    }, { passive: false });
+
+    // Открытие/закрытие PALETTE
+    paletteBtn.addEventListener('click', () => {
+      paletteModal.classList.add('active');
+      renderTopCategories();
+      renderPaletteList();
+      updateColorStrip();
+      const filtered = getFilteredPalettes();
+      if (filtered.length > 0) startGifAnimation(filtered[0].colors);
+    });
+
+    paletteClose.addEventListener('click', () => {
+      paletteModal.classList.remove('active');
+      if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
     });
 
     // COPY GIF
     gifCopyBtn.addEventListener('click', () => {
-      gifCanvas.toBlob(blob => {
+      gifCopyBtn.textContent = 'GENERATING...';
+      const filtered = getFilteredPalettes();
+      const p = filtered[currentPaletteIndex % filtered.length];
+      if (!p) { gifCopyBtn.textContent = 'COPY GIF'; return; }
+      
+      // Создаём временный canvas 1000x1000 для GIF
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = 1000; tempCanvas.height = 1000;
+      const ctx = tempCanvas.getContext('2d');
+      const cx = 500, cy = 500, maxR = 480;
+      const numRings = p.colors.length;
+      
+      // Рисуем один кадр (статичный круг)
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, 1000, 1000);
+      for (let i = numRings - 1; i >= 0; i--) {
+        const t = i / numRings;
+        const r = maxR * Math.pow(t, 1.1);
+        ctx.fillStyle = p.colors[i % numRings];
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      tempCanvas.toBlob(blob => {
         if (blob) {
           navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
             gifCopyBtn.textContent = 'COPIED!';
             gifCopyBtn.classList.add('copied');
             setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; gifCopyBtn.classList.remove('copied'); }, 1500);
           }).catch(() => {
+            // Fallback
             const link = document.createElement('a');
-            link.download = 'stroboscope-gif-frame.png';
-            link.href = gifCanvas.toDataURL();
+            link.download = 'stroboscope-palette.png';
+            link.href = tempCanvas.toDataURL();
             link.click();
             gifCopyBtn.textContent = 'DOWNLOADED!';
             setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; }, 1500);
           });
         }
       }, 'image/png');
-    });
-
-    // Открытие/закрытие PALETTE
-    paletteBtn.addEventListener('click', () => {
-      paletteModal.classList.add('active');
-      renderTopCategories();
-      renderColorStrip();
-      renderPaletteLeft();
-      const filtered = getFilteredPalettes();
-      if (filtered.length > 0) {
-        updateBigCircle(filtered[0].colors);
-        startGifAnimation(filtered[0].colors);
-      }
-    });
-
-    paletteClose.addEventListener('click', () => {
-      paletteModal.classList.remove('active');
-      if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
     });
 
     // Инициализация
