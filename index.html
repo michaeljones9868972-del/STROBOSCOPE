@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { background: #000; color: white; font-family: 'Martian Mono', monospace; overflow-x: hidden; height: 100vh; }
@@ -18,62 +19,29 @@
     .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px), repeating-linear-gradient(90deg, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 20px); pointer-events: none; }
     @keyframes aura-pulse { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 0.7; transform: scale(1.2); } }
 
-    /* ВЕРХНЯЯ СТРОКА */
     .top-bar {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      right: 20px;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+      position: fixed; top: 20px; left: 20px; right: 20px; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
     }
-
     .search-container {
-      background: rgba(0,0,0,0.8);
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(160,216,241,0.3);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
+      background: rgba(0,0,0,0.8); padding: 12px; border-radius: 8px;
+      border: 1px solid rgba(160,216,241,0.3); display: flex; align-items: center; gap: 8px; flex-shrink: 0;
     }
     .search-container input {
-      background: rgba(0,0,0,0.6);
-      border: 1px solid rgba(160,216,241,0.5);
-      color: #a0d8f1;
-      padding: 10px 15px;
-      font-family: 'Martian Mono', monospace;
-      font-size: 14px;
-      border-radius: 4px;
-      width: 280px;
-      max-width: 45ch;
-      outline: none;
-      transition: all 0.3s;
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace;
+      font-size: 14px; border-radius: 4px; width: 280px; outline: none; transition: all 0.3s;
     }
     .search-container input:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160,216,241,0.3); }
     .search-container input::placeholder { color: rgba(160,216,241,0.5); }
-    .search-clear { background: none; border: none; color: #a0d8f1; font-size: 18px; cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: all 0.3s; display: none; line-height: 1; }
-    .search-clear:hover { color: #fff; background: rgba(160,216,241,0.2); }
-    .search-clear.visible { display: block; }
 
     .palette-title {
-      display: flex;
-      align-items: center;
-      gap: 60px;
-      font-family: 'Martian Mono', monospace;
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      flex-shrink: 0;
+      display: flex; align-items: center; gap: 60px;
+      font-family: 'Martian Mono', monospace; font-size: 26px; font-weight: 700; letter-spacing: 3px; flex-shrink: 0;
     }
-    .palette-text { display: flex; gap: 2px; }
+    .palette-text { display: flex; gap: 2px; cursor: pointer; }
     .palette-text span {
-      display: inline-block;
-      animation: paletteShimmer 3s ease-in-out infinite;
+      display: inline-block; animation: paletteShimmer 3s ease-in-out infinite;
       text-shadow: 0 0 10px currentColor;
     }
     .palette-text span:nth-child(1) { color: #FF1744; animation-delay: 0s; }
@@ -83,42 +51,20 @@
     .palette-text span:nth-child(5) { color: #00B0FF; animation-delay: 0.4s; }
     .palette-text span:nth-child(6) { color: #2979FF; animation-delay: 0.5s; }
     .palette-text span:nth-child(7) { color: #D500F9; animation-delay: 0.6s; }
-    @keyframes paletteShimmer {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.9); }
-    }
+    @keyframes paletteShimmer { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.3; transform: scale(0.9); } }
 
     .create-stroboscope {
-      font-family: 'Dancing Script', cursive;
-      font-size: 24px;
-      color: #fff;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.3s;
-      perspective: 400px;
+      font-family: 'Dancing Script', cursive; font-size: 24px; color: #fff;
+      cursor: pointer; position: relative; transition: all 0.3s; perspective: 400px;
     }
     .create-stroboscope:hover { text-shadow: 0 0 20px rgba(255,255,255,0.8); }
     .create-stroboscope .soon-text {
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: 'Martian Mono', monospace;
-      font-size: 16px;
-      font-weight: 700;
-      white-space: nowrap;
-      margin-top: 8px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      animation: soonRotate 4s linear infinite;
-      animation-play-state: paused;
+      position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+      font-family: 'Martian Mono', monospace; font-size: 16px; font-weight: 700;
+      white-space: nowrap; margin-top: 8px; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s; animation: soonRotate 4s linear infinite; animation-play-state: paused;
     }
-    .create-stroboscope:hover .soon-text,
-    .create-stroboscope:active .soon-text {
-      opacity: 1;
-      animation-play-state: running;
-    }
+    .create-stroboscope:hover .soon-text { opacity: 1; animation-play-state: running; }
     @keyframes soonRotate {
       0%   { transform: translateX(-50%) rotateY(0deg); color: #FF1744; }
       14%  { transform: translateX(-50%) rotateY(180deg); color: #FF9100; }
@@ -130,107 +76,47 @@
       100% { transform: translateX(-50%) rotateY(1260deg); color: #FF1744; }
     }
 
-    .right-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
+    .right-controls { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
     .rainbow-row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(0,0,0,0.6);
-      padding: 6px 10px;
-      border-radius: 30px;
-      border: 1px solid rgba(160,216,241,0.2);
-      backdrop-filter: blur(8px);
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.6); padding: 6px 10px; border-radius: 30px;
+      border: 1px solid rgba(160,216,241,0.2); backdrop-filter: blur(8px);
     }
     .rainbow-dot { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; animation: rainbowPulse 2.5s ease-in-out infinite; cursor: pointer; transition: transform 0.3s; }
     .rainbow-dot:hover { transform: scale(1.2); }
     .rainbow-dot:nth-child(1){background:#FF1744;animation-delay:0s}.rainbow-dot:nth-child(2){background:#FF9100;animation-delay:.15s}.rainbow-dot:nth-child(3){background:#FFEA00;animation-delay:.3s}.rainbow-dot:nth-child(4){background:#00E676;animation-delay:.45s}.rainbow-dot:nth-child(5){background:#00B0FF;animation-delay:.6s}.rainbow-dot:nth-child(6){background:#2979FF;animation-delay:.75s}.rainbow-dot:nth-child(7){background:#D500F9;animation-delay:.9s}
     @keyframes rainbowPulse { 0%,100%{box-shadow:0 0 8px rgba(255,255,255,.6),0 0 16px rgba(255,255,255,.3);transform:scale(1)}50%{box-shadow:0 0 16px rgba(255,255,255,1),0 0 28px rgba(255,255,255,.7),0 0 40px rgba(255,255,255,.4);transform:scale(1.1)} }
 
-    .home-icon {
-      position: relative;
-      width: 36px;
-      height: 36px;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+    .home-icon { position: relative; width: 36px; height: 36px; cursor: pointer; transition: all 0.3s; }
     .home-icon svg { width: 100%; height: 100%; fill: #a0d8f1; transition: all 0.3s; }
     .home-icon:hover svg { fill: #fff; transform: scale(1.1); }
-
-    /* Большой баннер дома при наведении — как color-banner */
     .house-banner {
-      position: fixed;
-      top: 80px;
-      left: 0;
-      right: 0;
-      bottom: 60px;
-      z-index: 50;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-      padding: 20px;
+      position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50;
+      background: #000; display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px;
     }
     .house-banner.active { opacity: 1; pointer-events: auto; }
-    .house-banner-img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 8px;
-      box-shadow: 0 0 60px rgba(255,255,255,0.15);
-    }
+    .house-banner-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; box-shadow: 0 0 60px rgba(255,255,255,0.15); }
 
     .lang-selector { position: relative; }
     .lang-btn {
-      background: none;
-      border: 1px solid rgba(160,216,241,0.5);
-      color: #a0d8f1;
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
+      background: none; border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1;
+      padding: 4px 8px; border-radius: 6px; cursor: pointer; transition: all 0.3s;
+      display: flex; align-items: center; justify-content: center; line-height: 0;
     }
     .lang-btn:hover { background: rgba(160,216,241,0.2); border-color: #a0d8f1; }
     .lang-btn svg { width: 28px; height: 20px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
     .lang-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      background: rgba(0,0,0,0.95);
-      border: 1px solid rgba(160,216,241,0.5);
-      border-radius: 8px;
-      padding: 10px;
-      display: none;
-      grid-template-columns: repeat(4,1fr);
-      gap: 8px;
-      min-width: 220px;
-      backdrop-filter: blur(10px);
-      z-index: 101;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5);
+      border-radius: 8px; padding: 10px; display: none;
+      grid-template-columns: repeat(4,1fr); gap: 8px; min-width: 220px;
+      backdrop-filter: blur(10px); z-index: 101;
     }
     .lang-dropdown.active { display: grid; }
     .lang-flag {
-      background: none;
-      border: 1px solid transparent;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 6px;
-      transition: all 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 0;
+      background: none; border: 1px solid transparent; cursor: pointer; padding: 4px;
+      border-radius: 6px; transition: all 0.3s; display: flex; align-items: center; justify-content: center; line-height: 0;
     }
     .lang-flag svg { width: 40px; height: 28px; display: block; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.15); }
     .lang-flag:hover { background: rgba(160,216,241,0.2); border-color: rgba(160,216,241,0.5); transform: scale(1.1); }
@@ -243,7 +129,14 @@
     .support-container { position: relative; }
     .support-link { color: #a0d8f1; text-decoration: none; font-size: 13px; font-family: 'Martian Mono', monospace; transition: all 0.3s; white-space: nowrap; background: none; border: none; cursor: pointer; padding: 0; }
     .support-link:hover { color: #fff; text-shadow: 0 0 10px rgba(160,216,241,0.5); }
-    .support-tooltip { position: absolute; top: calc(100% + 8px); right: 0; background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5); color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px); z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4; }
+    .support-tooltip {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: rgba(0,0,0,0.95); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 10px 14px; border-radius: 6px; font-size: 12px;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s; transform: translateY(-5px);
+      z-index: 200; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); line-height: 1.4;
+    }
     .support-tooltip.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
     .color-banner { position: fixed; top: 80px; left: 0; right: 0; bottom: 60px; z-index: 50; background: #000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; padding: 20px; }
@@ -259,15 +152,11 @@
     .stroboscope-item:hover { transform: translateY(-8px) scale(1.02); }
 
     .mcap-badge, .cap-badge {
-      position: absolute; z-index: 10;
-      padding: 8px 18px; border-radius: 24px;
-      background: rgba(0,0,0,0.7);
-      border: 2px solid rgba(160,216,241,0.5);
+      position: absolute; z-index: 10; padding: 8px 18px; border-radius: 24px;
+      background: rgba(0,0,0,0.7); border: 2px solid rgba(160,216,241,0.5);
       box-shadow: 0 0 20px rgba(160,216,241,0.3), 0 0 40px rgba(160,216,241,0.15);
-      font-family: 'Martian Mono', monospace;
-      font-size: 15px; font-weight: 700; letter-spacing: 1px;
-      backdrop-filter: blur(8px); transition: all 0.3s; pointer-events: none;
-      color: #a0d8f1;
+      font-family: 'Martian Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 1px;
+      backdrop-filter: blur(8px); transition: all 0.3s; pointer-events: none; color: #a0d8f1;
     }
     .mcap-badge { top: -14px; left: -14px; }
     .cap-badge { top: -14px; right: -14px; }
@@ -281,8 +170,7 @@
     .stroboscope-item:hover .stroboscope-circle { box-shadow: 0 0 60px rgba(160,216,241,0.6), 0 0 120px rgba(160,216,241,0.3); }
     .stroboscope-circle img {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-      object-fit: cover; border-radius: 50%;
-      pointer-events: none; user-select: none; display: block;
+      object-fit: cover; border-radius: 50%; pointer-events: none; user-select: none; display: block;
     }
 
     .heart-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 90px; height: 90px; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; cursor: pointer; }
@@ -313,6 +201,99 @@
       position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
     }
 
+    /* ===== ЭКРАН PALETTE ===== */
+    .palette-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; z-index: 2000; display: none;
+      flex-direction: column; padding: 20px;
+    }
+    .palette-modal.active { display: flex; }
+    .palette-modal-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid rgba(160,216,241,0.3); margin-bottom: 20px;
+    }
+    .palette-modal-title { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: 2px; }
+    .palette-close {
+      background: none; border: 2px solid rgba(160,216,241,0.5); color: #a0d8f1;
+      width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+      font-size: 20px; transition: all 0.3s; display: flex; align-items: center; justify-content: center;
+    }
+    .palette-close:hover { background: rgba(160,216,241,0.2); color: #fff; }
+
+    .palette-searches { display: flex; gap: 15px; margin-bottom: 20px; }
+    .palette-search {
+      flex: 1; background: rgba(0,0,0,0.8); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 10px 15px; font-family: 'Martian Mono', monospace;
+      font-size: 14px; border-radius: 6px; outline: none;
+    }
+    .palette-search:focus { border-color: #a0d8f1; box-shadow: 0 0 10px rgba(160,216,241,0.3); }
+    .palette-search::placeholder { color: rgba(160,216,241,0.5); }
+
+    .palette-categories { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .palette-cat-btn {
+      background: rgba(0,0,0,0.6); border: 1px solid rgba(160,216,241,0.3);
+      color: #a0d8f1; padding: 8px 16px; border-radius: 20px; cursor: pointer;
+      font-family: 'Martian Mono', monospace; font-size: 13px; transition: all 0.3s;
+    }
+    .palette-cat-btn:hover { background: rgba(160,216,241,0.2); border-color: #a0d8f1; }
+    .palette-cat-btn.active { background: rgba(160,216,241,0.4); border-color: #a0d8f1; color: #fff; }
+
+    .palette-content {
+      display: grid; grid-template-columns: 1fr 300px; gap: 30px;
+      flex: 1; overflow: hidden;
+    }
+    .palette-list-container {
+      overflow-y: auto; scroll-snap-type: y mandatory;
+      scroll-behavior: smooth; padding-right: 10px;
+    }
+    .palette-list-container::-webkit-scrollbar { width: 8px; }
+    .palette-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+    .palette-list-container::-webkit-scrollbar-thumb { background: rgba(160,216,241,0.5); border-radius: 4px; }
+
+    .palette-row {
+      scroll-snap-align: start;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+      margin-bottom: 20px; padding: 15px;
+      background: rgba(0,0,0,0.5); border-radius: 12px;
+      border: 1px solid rgba(160,216,241,0.2);
+    }
+    .palette-card {
+      background: rgba(0,0,0,0.8); border-radius: 8px; padding: 12px;
+      border: 1px solid rgba(160,216,241,0.3); transition: all 0.3s; cursor: pointer;
+    }
+    .palette-card:hover { border-color: #a0d8f1; transform: translateY(-2px); }
+    .palette-card-name { font-size: 12px; color: #a0d8f1; margin-bottom: 8px; font-weight: 700; }
+    .palette-card-colors { display: flex; gap: 4px; margin-bottom: 8px; }
+    .palette-color-swatch {
+      flex: 1; height: 30px; border-radius: 4px; cursor: pointer;
+      transition: transform 0.2s; border: 1px solid rgba(255,255,255,0.2);
+    }
+    .palette-color-swatch:hover { transform: scale(1.1); }
+    .palette-copy-btn {
+      width: 100%; background: rgba(160,216,241,0.2); border: 1px solid rgba(160,216,241,0.5);
+      color: #a0d8f1; padding: 6px; border-radius: 4px; cursor: pointer;
+      font-family: 'Martian Mono', monospace; font-size: 11px; transition: all 0.3s;
+    }
+    .palette-copy-btn:hover { background: rgba(160,216,241,0.4); color: #fff; }
+
+    .palette-gif-panel {
+      background: rgba(0,0,0,0.8); border-radius: 12px; padding: 20px;
+      border: 1px solid rgba(160,216,241,0.3); display: flex; flex-direction: column; gap: 15px;
+    }
+    .palette-gif-title { font-size: 16px; color: #fff; font-weight: 700; text-align: center; }
+    .palette-gif-canvas {
+      width: 100%; aspect-ratio: 1/1; background: #000; border-radius: 8px;
+      border: 1px solid rgba(160,216,241,0.3);
+    }
+    .palette-gif-copy {
+      background: rgba(160,216,241,0.3); border: 2px solid #a0d8f1; color: #fff;
+      padding: 12px; border-radius: 8px; cursor: pointer;
+      font-family: 'Martian Mono', monospace; font-size: 14px; font-weight: 700;
+      transition: all 0.3s; text-align: center;
+    }
+    .palette-gif-copy:hover { background: rgba(160,216,241,0.5); }
+    .palette-gif-copy.copied { background: #4ade80; border-color: #4ade80; color: #000; }
+
     @media (max-width:1400px){.gallery-grid{gap:30px}.rainbow-dot{width:28px;height:28px}}
     @media (max-width:1100px){
       .gallery-grid{grid-template-columns:repeat(2,1fr);gap:25px}
@@ -321,6 +302,8 @@
       .color-banner,.house-banner{top:130px}
       .top-bar{flex-wrap:wrap;gap:10px}
       .palette-title{font-size:20px;gap:30px}
+      .palette-content{grid-template-columns: 1fr;}
+      .palette-gif-panel{display:none;}
     }
     @media (max-width:700px){
       .gallery-grid{grid-template-columns:1fr;gap:20px;max-width:400px}
@@ -347,11 +330,10 @@
   <div class="top-bar">
     <div class="search-container">
       <input type="text" id="searchInput" placeholder="SEARCH BY NAME, TICKER, OR CONTRACT" maxlength="45">
-      <button class="search-clear" id="searchClear" title="Clear search">✕</button>
     </div>
 
     <div class="palette-title">
-      <div class="palette-text">
+      <div class="palette-text" id="paletteBtn">
         <span>P</span><span>A</span><span>L</span><span>E</span><span>T</span><span>T</span><span>E</span>
       </div>
       <div class="create-stroboscope">
@@ -395,7 +377,6 @@
     </div>
   </div>
 
-  <!-- Большой баннер дома -->
   <div class="house-banner" id="houseBanner">
     <img src="house.png" alt="Home" class="house-banner-img" id="houseBannerImg">
   </div>
@@ -403,6 +384,27 @@
   <div class="color-banner" id="colorBanner"><img src="" alt="" class="color-banner-img" id="colorBannerImg"></div>
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
+
+  <!-- ЭКРАН PALETTE -->
+  <div class="palette-modal" id="paletteModal">
+    <div class="palette-modal-header">
+      <div class="palette-modal-title">PALETTE COLLECTION</div>
+      <button class="palette-close" id="paletteClose">✕</button>
+    </div>
+    <div class="palette-searches">
+      <input type="text" class="palette-search" id="paletteSearchCategory" placeholder="Search by category (Warm, Cool, Pastel...)">
+      <input type="text" class="palette-search" id="paletteSearchColor" placeholder="Search by color (#FF0000, red, blue...)">
+    </div>
+    <div class="palette-categories" id="paletteCategories"></div>
+    <div class="palette-content">
+      <div class="palette-list-container" id="paletteListContainer"></div>
+      <div class="palette-gif-panel">
+        <div class="palette-gif-title">ANIMATED PREVIEW</div>
+        <canvas class="palette-gif-canvas" id="gifCanvas" width="400" height="400"></canvas>
+        <button class="palette-gif-copy" id="gifCopyBtn">COPY GIF</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     function removeNetlifyBadge() {
@@ -414,7 +416,7 @@
     setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
-    // ===== ФЛАГИ И ПЕРЕВОДЫ =====
+    // ===== ФЛАГИ =====
     const flags = {
       en:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -438,86 +440,34 @@
     };
 
     let currentLang = 'en';
-    function detectLanguage(){ 
-      const s=localStorage.getItem('stroboscope_lang'); 
-      if(s&&translations[s])return s; 
-      const b=navigator.language||(navigator.languages&&navigator.languages[0])||'en'; 
-      const c=b.split('-')[0].toLowerCase(); 
-      if(translations[c])return c; 
-      return 'en'; 
-    }
-    function buildLangDropdown(){ 
-      const d=document.getElementById('langDropdown'); 
-      d.innerHTML=''; 
-      Object.keys(flags).forEach(code=>{ 
-        const btn=document.createElement('button'); 
-        btn.className='lang-flag'; 
-        btn.dataset.lang=code; 
-        btn.title=langNames[code]; 
-        btn.setAttribute('aria-label',langNames[code]); 
-        btn.innerHTML=flags[code]; 
-        btn.addEventListener('click',(e)=>{e.stopPropagation();applyLanguage(code);d.classList.remove('active');}); 
-        d.appendChild(btn); 
-      }); 
-    }
-    function applyLanguage(lang){ 
-      currentLang=lang; 
-      localStorage.setItem('stroboscope_lang',lang); 
-      document.documentElement.lang=lang; 
-      document.documentElement.dir=lang==='ar'?'rtl':'ltr'; 
-      document.getElementById('currentFlag').innerHTML=flags[lang]; 
-      const t=translations[lang]; 
-      if(!t)return; 
-      const si=document.getElementById('searchInput'); 
-      if(si)si.placeholder=t.search; 
-      const mq=document.getElementById('marqueeContent'); 
-      if(mq)mq.textContent=t.marquee; 
-      document.querySelectorAll('.lang-flag').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang)); 
-    }
+    function detectLanguage(){ const s=localStorage.getItem('stroboscope_lang'); if(s&&translations[s])return s; const b=navigator.language||(navigator.languages&&navigator.languages[0])||'en'; const c=b.split('-')[0].toLowerCase(); if(translations[c])return c; return 'en'; }
+    function buildLangDropdown(){ const d=document.getElementById('langDropdown'); d.innerHTML=''; Object.keys(flags).forEach(code=>{ const btn=document.createElement('button'); btn.className='lang-flag'; btn.dataset.lang=code; btn.title=langNames[code]; btn.setAttribute('aria-label',langNames[code]); btn.innerHTML=flags[code]; btn.addEventListener('click',(e)=>{e.stopPropagation();applyLanguage(code);d.classList.remove('active');}); d.appendChild(btn); }); }
+    function applyLanguage(lang){ currentLang=lang; localStorage.setItem('stroboscope_lang',lang); document.documentElement.lang=lang; document.documentElement.dir=lang==='ar'?'rtl':'ltr'; document.getElementById('currentFlag').innerHTML=flags[lang]; const t=translations[lang]; if(!t)return; const si=document.getElementById('searchInput'); if(si)si.placeholder=t.search; const mq=document.getElementById('marqueeContent'); if(mq)mq.textContent=t.marquee; document.querySelectorAll('.lang-flag').forEach(b=>b.classList.toggle('active',b.dataset.lang===lang)); }
     const langBtn=document.getElementById('langBtn'), langDropdown=document.getElementById('langDropdown');
     langBtn.addEventListener('click',(e)=>{e.stopPropagation();langDropdown.classList.toggle('active');});
     document.addEventListener('click',()=>langDropdown.classList.remove('active'));
 
-    // ===== JSONBin лайки с надёжной обработкой =====
+    // ===== JSONBin лайки =====
     const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
     const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
-
     let globalLikes = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
     let saveTimeout = null;
-    let likesInitialized = false;
 
     async function loadGlobalLikes() {
       try {
-        console.log('Loading likes from JSONBin...');
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
           headers: { 'X-Master-Key': JSONBIN_API_KEY }
         });
-        console.log('JSONBin response status:', res.status);
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        console.log('JSONBin data:', data);
         if (data && data.record) {
-          // Merge with existing to avoid losing data
-          Object.keys(data.record).forEach(id => {
-            globalLikes[id] = data.record[id] || 0;
-          });
-          likesInitialized = true;
-          console.log('Likes loaded:', globalLikes);
-          // Update UI
+          Object.keys(data.record).forEach(id => { globalLikes[id] = data.record[id] || 0; });
           Object.keys(globalLikes).forEach(id => {
             const el = document.getElementById(`hc-${id}`);
             if (el) el.textContent = globalLikes[id];
           });
         }
-      } catch(e) { 
-        console.warn('JSONBin load error:', e);
-        // Fallback to localStorage
-        const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
-        Object.keys(l).forEach(id => {
-          if (globalLikes[id] === 0 && l[id]) globalLikes[id] = l[id];
-        });
-        likesInitialized = true;
-      }
+      } catch(e) { console.warn('JSONBin load error:', e); }
     }
 
     function saveGlobalLikes() {
@@ -525,23 +475,12 @@
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(async () => {
         try {
-          console.log('Saving likes to JSONBin:', globalLikes);
-          const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+          await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
             method: 'PUT',
-            headers: { 
-              'X-Master-Key': JSONBIN_API_KEY, 
-              'Content-Type': 'application/json' 
-            },
+            headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(globalLikes)
           });
-          console.log('Save response:', res.status);
-          if (!res.ok) {
-            const errText = await res.text();
-            console.error('JSONBin save error:', errText);
-          }
-        } catch(e) { 
-          console.warn('JSONBin save error:', e); 
-        }
+        } catch(e) { console.warn('JSONBin save error:', e); }
       }, 500);
     }
 
@@ -552,21 +491,16 @@
       return globalLikes[id];
     }
 
-    // ===== Капитализация: CoinGecko + DexScreener fallback =====
+    // ===== Капитализация =====
     const marketCapCache = {};
     const cacheTimestamps = {};
-    const CACHE_DURATION = 5 * 60 * 1000; // 5 минут
+    const CACHE_DURATION = 5 * 60 * 1000;
 
     async function fetchMarketCap(contract) {
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
-      
-      // Check cache
-      if (marketCapCache[contract] && cacheTimestamps[contract] && 
-          (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) {
+      if (marketCapCache[contract] && cacheTimestamps[contract] && (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) {
         return marketCapCache[contract];
       }
-      
-      // Try CoinGecko first
       try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${contract}&vs_currencies=usd&include_market_cap=true`);
         if (res.ok) {
@@ -576,21 +510,15 @@
             const formatted = formatCap(tokenData.usd_market_cap);
             marketCapCache[contract] = formatted;
             cacheTimestamps[contract] = Date.now();
-            console.log(`CoinGecko MC for ${contract}:`, formatted);
             return formatted;
           }
         }
-      } catch(e) { 
-        console.warn('CoinGecko error:', e); 
-      }
-      
-      // Fallback to DexScreener
+      } catch(e) { console.warn('CoinGecko error:', e); }
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
         if (res.ok) {
           const data = await res.json();
           if (data && data.pairs && data.pairs.length) {
-            // Take the pair with highest liquidity
             const sorted = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
             const bestPair = sorted[0];
             const mc = bestPair.marketCap || bestPair.fdv || 0;
@@ -598,17 +526,13 @@
               const formatted = formatCap(mc);
               marketCapCache[contract] = formatted;
               cacheTimestamps[contract] = Date.now();
-              console.log(`DexScreener MC for ${contract}:`, formatted);
               return formatted;
             }
           }
         }
-      } catch(e) { 
-        console.warn('DexScreener error:', e); 
-      }
+      } catch(e) { console.warn('DexScreener error:', e); }
       return null;
     }
-    
     function formatCap(n){
       if (!n || isNaN(n)) return '$0';
       if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
@@ -616,24 +540,20 @@
       if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
       return '$' + Math.round(n);
     }
-    
     async function refreshAllCaps(){
       document.querySelectorAll('.cap-badge').forEach(badge => {
         const contract = badge.dataset.contract;
         if (!contract) return;
         if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) { badge.textContent = contract; return; }
-        fetchMarketCap(contract).then(val => {
-          if (val) badge.textContent = val;
-          else badge.textContent = '$—';
-        });
+        fetchMarketCap(contract).then(val => { if (val) badge.textContent = val; else badge.textContent = '$—'; });
       });
     }
 
-    // ===== ВСЕ 15 СТРОБОСКОПОВ =====
+    // ===== НОВЫЕ КОНТРАКТЫ =====
     const stroboscopes = [
-      { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"J1toso1uCk3RLmjorhTtrVwY9HJ7X8V9yYac6Y7kGCPn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
-      { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"11.12.2026", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
-      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"12.12.2026", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
+      { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
+      { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
+      { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
       { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
       { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
       { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
@@ -660,26 +580,15 @@
 
     function createStroboscopeItem(item, showImmediately=false){
       const div=document.createElement('div'); div.className='stroboscope-item'; if(showImmediately)div.classList.add('visible');
-
       const mcap=document.createElement('div'); mcap.className='mcap-badge'; mcap.textContent='MCAP'; div.appendChild(mcap);
       const cap=document.createElement('div'); cap.className='cap-badge'; cap.dataset.contract=item.contract; cap.textContent='$—'; div.appendChild(cap);
-
       const circleDiv=document.createElement('div'); circleDiv.className='stroboscope-circle';
-      const fb=document.createElement('img');
-      fb.src=generateCircleSVG(item.colors);
-      fb.alt=item.name;
-      circleDiv.appendChild(fb);
-      const real=new Image();
-      real.onload=function(){ fb.remove(); circleDiv.appendChild(real); };
-      real.onerror=function(){ real.remove(); };
-      real.src=item.image;
-
-      const heartColor = item.colors[0];
-      const textColor = getContrastColor(heartColor, item.colors);
+      const fb=document.createElement('img'); fb.src=generateCircleSVG(item.colors); fb.alt=item.name; circleDiv.appendChild(fb);
+      const real=new Image(); real.onload=function(){ fb.remove(); circleDiv.appendChild(real); }; real.onerror=function(){ real.remove(); }; real.src=item.image;
+      const heartColor = item.colors[0]; const textColor = getContrastColor(heartColor, item.colors);
       const heart=document.createElement('div'); heart.className='heart-overlay';
       heart.innerHTML=`<svg class="heart-svg" viewBox="0 0 24 24" style="color:${heartColor}"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="${heartColor}" stroke="${heartColor}" stroke-width="1"/></svg><div class="heart-count" id="hc-${item.id}" style="color:${textColor}">${getLikes(item.id)}</div>`;
       circleDiv.appendChild(heart);
-
       heart.addEventListener('click', (e) => {
         e.stopPropagation();
         const n = incrementLikes(item.id);
@@ -689,7 +598,6 @@
         hs.classList.add('clicked');
         setTimeout(() => hs.classList.remove('clicked'), 300);
       });
-
       const frame=document.createElement('div'); frame.className='stroboscope-frame';
       const top=document.createElement('div'); top.className='frame-top';
       const icon=document.createElement('div'); icon.className='frame-icon'; const ii=document.createElement('img'); ii.src=generateCircleSVG(item.colors); ii.alt=item.name; icon.appendChild(ii);
@@ -700,13 +608,8 @@
       ct.addEventListener('click',async(e)=>{ e.stopPropagation(); try{await navigator.clipboard.writeText(item.contract);}catch(err){const t=document.createElement("textarea");t.value=item.contract;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);} ct.classList.add('copied'); setTimeout(()=>ct.classList.remove('copied'),2000); });
       frame.appendChild(top); frame.appendChild(ct);
       div.appendChild(circleDiv); div.appendChild(frame);
-
-      function goToAnimation(e){
-        e.stopPropagation();
-        window.location.href=`page${item.id}.html`;
-      }
+      function goToAnimation(e){ e.stopPropagation(); window.location.href=`page${item.id}.html`; }
       circleDiv.addEventListener('click', goToAnimation);
-
       return div;
     }
 
@@ -723,42 +626,331 @@
     const galleryWrapper=document.getElementById('galleryWrapper');
     galleryWrapper.addEventListener('scroll',()=>{ if(isResetting)return; const st=galleryWrapper.scrollTop,ph=window.innerHeight,th=galleryWrapper.scrollHeight,vh=window.innerHeight; if(st+vh>=th-10){isResetting=true;galleryWrapper.style.scrollBehavior='auto';galleryWrapper.scrollTop=ph;setTimeout(()=>{galleryWrapper.style.scrollBehavior='smooth';isResetting=false;},50);} else if(st<=10){isResetting=true;galleryWrapper.style.scrollBehavior='auto';galleryWrapper.scrollTop=th-vh-ph;setTimeout(()=>{galleryWrapper.style.scrollBehavior='smooth';isResetting=false;},50);} });
 
-    const searchInput=document.getElementById('searchInput'), searchClear=document.getElementById('searchClear');
-    searchInput.addEventListener('input',(e)=>{ const q=e.target.value.toLowerCase().trim(); if(q.length>0)searchClear.classList.add('visible'); else searchClear.classList.remove('visible'); if(q==='')filteredStroboscopes=[...stroboscopes]; else filteredStroboscopes=stroboscopes.filter(s=>s.name.toLowerCase().includes(q)||s.ticker.toLowerCase().includes(q)||s.kaomoji.includes(q)||s.contract.toLowerCase().includes(q)); renderStroboscopes(filteredStroboscopes); });
-    searchClear.addEventListener('click',()=>{ searchInput.value=''; searchClear.classList.remove('visible'); filteredStroboscopes=[...stroboscopes]; renderStroboscopes(filteredStroboscopes); searchInput.focus(); });
+    const searchInput=document.getElementById('searchInput');
+    searchInput.addEventListener('input',(e)=>{ const q=e.target.value.toLowerCase().trim(); if(q==='')filteredStroboscopes=[...stroboscopes]; else filteredStroboscopes=stroboscopes.filter(s=>s.name.toLowerCase().includes(q)||s.ticker.toLowerCase().includes(q)||s.kaomoji.includes(q)||s.contract.toLowerCase().includes(q)); renderStroboscopes(filteredStroboscopes); });
 
-    // Домик - возврат на главную + показ большой картинки
-    const homeIcon = document.getElementById('homeIcon');
-    const houseBanner = document.getElementById('houseBanner');
-    let houseTimeout;
-    homeIcon.addEventListener('click', () => {
-      galleryWrapper.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    homeIcon.addEventListener('mouseenter', () => {
-      clearTimeout(houseTimeout);
-      houseBanner.classList.add('active');
-    });
-    homeIcon.addEventListener('mouseleave', () => {
-      houseTimeout = setTimeout(() => houseBanner.classList.remove('active'), 100);
-    });
+    document.getElementById('homeIcon').addEventListener('click', () => { galleryWrapper.scrollTo({ top: 0, behavior: 'smooth' }); });
+    const homeIcon = document.getElementById('homeIcon'); const houseBanner = document.getElementById('houseBanner'); let houseTimeout;
+    homeIcon.addEventListener('mouseenter', () => { clearTimeout(houseTimeout); houseBanner.classList.add('active'); });
+    homeIcon.addEventListener('mouseleave', () => { houseTimeout = setTimeout(() => houseBanner.classList.remove('active'), 100); });
     houseBanner.addEventListener('mouseenter', () => clearTimeout(houseTimeout));
     houseBanner.addEventListener('mouseleave', () => houseBanner.classList.remove('active'));
 
-    // Радужные точки
     const colorBanner=document.getElementById('colorBanner'), colorBannerImg=document.getElementById('colorBannerImg'); let bannerTimeout;
     document.querySelectorAll('.rainbow-dot[data-banner]').forEach(dot=>{ dot.addEventListener('mouseenter',()=>{clearTimeout(bannerTimeout);colorBannerImg.src=dot.dataset.banner;colorBannerImg.alt=dot.title||dot.dataset.banner;colorBanner.classList.add('active');}); dot.addEventListener('mouseleave',()=>{bannerTimeout=setTimeout(()=>colorBanner.classList.remove('active'),100);}); });
     colorBanner.addEventListener('mouseenter',()=>clearTimeout(bannerTimeout)); colorBanner.addEventListener('mouseleave',()=>colorBanner.classList.remove('active'));
 
-    // Поддержка
     const supportBtn=document.getElementById('supportBtn'), supportTooltip=document.getElementById('supportTooltip'), supportEmail='stroboscope@atomicmail.io';
     supportBtn.addEventListener('click',async(e)=>{e.stopPropagation();try{await navigator.clipboard.writeText(supportEmail);}catch(err){const t=document.createElement("textarea");t.value=supportEmail;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);}supportTooltip.classList.add('active');setTimeout(()=>supportTooltip.classList.remove('active'),2500);});
+
+    // ===== ЭКРАН PALETTE =====
+    const paletteModal = document.getElementById('paletteModal');
+    const paletteBtn = document.getElementById('paletteBtn');
+    const paletteClose = document.getElementById('paletteClose');
+    const paletteListContainer = document.getElementById('paletteListContainer');
+    const paletteCategories = document.getElementById('paletteCategories');
+    const paletteSearchCategory = document.getElementById('paletteSearchCategory');
+    const paletteSearchColor = document.getElementById('paletteSearchColor');
+    const gifCanvas = document.getElementById('gifCanvas');
+    const gifCopyBtn = document.getElementById('gifCopyBtn');
+
+    // Генерация 320 палитр
+    const categories = ['Warm', 'Cool', 'Pastel', 'Contrast', 'Neon', 'Earth', 'Ocean', 'Sunset', 'Forest', 'Night', 'Candy', 'Metal', 'Vintage', 'Cyber', 'Tropical', 'Arctic'];
+    const paletteNames = {
+      'Warm': ['Sunset Blaze', 'Autumn Fire', 'Desert Heat', 'Spice Market', 'Clay Pot', 'Ember Glow', 'Copper Sun', 'Rustic Charm', 'Amber Wave', 'Coral Reef', 'Terracotta Dream', 'Saffron Light', 'Cinnamon Roll', 'Pumpkin Patch', 'Maple Syrup', 'Honeycomb', 'Ginger Snap', 'Cayenne Pepper', 'Paprika Dust', 'Saffron Thread', 'Turmeric Root', 'Cumin Seed', 'Clove Bud', 'Nutmeg Shell', 'Cardamom Pod', 'Star Anise', 'Vanilla Bean', 'Caramel Drizzle', 'Toffee Crunch', 'Butterscotch', 'Goldenrod', 'Marigold', 'Daffodil', 'Sunflower', 'Dandelion', 'Buttercup', 'Primrose', 'Crocus', 'Tulip Fire', 'Poppy Red'],
+      'Cool': ['Ocean Deep', 'Arctic Frost', 'Glacier Blue', 'Ice Crystal', 'Sapphire Dream', 'Cobalt Night', 'Azure Sky', 'Cerulean Wave', 'Teal Mist', 'Aqua Marine', 'Turquoise Bay', 'Cyan Light', 'Indigo Dusk', 'Navy Seal', 'Midnight Blue', 'Storm Cloud', 'Rain Drop', 'River Stone', 'Lake Mirror', 'Puddle Splash', 'Frost Bite', 'Snow Flake', 'Iceberg Tip', 'Polar Bear', 'Arctic Fox', 'Blue Whale', 'Dolphin Leap', 'Sea Foam', 'Coral Blue', 'Lagoon Green', 'Mint Ice', 'Peppermint', 'Eucalyptus', 'Sage Brush', 'Sea Glass', 'Aqua Tint', 'Sky Blue', 'Powder Blue', 'Baby Blue', 'Cornflower'],
+      'Pastel': ['Cotton Candy', 'Bubble Gum', 'Baby Pink', 'Lavender Mist', 'Lilac Dream', 'Mauve Haze', 'Rose Quartz', 'Blush Peach', 'Cream Puff', 'Vanilla Sky', 'Lemon Sherbet', 'Mint Cream', 'Pistachio Ice', 'Seafoam Green', 'Powder Pink', 'Dusty Rose', 'Muted Mauve', 'Soft Lilac', 'Pale Lavender', 'Light Lilac', 'Faded Rose', 'Whisper Pink', 'Blush Cloud', 'Peach Fuzz', 'Apricot Soft', 'Melon Ball', 'Cantaloupe', 'Honeydew', 'Limeade', 'Key Lime', 'Lemon Drop', 'Butter Cream', 'Vanilla Bean', 'Coconut Milk', 'Almond Milk', 'Oat Milk', 'Rice Milk', 'Soy Milk', 'Cashew Cream', 'Hazelnut'],
+      'Contrast': ['Black White', 'Yin Yang', 'Chess Board', 'Zebra Stripe', 'Panda Bear', 'Orca Whale', 'Tuxedo Cat', 'Penguin Walk', 'Magpie Bird', 'Badger Stripe', 'Skunk Spray', 'Dalmatian Spot', 'Cow Print', 'Zebra Cross', '黑白分明', 'Noir Blanc', 'Schwarz Weiss', 'Negro Blanco', 'Preto Branco', 'Bianco Nero', 'Branco Preto', 'Siyah Beyaz', 'Kuro Shiro', 'Hei Bai', 'Den Hvit', 'Musta Valkoinen', 'Czarny Bialy', 'Cerno Bilo', 'Fekete Fehér', 'Negru Alb', 'Crno Belo', 'Črno Belo', 'Meln Balts', 'Juodas Baltas', 'Must Valge', 'Svart Hvít', 'Dubh Bán', 'Du Gwyn', 'Dubh Geal', 'Gorm Geal'],
+      'Neon': ['Electric Pink', 'Neon Green', 'Cyber Blue', 'Laser Red', 'Plasma Purple', 'Glow Orange', 'Fluoro Yellow', 'UV Violet', 'Radical Red', 'Toxic Green', 'Acid Yellow', 'Hot Pink', 'Bright Cyan', 'Vivid Magenta', 'Intense Orange', 'Blazing Red', 'Shocking Pink', 'Flashing Yellow', 'Glowing Green', 'Burning Orange', 'Sizzling Red', 'Sparkling Blue', 'Shimmering Purple', 'Twinkling Pink', 'Gleaming Yellow', 'Radiant Green', 'Luminous Blue', 'Brilliant White', 'Dazzling Silver', 'Glowing Gold', 'Neon Lime', 'Electric Lime', 'Cyber Lime', 'Laser Lime', 'Plasma Lime', 'Glow Lime', 'Fluoro Lime', 'UV Lime', 'Radical Lime', 'Toxic Lime'],
+      'Earth': ['Desert Sand', 'Clay Red', 'Mud Brown', 'Rock Grey', 'Stone Grey', 'Pebble Grey', 'Gravel Grey', 'Dirt Brown', 'Soil Brown', 'Loam Brown', 'Sand Dune', 'Beach Sand', 'Shell White', 'Coral Pink', 'Sea Green', 'Moss Green', 'Fern Green', 'Leaf Green', 'Bark Brown', 'Wood Brown', 'Timber Brown', 'Log Brown', 'Branch Brown', 'Twig Brown', 'Root Brown', 'Seed Brown', 'Nut Brown', 'Acorn Brown', 'Chestnut Brown', 'Walnut Brown', 'Pecan Brown', 'Almond Brown', 'Hazelnut Brown', 'Peanut Brown', 'Cashew Brown', 'Pistachio Green', 'Macadamia Brown', 'Brazil Nut Brown', 'Pine Nut Brown', 'Sunflower Seed'],
+      'Ocean': ['Deep Blue', 'Sea Blue', 'Ocean Blue', 'Wave Blue', 'Tide Blue', 'Current Blue', 'Flow Blue', 'Drift Blue', 'Surf Blue', 'Foam White', 'Spray White', 'Mist Blue', 'Fog Blue', 'Haze Blue', 'Cloud Blue', 'Sky Blue', 'Horizon Blue', 'Dawn Blue', 'Dusk Blue', 'Twilight Blue', 'Midnight Blue', 'Starlight Blue', 'Moonlight Blue', 'Sunlight Blue', 'Daylight Blue', 'Twilight Purple', 'Dawn Pink', 'Dusk Purple', 'Horizon Orange', 'Sky Pink', 'Cloud Pink', 'Mist Pink', 'Fog Pink', 'Haze Pink', 'Spray Pink', 'Foam Pink', 'Surf Pink', 'Drift Pink', 'Flow Pink', 'Current Pink'],
+      'Sunset': ['Sunset Red', 'Sunset Orange', 'Sunset Yellow', 'Sunset Pink', 'Sunset Purple', 'Sunset Blue', 'Sunset Gold', 'Sunset Bronze', 'Sunset Copper', 'Sunset Rust', 'Sunset Clay', 'Sunset Sand', 'Sunset Beige', 'Sunset Cream', 'Sunset Peach', 'Sunset Apricot', 'Sunset Melon', 'Sunset Coral', 'Sunset Salmon', 'Sunset Tomato', 'Sunset Cherry', 'Sunset Berry', 'Sunset Plum', 'Sunset Grape', 'Sunset Raisin', 'Sunset Fig', 'Sunset Date', 'Sunset Prune', 'Sunset Raisin', 'Sunset Currant', 'Sunset Cranberry', 'Sunset Raspberry', 'Sunset Strawberry', 'Sunset Cherry', 'Sunset Apple', 'Sunset Pear', 'Sunset Peach', 'Sunset Plum', 'Sunset Grape', 'Sunset Fig'],
+      'Forest': ['Pine Green', 'Spruce Green', 'Fir Green', 'Cedar Green', 'Redwood Brown', 'Oak Brown', 'Maple Brown', 'Birch White', 'Aspen White', 'Willow Green', 'Bamboo Green', 'Palm Green', 'Fern Green', 'Moss Green', 'Lichen Green', 'Algae Green', 'Seaweed Green', 'Kelp Green', 'Coral Green', 'Reef Green', 'Jungle Green', 'Rainforest Green', 'Canopy Green', 'Understory Green', 'Forest Floor Brown', 'Leaf Litter Brown', 'Humus Brown', 'Compost Brown', 'Mulch Brown', 'Bark Brown', 'Wood Brown', 'Timber Brown', 'Log Brown', 'Branch Brown', 'Twig Brown', 'Root Brown', 'Seed Brown', 'Nut Brown', 'Acorn Brown', 'Chestnut Brown'],
+      'Night': ['Midnight Black', 'Starlight White', 'Moonlight Silver', 'Twilight Purple', 'Dusk Blue', 'Dawn Pink', 'Night Sky Blue', 'Galaxy Purple', 'Nebula Pink', 'Cosmic Blue', 'Stellar White', 'Lunar Silver', 'Solar Gold', 'Planetary Brown', 'Asteroid Grey', 'Comet White', 'Meteor Grey', 'Orbit Blue', 'Gravity Black', 'Vacuum Black', 'Space Black', 'Void Black', 'Dark Matter Black', 'Black Hole Black', 'Event Horizon Black', 'Singularity Black', 'Quasar Blue', 'Pulsar White', 'Neutron Star White', 'Supernova Orange', 'Hypernova Red', 'Gamma Ray Purple', 'X-Ray Blue', 'UV Purple', 'Infrared Red', 'Microwave Blue', 'Radio Wave Blue', 'Light Speed White', 'Time Dilation Purple', 'Space Time Black'],
+      'Candy': ['Candy Pink', 'Candy Red', 'Candy Orange', 'Candy Yellow', 'Candy Green', 'Candy Blue', 'Candy Purple', 'Candy White', 'Candy Black', 'Candy Brown', 'Lollipop Pink', 'Lollipop Red', 'Lollipop Orange', 'Lollipop Yellow', 'Lollipop Green', 'Lollipop Blue', 'Lollipop Purple', 'Lollipop White', 'Lollipop Black', 'Lollipop Brown', 'Gummy Bear Pink', 'Gummy Bear Red', 'Gummy Bear Orange', 'Gummy Bear Yellow', 'Gummy Bear Green', 'Gummy Bear Blue', 'Gummy Bear Purple', 'Gummy Bear White', 'Gummy Bear Black', 'Gummy Bear Brown', 'Jelly Bean Pink', 'Jelly Bean Red', 'Jelly Bean Orange', 'Jelly Bean Yellow', 'Jelly Bean Green', 'Jelly Bean Blue', 'Jelly Bean Purple', 'Jelly Bean White', 'Jelly Bean Black', 'Jelly Bean Brown'],
+      'Metal': ['Gold', 'Silver', 'Bronze', 'Copper', 'Iron', 'Steel', 'Titanium', 'Platinum', 'Palladium', 'Rhodium', 'Ruthenium', 'Iridium', 'Osmium', 'Rhenium', 'Tungsten', 'Molybdenum', 'Chromium', 'Vanadium', 'Niobium', 'Tantalum', 'Hafnium', 'Zirconium', 'Yttrium', 'Scandium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium', 'Promethium', 'Samarium', 'Europium', 'Gadolinium', 'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium', 'Ytterbium', 'Lutetium', 'Actinium'],
+      'Vintage': ['Sepia', 'Antique White', 'Old Lace', 'Floral White', 'Ivory', 'Beige', 'Wheat', 'Tan', 'Burlywood', 'Rosy Brown', 'Sandy Brown', 'Goldenrod', 'Dark Goldenrod', 'Peru', 'Chocolate', 'Saddle Brown', 'Sienna', 'Brown', 'Maroon', 'Dark Red', 'Firebrick', 'Crimson', 'Indian Red', 'Light Coral', 'Salmon', 'Dark Salmon', 'Light Salmon', 'Orange Red', 'Tomato', 'Coral', 'Dark Orange', 'Orange', 'Gold', 'Yellow', 'Light Yellow', 'Lemon Chiffon', 'Light Goldenrod Yellow', 'Papaya Whip', 'Moccasin', 'Peach Puff'],
+      'Cyber': ['Cyber Pink', 'Cyber Blue', 'Cyber Green', 'Cyber Yellow', 'Cyber Red', 'Cyber Purple', 'Cyber Orange', 'Cyber Cyan', 'Cyber Magenta', 'Cyber Lime', 'Cyber Mint', 'Cyber Peach', 'Cyber Lavender', 'Cyber Coral', 'Cyber Salmon', 'Cyber Turquoise', 'Cyber Teal', 'Cyber Aqua', 'Cyber Sky', 'Cyber Azure', 'Cyber Indigo', 'Cyber Violet', 'Cyber Fuchsia', 'Cyber Rose', 'Cyber Ruby', 'Cyber Emerald', 'Cyber Jade', 'Cyber Olive', 'Cyber Lime', 'Cyber Chartreuse', 'Cyber Green Yellow', 'Cyber Yellow Green', 'Cyber Spring Green', 'Cyber Medium Spring Green', 'Cyber Sea Green', 'Cyber Medium Sea Green', 'Cyber Light Sea Green', 'Cyber Dark Sea Green', 'Cyber Medium Aquamarine', 'Cyber Aquamarine'],
+      'Tropical': ['Palm Green', 'Coconut White', 'Pineapple Yellow', 'Mango Orange', 'Papaya Orange', 'Guava Pink', 'Passion Fruit Purple', 'Dragon Fruit Pink', 'Star Fruit Yellow', 'Kiwi Green', 'Banana Yellow', 'Plantain Green', 'Avocado Green', 'Lime Green', 'Lemon Yellow', 'Orange Orange', 'Grapefruit Pink', 'Pomelo Yellow', 'Tangerine Orange', 'Clementine Orange', 'Mandarin Orange', 'Kumquat Orange', 'Loquat Yellow', 'Lychee Pink', 'Longan Brown', 'Rambutan Red', 'Durian Yellow', 'Jackfruit Yellow', 'Breadfruit Green', 'Soursop Green', 'Cherimoya Green', 'Custard Apple Green', 'Sugar Apple Green', 'Atemoya Green', 'Ilama Green', 'Rollinia Yellow', 'Biribá Yellow', 'Pond Apple Green', 'Bullock\'s Heart Red', 'Custard Apple Green'],
+      'Arctic': ['Snow White', 'Ice Blue', 'Frost White', 'Glacier Blue', 'Polar White', 'Arctic White', 'Tundra Brown', 'Permafrost Grey', 'Aurora Green', 'Aurora Purple', 'Aurora Pink', 'Aurora Blue', 'Aurora Yellow', 'Aurora Red', 'Aurora Orange', 'Northern Light Green', 'Northern Light Purple', 'Northern Light Pink', 'Northern Light Blue', 'Northern Light Yellow', 'Northern Light Red', 'Northern Light Orange', 'Polar Bear White', 'Arctic Fox White', 'Arctic Hare White', 'Arctic Wolf Grey', 'Arctic Owl White', 'Arctic Tern White', 'Arctic Seal Grey', 'Arctic Walrus Brown', 'Arctic Whale Blue', 'Arctic Penguin Black', 'Arctic Puffin Black', 'Arctic Gull White', 'Arctic Eagle White', 'Arctic Falcon Grey', 'Arctic Raven Black', 'Arctic Crow Black', 'Arctic Magpie Black', 'Arctic Jay Blue']
+    };
+
+    function generatePalette(category, index) {
+      const names = paletteNames[category] || [];
+      const name = names[index % names.length] || `${category} ${index}`;
+      let colors = [];
+      
+      switch(category) {
+        case 'Warm':
+          for (let i = 0; i < 10; i++) {
+            const h = 0 + (i * 6);
+            const s = 70 + Math.random() * 30;
+            const l = 40 + (i * 5);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Cool':
+          for (let i = 0; i < 10; i++) {
+            const h = 180 + (i * 20);
+            const s = 60 + Math.random() * 40;
+            const l = 40 + (i * 5);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Pastel':
+          for (let i = 0; i < 10; i++) {
+            const h = (i * 36) % 360;
+            const s = 50 + Math.random() * 30;
+            const l = 75 + Math.random() * 15;
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Contrast':
+          for (let i = 0; i < 10; i++) {
+            colors.push(i % 2 === 0 ? '#000000' : '#FFFFFF');
+          }
+          break;
+        case 'Neon':
+          for (let i = 0; i < 10; i++) {
+            const h = (i * 36) % 360;
+            colors.push(hslToHex(h, 100, 50));
+          }
+          break;
+        case 'Earth':
+          for (let i = 0; i < 10; i++) {
+            const h = 20 + (i * 4);
+            const s = 30 + Math.random() * 40;
+            const l = 20 + (i * 6);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Ocean':
+          for (let i = 0; i < 10; i++) {
+            const h = 180 + (i * 10);
+            const s = 60 + Math.random() * 40;
+            const l = 30 + (i * 5);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Sunset':
+          for (let i = 0; i < 10; i++) {
+            const h = 0 + (i * 30);
+            const s = 80 + Math.random() * 20;
+            const l = 40 + (i * 5);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Forest':
+          for (let i = 0; i < 10; i++) {
+            const h = 100 + (i * 8);
+            const s = 40 + Math.random() * 40;
+            const l = 20 + (i * 6);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Night':
+          for (let i = 0; i < 10; i++) {
+            const h = 240 + (i * 12);
+            const s = 50 + Math.random() * 50;
+            const l = 10 + (i * 8);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Candy':
+          for (let i = 0; i < 10; i++) {
+            const h = (i * 36) % 360;
+            const s = 80 + Math.random() * 20;
+            const l = 60 + Math.random() * 20;
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Metal':
+          const metalColors = ['#FFD700', '#C0C0C0', '#CD7F32', '#B87333', '#A19D94', '#71797E', '#878681', '#E5E4E2', '#CB410B', '#8B7355'];
+          colors = metalColors.slice(0, 10);
+          break;
+        case 'Vintage':
+          for (let i = 0; i < 10; i++) {
+            const h = 30 + (i * 5);
+            const s = 20 + Math.random() * 30;
+            const l = 60 + (i * 3);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Cyber':
+          for (let i = 0; i < 10; i++) {
+            const h = (i * 36 + 180) % 360;
+            colors.push(hslToHex(h, 100, 50));
+          }
+          break;
+        case 'Tropical':
+          for (let i = 0; i < 10; i++) {
+            const h = (i * 36) % 360;
+            const s = 70 + Math.random() * 30;
+            const l = 50 + Math.random() * 20;
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+        case 'Arctic':
+          for (let i = 0; i < 10; i++) {
+            const h = 180 + (i * 10);
+            const s = 20 + Math.random() * 30;
+            const l = 80 + (i * 2);
+            colors.push(hslToHex(h, s, l));
+          }
+          break;
+      }
+      
+      return { name, colors, category };
+    }
+
+    function hslToHex(h, s, l) {
+      s /= 100; l /= 100;
+      const a = s * Math.min(l, 1 - l);
+      const f = n => { const k = (n + h / 30) % 12; const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1); return Math.round(255 * color).toString(16).padStart(2, '0'); };
+      return `#${f(0)}${f(8)}${f(4)}`.toUpperCase();
+    }
+
+    const allPalettes = [];
+    categories.forEach(cat => {
+      for (let i = 0; i < 20; i++) {
+        allPalettes.push(generatePalette(cat, i));
+      }
+    });
+
+    let currentCategory = 'all';
+    let currentPaletteIndex = 0;
+    let filteredPalettes = [...allPalettes];
+
+    function renderCategories() {
+      paletteCategories.innerHTML = '';
+      const allBtn = document.createElement('button');
+      allBtn.className = 'palette-cat-btn active';
+      allBtn.textContent = 'All';
+      allBtn.dataset.cat = 'all';
+      allBtn.addEventListener('click', () => { currentCategory = 'all'; renderCategories(); renderPalettes(); });
+      paletteCategories.appendChild(allBtn);
+      
+      categories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'palette-cat-btn';
+        btn.textContent = cat;
+        btn.dataset.cat = cat;
+        btn.addEventListener('click', () => { currentCategory = cat; renderCategories(); renderPalettes(); });
+        paletteCategories.appendChild(btn);
+      });
+    }
+
+    function renderPalettes() {
+      paletteListContainer.innerHTML = '';
+      const catFilter = currentCategory === 'all' ? null : currentCategory;
+      const searchCat = paletteSearchCategory.value.toLowerCase();
+      const searchColor = paletteSearchColor.value.toLowerCase();
+      
+      filteredPalettes = allPalettes.filter(p => {
+        if (catFilter && p.category !== catFilter) return false;
+        if (searchCat && !p.category.toLowerCase().includes(searchCat) && !p.name.toLowerCase().includes(searchCat)) return false;
+        if (searchColor && !p.colors.some(c => c.toLowerCase().includes(searchColor))) return false;
+        return true;
+      });
+
+      for (let i = 0; i < filteredPalettes.length; i += 3) {
+        const row = document.createElement('div');
+        row.className = 'palette-row';
+        for (let j = i; j < Math.min(i + 3, filteredPalettes.length); j++) {
+          const p = filteredPalettes[j];
+          const card = document.createElement('div');
+          card.className = 'palette-card';
+          card.innerHTML = `
+            <div class="palette-card-name">${p.name}</div>
+            <div class="palette-card-colors">
+              ${p.colors.map(c => `<div class="palette-color-swatch" style="background:${c}" title="${c}"></div>`).join('')}
+            </div>
+            <button class="palette-copy-btn" data-index="${j}">COPY</button>
+          `;
+          card.querySelector('.palette-copy-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const colorsStr = p.colors.join(', ');
+            navigator.clipboard.writeText(colorsStr);
+            e.target.textContent = 'COPIED!';
+            setTimeout(() => e.target.textContent = 'COPY', 1500);
+          });
+          card.addEventListener('click', () => {
+            currentPaletteIndex = j;
+            drawGifPreview(p.colors);
+          });
+          row.appendChild(card);
+        }
+        paletteListContainer.appendChild(row);
+      }
+    }
+
+    function drawGifPreview(colors) {
+      const ctx = gifCanvas.getContext('2d');
+      const w = gifCanvas.width;
+      const h = gifCanvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const maxR = Math.min(w, h) * 0.45;
+      const numRings = colors.length;
+      let phase = 0;
+      
+      function drawFrame() {
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, w, h);
+        for (let i = numRings - 1; i >= 0; i--) {
+          const t = i / numRings;
+          const r = maxR * Math.pow(t, 1.1);
+          const colorIdx = (i + Math.floor(phase)) % colors.length;
+          ctx.fillStyle = colors[colorIdx];
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        phase += 0.1;
+        if (phase < 100) requestAnimationFrame(drawFrame);
+      }
+      drawFrame();
+    }
+
+    paletteBtn.addEventListener('click', () => {
+      paletteModal.classList.add('active');
+      renderCategories();
+      renderPalettes();
+      if (allPalettes.length > 0) drawGifPreview(allPalettes[0].colors);
+    });
+
+    paletteClose.addEventListener('click', () => { paletteModal.classList.remove('active'); });
+
+    paletteSearchCategory.addEventListener('input', renderPalettes);
+    paletteSearchColor.addEventListener('input', renderPalettes);
+
+    // Прокрутка колёсиком с фиксацией
+    let scrollTimeout;
+    paletteListContainer.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const rowHeight = paletteListContainer.querySelector('.palette-row')?.offsetHeight || 200;
+        const direction = e.deltaY > 0 ? 1 : -1;
+        const currentScroll = paletteListContainer.scrollTop;
+        const targetScroll = Math.round(currentScroll / rowHeight) * rowHeight + direction * rowHeight;
+        paletteListContainer.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      }, 50);
+    });
+
+    gifCopyBtn.addEventListener('click', () => {
+      gifCopyBtn.textContent = 'GENERATING...';
+      // Здесь будет генерация GIF через gif.js
+      setTimeout(() => {
+        gifCopyBtn.textContent = 'COPIED!';
+        setTimeout(() => gifCopyBtn.textContent = 'COPY GIF', 1500);
+      }, 1000);
+    });
 
     // Инициализация
     buildLangDropdown();
     applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
-    
-    // Загружаем лайки сразу
     loadGlobalLikes();
     setInterval(loadGlobalLikes, 30000);
     setInterval(refreshAllCaps, 60000);
