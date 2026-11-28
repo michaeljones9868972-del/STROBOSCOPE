@@ -54,12 +54,15 @@
     let bassEnergy = 0, prevBassEnergy = 0, beatDecay = 0, smoothLevel = 0, pulseIntensity = 0;
     let beatDetected = false;
     let lastDetachTime = 0;
+    
+    // Для волнового эффекта туннеля
+    let wavePhase = 0;
+    let numRings = 15;
 
     function setup() {
       let cnv = createCanvas(windowWidth, windowHeight);
       cnv.style('position','fixed'); cnv.style('top','0'); cnv.style('left','0'); cnv.style('z-index','1');
       rectMode(CENTER); noStroke();
-      // УВЕЛИЧЕН РАЗМЕР чтобы круг достигал края экрана
       MAX_INIT_SIZE = max(width, height) * 0.55;
       MIN_SIZE = 8;
       initSize = MAX_INIT_SIZE; initAngle = 0; initColIndex = 0;
@@ -75,7 +78,6 @@
       document.getElementById('closeBtn').addEventListener('click', (e) => {
         e.stopPropagation(); window.location.href = 'index.html';
       });
-      // ПАУЗА ПО КЛИКУ НА ЭКРАН
       document.addEventListener('click', (e) => {
         if (e.target.tagName === 'CANVAS' || e.target === document.body) {
           if (isAudioStarted) togglePause();
@@ -121,14 +123,12 @@
         updateSoundIcon(false); 
         particles=[]; 
         detachedRings=[]; 
-        // Показываем кнопки при паузе
         document.getElementById('soundBtn').classList.remove('hidden-btns');
         document.getElementById('closeBtn').classList.remove('hidden-btns');
       } else { 
         song.loop(); 
         updateSoundIcon(true); 
         lastBurstTime = millis(); 
-        // Скрываем кнопки при воспроизведении
         document.getElementById('soundBtn').classList.add('hidden-btns');
         document.getElementById('closeBtn').classList.add('hidden-btns');
       }
@@ -153,61 +153,104 @@
 
     function draw() {
       background(0);
-      if (isPaused) { drawCirclesStatic(pausedLevel); return; }
+      if (isPaused) { drawTunnelStatic(); return; }
       if (isAudioStarted) {
         analyzeAudio();
-        let now = millis(); let delta = abs(level - lastLevel);
-        if (delta > 0.04 && level > 0.08 && now - lastBurstTime > minBurstInterval) {
+        let now = millis();
+        if (level > 0.08 && now - lastBurstTime > minBurstInterval) {
           particles = []; createBurst(cols[initColIndex % cols.length]); lastBurstTime = now;
         }
-        lastLevel = level;
         // Отделение КОЛЬЦА при басах
         if (beatDetected && now - lastDetachTime > 400) {
-          let edge = findEdgeCircle();
-          if (edge) {
-            detachRing(edge);
-            lastDetachTime = now;
-          }
+          detachOuterRing();
+          lastDetachTime = now;
         }
         beatDetected = false;
       } else { level = 0.15 + 0.1*sin(frameCount/30); bassEnergy = 0; }
 
+      // Обновление волновой фазы
+      wavePhase += 0.03 + level * 0.05;
+
       for (let i=particles.length-1;i>=0;i--){ particles[i].update(); particles[i].show(); if(particles[i].isDead()) particles.splice(i,1); }
-      drawCirclesBeat(level);
+      drawTunnel();
       drawDetachedRings();
-
-      let count = sin(frameCount/150);
-      let angleStep = PI/20 * count;
-      initSize -= MAX_INIT_SIZE * 0.001144 * (10 + abs(count));
-      initAngle += angleStep * 0.1;
-      if (initSize < MAX_INIT_SIZE * 0.88) { initSize /= 0.88; initColIndex = (initColIndex + cols.length - 1) % cols.length; }
     }
 
-    function findEdgeCircle() {
-      let size = initSize * map(level, 0, 0.6, 1, 1.8);
-      let maxDim = max(width, height);
-      // Срабатывает когда круг достигает края экрана
-      if (size >= maxDim * 0.50) {
-        let ringThickness = size * 0.12;
-        return { 
-          outerSize: size, 
-          innerSize: size - ringThickness * 2,
-          color: cols[initColIndex % cols.length] 
-        };
+    // Эффект туннеля как на Envato - концентрические кольца с волновой пульсацией
+    function drawTunnel() {
+      let baseSize = MAX_INIT_SIZE * 0.1;
+      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
+      
+      // Рисуем от внешнего к внутреннему
+      for (let i = numRings; i >= 0; i--) {
+        // Волновая модуляция - каждое кольцо пульсирует со своей фазой
+        let waveOffset = i * 0.4;
+        let waveAmp = sin(wavePhase + waveOffset) * 0.08;
+        
+        let ringSize = baseSize + i * sizeStep;
+        ringSize *= (1 + waveAmp) * (1 + level * 0.3);
+        
+        // Цвет с чередованием
+        let colorIdx = (initColIndex + i) % cols.length;
+        let col = cols[colorIdx];
+        
+        // Рисуем кольцо
+        noStroke();
+        fill(col);
+        ellipse(width/2, height/2, ringSize, ringSize);
+        
+        // Чёрная дырка внутри для создания кольца (кроме самого маленького)
+        if (i > 0) {
+          let innerSize = baseSize + (i-1) * sizeStep;
+          innerSize *= (1 + sin(wavePhase + (i-1) * 0.4) * 0.08) * (1 + level * 0.3);
+          fill(0);
+          ellipse(width/2, height/2, innerSize, innerSize);
+        }
       }
-      return null;
     }
 
-    function detachRing(r) {
+    function drawTunnelStatic() {
+      let baseSize = MAX_INIT_SIZE * 0.1;
+      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
+      
+      for (let i = numRings; i >= 0; i--) {
+        let ringSize = baseSize + i * sizeStep;
+        let colorIdx = (initColIndex + i) % cols.length;
+        let col = cols[colorIdx];
+        
+        noStroke();
+        fill(col);
+        ellipse(width/2, height/2, ringSize, ringSize);
+        
+        if (i > 0) {
+          let innerSize = baseSize + (i-1) * sizeStep;
+          fill(0);
+          ellipse(width/2, height/2, innerSize, innerSize);
+        }
+      }
+    }
+
+    // Отделение крайнего кольца при басах
+    function detachOuterRing() {
+      let baseSize = MAX_INIT_SIZE * 0.1;
+      let sizeStep = (MAX_INIT_SIZE * 0.9) / numRings;
+      let outerSize = baseSize + numRings * sizeStep;
+      let innerSize = baseSize + (numRings-1) * sizeStep;
+      
+      // Применяем текущую пульсацию
+      let waveAmp = sin(wavePhase + numRings * 0.4) * 0.08;
+      outerSize *= (1 + waveAmp) * (1 + level * 0.3);
+      innerSize *= (1 + sin(wavePhase + (numRings-1) * 0.4) * 0.08) * (1 + level * 0.3);
+      
       let angle = random(TWO_PI);
-      let speed = random(2, 4);
+      let speed = random(3, 6);
       detachedRings.push({ 
-        outerSize: r.outerSize, 
-        innerSize: r.innerSize,
-        color: r.color, 
+        outerSize: outerSize, 
+        innerSize: innerSize,
+        color: cols[(initColIndex + numRings) % cols.length], 
         x: width/2, y: height/2,
         vx: cos(angle)*speed, vy: sin(angle)*speed, 
-        life: 180, maxLife: 180 
+        life: 150, maxLife: 150 
       });
     }
 
@@ -215,8 +258,8 @@
       for (let i=detachedRings.length-1;i>=0;i--) {
         let d = detachedRings[i];
         d.x += d.vx; d.y += d.vy; d.life--;
-        d.outerSize *= 0.997;
-        d.innerSize *= 0.997;
+        d.outerSize *= 0.998;
+        d.innerSize *= 0.998;
         let alpha = map(d.life, 0, d.maxLife, 0, 255);
         
         noStroke();
@@ -226,28 +269,6 @@
         ellipse(d.x, d.y, d.innerSize, d.innerSize);
         
         if (d.life <= 0 || d.outerSize < 20) detachedRings.splice(i,1);
-      }
-    }
-
-    function drawCirclesBeat(l) {
-      let count = sin(frameCount/150); let angleStep = PI/20*count;
-      let colIndex = initColIndex; let size = initSize * map(l, 0, 0.6, 1, 1.8); let angle = initAngle;
-      while (size > MIN_SIZE) {
-        push(); translate(width/2,height/2); rotate(angle);
-        fill(cols[colIndex % cols.length]); ellipse(0,0,size,size); pop();
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE*1.5, 1, 0, false);
-        size *= 0.88; colIndex++;
-      }
-    }
-
-    function drawCirclesStatic(l) {
-      let angleStep = PI/20; let colIndex = initColIndex;
-      let size = initSize * map(l, 0, 0.5, 1, 1.5); let angle = initAngle;
-      while (size > MIN_SIZE) {
-        push(); translate(width/2,height/2); rotate(angle);
-        fill(cols[colIndex % cols.length]); ellipse(0,0,size,size); pop();
-        angle += angleStep * map(size, MIN_SIZE, MAX_INIT_SIZE*1.5, 1, 0, false);
-        size *= 0.88; colIndex++;
       }
     }
 
