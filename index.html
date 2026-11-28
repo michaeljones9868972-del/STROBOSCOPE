@@ -200,17 +200,14 @@
       position: fixed !important; z-index: -9999 !important; left: -9999px !important; top: -9999px !important;
     }
 
-    /* ===== ЭКРАН PALETTE ===== */
+    /* ===== ЭКРАН PALETTE (новая раскладка: 3 палитры | PNG-круг | GIF-панель) ===== */
     .palette-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; z-index: 2000; display: none;
       flex-direction: column; padding: 30px 60px;
     }
     .palette-modal.active { display: flex; }
-    .palette-modal-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 20px;
-    }
+    .palette-modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; flex-shrink: 0; }
     .palette-modal-title { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: 3px; }
     .palette-close {
       background: none; border: 2px solid rgba(255,255,255,0.3); color: #fff;
@@ -219,92 +216,72 @@
     }
     .palette-close:hover { background: rgba(255,255,255,0.1); border-color: #fff; }
 
-    .palette-top-categories {
-      display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;
-    }
-    .palette-top-cat {
-      background: rgba(255,255,255,0.9); color: #000;
-      padding: 6px 16px; border-radius: 4px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 13px; font-weight: 600;
-      border: none; transition: all 0.3s;
-    }
-    .palette-top-cat:hover { background: #fff; }
-    .palette-top-cat.active { background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-
-    .palette-color-strip {
-      display: flex; justify-content: center; gap: 4px; margin-bottom: 30px;
-    }
-    .palette-strip-color {
-      width: 28px; height: 28px; border-radius: 4px; cursor: pointer;
-      border: 2px solid rgba(255,255,255,0.3); transition: transform 0.2s;
-    }
-    .palette-strip-color:hover { transform: scale(1.2); }
-
     .palette-main {
-      display: grid; grid-template-columns: 1fr 300px; gap: 40px;
+      display: grid; grid-template-columns: 360px 1fr 300px; gap: 30px;
       flex: 1; overflow: hidden;
     }
-    .palette-list-wrap {
-      overflow-y: auto; scroll-snap-type: y mandatory;
-      scroll-behavior: smooth; padding-right: 10px;
-    }
-    .palette-list-wrap::-webkit-scrollbar { width: 6px; }
-    .palette-list-wrap::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-    .palette-list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
 
-    .palette-row {
-      scroll-snap-align: start;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
-      margin-bottom: 30px;
+    /* Левая колонка: 3 палитры */
+    .palette-left-col {
+      display: flex; flex-direction: column; gap: 22px;
+      justify-content: center; overflow: hidden;
     }
-    .palette-item {
+    .palette-card {
       position: relative;
-      background: rgba(255,255,255,0.05); border-radius: 8px; padding: 15px;
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 14px 14px 40px;
+      animation: cardIn 0.35s ease;
+    }
+    @keyframes cardIn { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+    .palette-card-name {
+      font-size: 12px; color: #a0d8f1; letter-spacing: 1px; margin-bottom: 10px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .palette-card .palette-rect { height: 64px; margin-top: 0; }
+    .palette-rect {
+      width: 100%; border-radius: 6px; display: flex; overflow: hidden;
+    }
+    .palette-rect-color {
+      flex: 1; height: 100%; cursor: pointer; transition: transform 0.2s; position: relative;
+    }
+    .palette-rect-color:hover { transform: scaleY(1.12); z-index: 10; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    .palette-rect-color:hover::after {
+      content: attr(title);
+      position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.92); color: #fff; padding: 4px 8px; border-radius: 4px;
+      font-size: 11px; white-space: nowrap; pointer-events: none; z-index: 100;
+      font-family: 'Martian Mono', monospace; border: 1px solid rgba(255,255,255,0.3);
     }
     .palette-item-copy {
       position: absolute; top: 8px; right: 8px;
       background: rgba(0,0,0,0.85); color: #fff; border: 1px solid rgba(255,255,255,0.4);
-      padding: 6px 14px; border-radius: 6px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 11px; font-weight: 700;
+      padding: 5px 12px; border-radius: 6px; cursor: pointer;
+      font-family: 'Martian Mono', monospace; font-size: 10px; font-weight: 700;
       transition: all 0.3s; z-index: 20; backdrop-filter: blur(4px);
     }
     .palette-item-copy:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
     .palette-item-copy.copied { background: #4ade80; color: #000; border-color: #4ade80; }
+    .create-btn {
+      position: absolute; bottom: 8px; right: 14px;
+      background: none; border: none; color: #fff;
+      font-family: 'Dancing Script', cursive; font-size: 22px; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .create-btn:hover { text-shadow: 0 0 14px rgba(255,255,255,0.9); transform: scale(1.08); }
 
-    .palette-rect {
-      width: 100%; height: 120px; border-radius: 6px;
-      display: flex; overflow: hidden; margin-top: 10px;
+    /* Центр: PNG-круг */
+    .palette-center-col {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 24px; overflow: hidden;
     }
-    .palette-rect-color {
-      flex: 1; height: 100%; cursor: pointer; transition: transform 0.2s, flex 0.2s; position: relative;
-    }
-    .palette-rect-color:hover { 
-      transform: scaleY(1.15); 
-      z-index: 10; 
-      box-shadow: 0 0 10px rgba(255,255,255,0.5);
-    }
-    .palette-rect-color:hover::after {
-      content: attr(title);
-      position: absolute; bottom: 110%; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,0.9); color: #fff; padding: 4px 8px; border-radius: 4px;
-      font-size: 11px; white-space: nowrap; pointer-events: none; z-index: 100;
-      font-family: 'Martian Mono', monospace; border: 1px solid rgba(255,255,255,0.3);
-    }
+    #pngCanvas { width: 100%; height: auto; max-height: 100%; aspect-ratio: 1/1; border-radius: 50%; }
 
-    .palette-circle-wrap {
-      width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
-      margin-top: 10px;
-    }
-    .palette-circle-canvas {
-      width: 100%; height: 100%; border-radius: 50%;
-    }
-
+    /* Правая панель: GIF */
     .palette-gif-panel {
       background: rgba(255,255,255,0.05); border-radius: 12px; padding: 20px;
       border: 1px solid rgba(255,255,255,0.1);
       display: flex; flex-direction: column; gap: 15px;
-      position: sticky; top: 0;
     }
     .palette-gif-title { font-size: 16px; color: #fff; font-weight: 700; text-align: center; letter-spacing: 2px; }
     .palette-gif-canvas-wrap {
@@ -316,7 +293,7 @@
     .palette-gif-copy {
       background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3); color: #fff;
       padding: 12px; border-radius: 8px; cursor: pointer;
-      font-family: 'Martian Mono', monospace; font-size: 14px; font-weight: 700;
+      font-family: 'Martian Mono', monospace; font-size: 13px; font-weight: 700;
       transition: all 0.3s; text-align: center; letter-spacing: 1px;
     }
     .palette-gif-copy:hover { background: rgba(255,255,255,0.2); border-color: #fff; }
@@ -350,7 +327,6 @@
       .palette-title{font-size:16px;gap:20px}
       .rainbow-dot{width:24px;height:24px}
       .palette-modal{padding:15px;}
-      .palette-row{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -415,27 +391,25 @@
   <div class="gallery-wrapper" id="galleryWrapper"></div>
   <div class="marquee-container"><div class="marquee-content" id="marqueeContent"></div></div>
 
+  <!-- ЭКРАН PALETTE: слева 3 палитры, в центре PNG-круг, справа GIF -->
   <div class="palette-modal" id="paletteModal">
     <div class="palette-modal-header">
       <div class="palette-modal-title">PALETTE COLLECTION</div>
       <button class="palette-close" id="paletteClose">✕</button>
     </div>
 
-    <div class="palette-top-categories" id="paletteTopCategories">
-      <button class="palette-top-cat active" data-cat="warm">Тёплые</button>
-      <button class="palette-top-cat" data-cat="cool">Холодные</button>
-      <button class="palette-top-cat" data-cat="pastel">Пастельные</button>
-      <button class="palette-top-cat" data-cat="contrast">Контрастные</button>
-    </div>
-
-    <div class="palette-color-strip" id="paletteColorStrip"></div>
-
     <div class="palette-main">
-      <div class="palette-list-wrap" id="paletteListWrap"></div>
+      <div class="palette-left-col" id="paletteLeftCol"></div>
+
+      <div class="palette-center-col">
+        <button class="palette-item-copy" id="pngCopyBtn">COPY</button>
+        <canvas id="pngCanvas" width="2000" height="2000"></canvas>
+      </div>
+
       <div class="palette-gif-panel">
         <div class="palette-gif-title">ANIMATED PREVIEW</div>
         <div class="palette-gif-canvas-wrap">
-          <canvas class="palette-gif-canvas" id="gifCanvas" width="1000" height="1000"></canvas>
+          <canvas class="palette-gif-canvas" id="gifCanvas" width="800" height="800"></canvas>
         </div>
         <button class="palette-gif-copy" id="gifCopyBtn">COPY GIF</button>
       </div>
@@ -452,6 +426,7 @@
     setInterval(removeNetlifyBadge, 500);
     window.addEventListener('load', removeNetlifyBadge);
 
+    // ===== ФЛАГИ =====
     const flags = {
       en:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#012169"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#fff" stroke-width="8"/><path d="M0,0 L60,40 M60,0 L0,40" stroke="#C8102E" stroke-width="4"/><path d="M30,0 V40 M0,20 H60" stroke="#fff" stroke-width="12"/><path d="M30,0 V40 M0,20 H60" stroke="#C8102E" stroke-width="8"/></svg>`,
       es:`<svg viewBox="0 0 60 40"><rect width="60" height="40" fill="#AA151B"/><rect y="10" width="60" height="20" fill="#F1BF00"/></svg>`,
@@ -482,6 +457,7 @@
     langBtn.addEventListener('click',(e)=>{e.stopPropagation();langDropdown.classList.toggle('active');});
     document.addEventListener('click',()=>langDropdown.classList.remove('active'));
 
+    // ===== ЛАЙКИ =====
     const JSONBIN_BIN_ID = '6b071368ac6210605aa3ea42';
     const JSONBIN_API_KEY = '$2a$10$hUQDAT2EXv4KxO3Ttbb8guf98X4PWnTErdgegsJbW7EVJNS7c/Mce';
     const DEFAULT_LIKES = { "1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0 };
@@ -492,145 +468,78 @@
     async function initLikesBin() {
       try {
         const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-          method: 'PUT',
-          headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
+          method: 'PUT', headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
           body: JSON.stringify(DEFAULT_LIKES)
         });
-        if (res.ok) {
-          globalLikes = { ...DEFAULT_LIKES };
-          updateAllHeartDisplays();
-          return true;
-        }
-      } catch(e) { console.warn('Init bin error:', e); }
+        if (res.ok) { globalLikes = { ...DEFAULT_LIKES }; updateAllHeartDisplays(); return true; }
+      } catch(e) {}
       return false;
     }
-
     async function loadGlobalLikes() {
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-          headers: { 'X-Master-Key': JSONBIN_API_KEY }
-        });
-        if (!res.ok) {
-          if (res.status === 404 && likesInitAttempts < 2) {
-            likesInitAttempts++;
-            await initLikesBin();
-          }
-          return;
-        }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, { headers: { 'X-Master-Key': JSONBIN_API_KEY } });
+        if (!res.ok) { if (res.status === 404 && likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); } return; }
         const data = await res.json();
         if (data && data.record && Object.keys(data.record).length > 0) {
-          Object.keys(DEFAULT_LIKES).forEach(id => {
-            const serverVal = data.record[id] || 0;
-            const localVal = globalLikes[id] || 0;
-            globalLikes[id] = Math.max(serverVal, localVal);
-          });
+          Object.keys(DEFAULT_LIKES).forEach(id => { globalLikes[id] = Math.max(data.record[id]||0, globalLikes[id]||0); });
           updateAllHeartDisplays();
-        } else {
-          if (likesInitAttempts < 2) {
-            likesInitAttempts++;
-            await initLikesBin();
-          }
-        }
-      } catch(e) { 
+        } else if (likesInitAttempts < 2) { likesInitAttempts++; await initLikesBin(); }
+      } catch(e) {
         const l = JSON.parse(localStorage.getItem('stroboscope_likes')||'{}');
-        Object.keys(DEFAULT_LIKES).forEach(id => {
-          if (l[id] !== undefined) globalLikes[id] = Math.max(globalLikes[id]||0, l[id]);
-        });
+        Object.keys(DEFAULT_LIKES).forEach(id => { if (l[id] !== undefined) globalLikes[id] = Math.max(globalLikes[id]||0, l[id]); });
         updateAllHeartDisplays();
       }
     }
-
     function saveGlobalLikes() {
       localStorage.setItem('stroboscope_likes', JSON.stringify(globalLikes));
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(async () => {
         try {
           const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
-            method: 'PUT',
-            headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
+            method: 'PUT', headers: { 'X-Master-Key': JSONBIN_API_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(globalLikes)
           });
           if (!res.ok && res.status === 404) await initLikesBin();
-        } catch(e) { console.warn('JSONBin save error:', e); }
+        } catch(e) {}
       }, 300);
     }
-
     function getLikes(id) { return globalLikes[id] || 0; }
-    function incrementLikes(id) {
-      globalLikes[id] = (globalLikes[id] || 0) + 1;
-      saveGlobalLikes();
-      return globalLikes[id];
-    }
+    function incrementLikes(id) { globalLikes[id] = (globalLikes[id]||0)+1; saveGlobalLikes(); return globalLikes[id]; }
+    function updateAllHeartDisplays() { Object.keys(globalLikes).forEach(id => { const el=document.getElementById(`hc-${id}`); if(el)el.textContent=globalLikes[id]; }); }
 
-    function updateAllHeartDisplays() {
-      Object.keys(globalLikes).forEach(id => {
-        const el = document.getElementById(`hc-${id}`);
-        if (el) el.textContent = globalLikes[id];
-      });
-    }
-
-    const marketCapCache = {};
-    const cacheTimestamps = {};
-    const CACHE_DURATION = 5 * 60 * 1000;
-
+    // ===== Капитализация =====
+    const marketCapCache = {}; const cacheTimestamps = {}; const CACHE_DURATION = 5*60*1000;
     async function fetchMarketCap(contract) {
       if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) return null;
-      if (marketCapCache[contract] && cacheTimestamps[contract] && (Date.now() - cacheTimestamps[contract]) < CACHE_DURATION) {
-        return marketCapCache[contract];
-      }
+      if (marketCapCache[contract] && (Date.now()-cacheTimestamps[contract])<CACHE_DURATION) return marketCapCache[contract];
       try {
         const res = await fetch(`https://api.coingecko.com/api/v3/simple/token_price/solana?contract_addresses=${contract}&vs_currencies=usd&include_market_cap=true`);
-        if (res.ok) {
-          const data = await res.json();
-          const tokenData = data[contract.toLowerCase()];
-          if (tokenData && tokenData.usd_market_cap && tokenData.usd_market_cap > 0) {
-            const formatted = formatCap(tokenData.usd_market_cap);
-            marketCapCache[contract] = formatted;
-            cacheTimestamps[contract] = Date.now();
-            return formatted;
-          }
-        }
-      } catch(e) { console.warn('CoinGecko error:', e); }
+        if (res.ok) { const data=await res.json(); const t=data[contract.toLowerCase()];
+          if (t&&t.usd_market_cap&&t.usd_market_cap>0){ const f=formatCap(t.usd_market_cap); marketCapCache[contract]=f; cacheTimestamps[contract]=Date.now(); return f; } }
+      } catch(e) {}
       try {
         const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${contract}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.pairs && data.pairs.length) {
-            const sorted = data.pairs.sort((a,b) => (b.liquidity?.usd||0) - (a.liquidity?.usd||0));
-            const bestPair = sorted[0];
-            const mc = bestPair.marketCap || bestPair.fdv || 0;
-            if (mc > 0) {
-              const formatted = formatCap(mc);
-              marketCapCache[contract] = formatted;
-              cacheTimestamps[contract] = Date.now();
-              return formatted;
-            }
-          }
-        }
-      } catch(e) { console.warn('DexScreener error:', e); }
+        if (res.ok) { const data=await res.json();
+          if (data&&data.pairs&&data.pairs.length){ const s=data.pairs.sort((a,b)=>(b.liquidity?.usd||0)-(a.liquidity?.usd||0)); const mc=s[0].marketCap||s[0].fdv||0;
+            if(mc>0){ const f=formatCap(mc); marketCapCache[contract]=f; cacheTimestamps[contract]=Date.now(); return f; } } }
+      } catch(e) {}
       return null;
     }
-    function formatCap(n){
-      if (!n || isNaN(n)) return '$0';
-      if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
-      if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
-      if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'k';
-      return '$' + Math.round(n);
-    }
+    function formatCap(n){ if(!n||isNaN(n))return '$0'; if(n>=1e9)return '$'+(n/1e9).toFixed(2)+'B'; if(n>=1e6)return '$'+(n/1e6).toFixed(2)+'M'; if(n>=1e3)return '$'+(n/1e3).toFixed(1)+'k'; return '$'+Math.round(n); }
     async function refreshAllCaps(){
       document.querySelectorAll('.cap-badge').forEach(badge => {
-        const contract = badge.dataset.contract;
-        if (!contract) return;
-        if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) { badge.textContent = contract; return; }
-        fetchMarketCap(contract).then(val => { if (val) badge.textContent = val; else badge.textContent = '$—'; });
+        const contract = badge.dataset.contract; if(!contract)return;
+        if (/\d{2}\.\d{2}\.\d{4}/.test(contract)) { badge.textContent=contract; return; }
+        fetchMarketCap(contract).then(val => { if(val)badge.textContent=val; else badge.textContent='$—'; });
       });
     }
 
+    // ===== СТРОБОСКОПЫ =====
     const stroboscopes = [
       { id:1, name:"Neon", ticker:"TENDER", kaomoji:"ヽ(♡‿♡)ノ", image:"1krug.png", contract:"pumpCmXqMfrsAkQ5r49WcJnRayYRqmXz6ae8H7H9Dfn", colors:['#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034','#ffffff','#FE00EC','#049CE4','#02C9AF','#2B4F8D','#011034'] },
       { id:2, name:"Prism", ticker:"HYPE", kaomoji:"٩(◕‿◕｡)۶", image:"2krug.png", contract:"orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE", colors:['#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd','#ffffff','#ffb901','#d13e1b','#9f124a','#e591b2','#47c9dd'] },
       { id:3, name:"Roots", ticker:"BLOOM", kaomoji:"(✿◠‿◠)", image:"3krug.png", contract:"7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr", colors:['#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00','#ffffff','#14471E','#68904D','#C8D2D1','#EE9B01','#DA6A00'] },
-      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"Grass7B4RdKfBCjTKgSqnXkqjwiGvQyFbuSCUJr3XXjs", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
+      { id:4, name:"Eclipse", ticker:"SMIRK", kaomoji:"(¬‿¬)", image:"4krug.png", contract:"13.12.2026", colors:['#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57','#ffffff','#091B1A','#5D4A39','#A96F47','#FBCE02','#F27B57'] },
       { id:5, name:"Tide", ticker:"COZY", kaomoji:"(づ◡﹏◡)づ", image:"5krug.png", contract:"14.12.2026", colors:['#012E4A','#036280','#378BA4','#81BECE','#E8EDE7','#ffffff','#012E4A','#036280','#378BA4','#81BECE','#E8EDE7'] },
       { id:6, name:"Ember", ticker:"FIGHT", kaomoji:"(ง •̀_•́)ง", image:"6krug.png", contract:"15.12.2026", colors:['#9AA8A8','#466A44','#E0D5BE','#E0908D','#C7495C','#ffffff','#680003','#BC0000','#F5704A','#EFB9AD','#828D00'] },
       { id:7, name:"Sunset", ticker:"HUGS", kaomoji:"(づ｡◕‿‿◕｡)づ", image:"7krug.png", contract:"16.12.2026", colors:['#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180','#ffffff','#FC712B','#FD9319','#FECD5A','#07B1BC','#2B8180'] },
@@ -671,8 +580,7 @@
         const ce = document.getElementById(`hc-${item.id}`);
         if (ce) ce.textContent = n;
         const hs = heart.querySelector('.heart-svg');
-        hs.classList.add('clicked');
-        setTimeout(() => hs.classList.remove('clicked'), 300);
+        hs.classList.add('clicked'); setTimeout(() => hs.classList.remove('clicked'), 300);
       });
       const frame=document.createElement('div'); frame.className='stroboscope-frame';
       const top=document.createElement('div'); top.className='frame-top';
@@ -696,7 +604,6 @@
       if(!isSearch) setupIntersectionObserver();
       setTimeout(()=>{ w.scrollTop=0; refreshAllCaps(); },100);
     }
-
     function setupIntersectionObserver(){ const o=new IntersectionObserver((es)=>{es.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('visible'); else e.target.classList.remove('visible'); });},{threshold:0.3,root:document.getElementById('galleryWrapper')}); document.querySelectorAll('.stroboscope-item').forEach(i=>o.observe(i)); }
 
     const galleryWrapper=document.getElementById('galleryWrapper');
@@ -719,9 +626,8 @@
     const supportBtn=document.getElementById('supportBtn'), supportTooltip=document.getElementById('supportTooltip'), supportEmail='stroboscope@atomicmail.io';
     supportBtn.addEventListener('click',async(e)=>{e.stopPropagation();try{await navigator.clipboard.writeText(supportEmail);}catch(err){const t=document.createElement("textarea");t.value=supportEmail;document.body.appendChild(t);t.select();document.execCommand("copy");document.body.removeChild(t);}supportTooltip.classList.add('active');setTimeout(()=>supportTooltip.classList.remove('active'),2500);});
 
+    // ===== 320 ПАЛИТР =====
     const CATEGORIES = ['warm', 'cool', 'pastel', 'contrast'];
-    const CAT_NAMES = { warm: 'Тёплые', cool: 'Холодные', pastel: 'Пастельные', contrast: 'Контрастные' };
-
     const PALETTE_NAME_PARTS = {
       warm: ['Sunset','Autumn','Desert','Spice','Clay','Ember','Copper','Rustic','Amber','Coral','Terracotta','Saffron','Cinnamon','Pumpkin','Maple','Honey','Ginger','Cayenne','Paprika','Turmeric','Cumin','Clove','Nutmeg','Cardamom','Vanilla','Caramel','Toffee','Butterscotch','Goldenrod','Marigold','Daffodil','Sunflower','Dandelion','Buttercup','Primrose','Crocus','Tulip','Poppy','Flame','Blaze','Fire','Heat','Warmth','Glow','Radiance','Shine','Spark','Flare','Burst','Flare','Dawn','Dusk','Twilight','Horizon','Solstice','Equinox','Tropic','Sahara','Savanna','Steppe','Pampa','Outback','Mojave','Sahel','Kalahari','Namib','Gobi','Taklamakan','Atacama','Sonoran','Chihuahuan','Karakum','Kyzylkum','Thar','Dasht-e','Lut','Rub','Al','Nefud','Ténéré','Simpson','Gibson','Tanami','Strzelecki','Sturt','Painted','White','Black','Red','Great','Little'],
       cool: ['Ocean','Arctic','Glacier','Ice','Sapphire','Cobalt','Azure','Cerulean','Teal','Aqua','Turquoise','Cyan','Indigo','Navy','Midnight','Storm','Rain','River','Lake','Puddle','Frost','Snow','Iceberg','Polar','Blue','Whale','Dolphin','Seafoam','Lagoon','Mint','Peppermint','Eucalyptus','Sage','Sea','Sky','Powder','Baby','Cornflower','Periwinkle','Lavender','Lilac','Mauve','Violet','Purple','Plum','Grape','Berry','Raisin','Fig','Date','Prune','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry','Raspberry','Strawberry','Cherry','Apple','Pear','Peach','Plum','Grape','Fig','Date','Prune','Raisin','Currant','Cranberry'],
@@ -735,356 +641,254 @@
       const f = n => { const k = (n + h / 30) % 12; const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1); return Math.round(255 * color).toString(16).padStart(2, '0').toUpperCase(); };
       return `#${f(0)}${f(8)}${f(4)}`;
     }
-
     function generatePaletteColors(category, index) {
       let colors = [];
       const seed = index * 7 + category.length;
       switch(category) {
         case 'warm':
-          for (let i = 0; i < 10; i++) {
-            const h = (seed * 3 + i * 8) % 60;
-            const s = 70 + ((seed + i) % 30);
-            const l = 30 + i * 6;
-            colors.push(hslToHex(h, s, l));
-          }
-          break;
+          for (let i = 0; i < 10; i++) { colors.push(hslToHex((seed*3+i*8)%60, 70+((seed+i)%30), 30+i*6)); } break;
         case 'cool':
-          for (let i = 0; i < 10; i++) {
-            const h = 180 + ((seed * 3 + i * 15) % 80);
-            const s = 60 + ((seed + i) % 40);
-            const l = 30 + i * 6;
-            colors.push(hslToHex(h, s, l));
-          }
-          break;
+          for (let i = 0; i < 10; i++) { colors.push(hslToHex(180+((seed*3+i*15)%80), 60+((seed+i)%40), 30+i*6)); } break;
         case 'pastel':
-          for (let i = 0; i < 10; i++) {
-            const h = (seed * 5 + i * 36) % 360;
-            const s = 40 + ((seed + i) % 30);
-            const l = 75 + ((seed + i) % 15);
-            colors.push(hslToHex(h, s, l));
-          }
-          break;
+          for (let i = 0; i < 10; i++) { colors.push(hslToHex((seed*5+i*36)%360, 40+((seed+i)%30), 75+((seed+i)%15))); } break;
         case 'contrast':
-          const baseH = (seed * 13) % 360;
-          for (let i = 0; i < 10; i++) {
-            if (i % 2 === 0) {
-              colors.push(hslToHex(baseH, 80, 20 + i * 3));
-            } else {
-              colors.push(hslToHex((baseH + 180) % 360, 80, 70 + i * 2));
-            }
-          }
-          break;
+          const baseH = (seed*13)%360;
+          for (let i = 0; i < 10; i++) { colors.push(i%2===0 ? hslToHex(baseH,80,20+i*3) : hslToHex((baseH+180)%360,80,70+i*2)); } break;
       }
       return colors;
     }
-
     function getPaletteName(category, index) {
       const parts = PALETTE_NAME_PARTS[category];
       const p1 = parts[index % parts.length];
-      const p2 = parts[(index * 3 + 7) % parts.length];
+      const p2 = parts[(index*3+7) % parts.length];
       return p1 === p2 ? `${p1} ${index}` : `${p1} ${p2}`;
     }
-
     const allPalettes = [];
-    CATEGORIES.forEach(cat => {
-      for (let i = 0; i < 80; i++) {
-        allPalettes.push({
-          id: `${cat}_${i}`,
-          name: getPaletteName(cat, i),
-          category: cat,
-          colors: generatePaletteColors(cat, i)
-        });
-      }
-    });
+    CATEGORIES.forEach(cat => { for (let i = 0; i < 80; i++) { allPalettes.push({ id:`${cat}_${i}`, name:getPaletteName(cat,i), category:cat, colors:generatePaletteColors(cat,i) }); } });
 
+    // ===== ЦВЕТОКОРРЕКТНЫЙ РЕНДЕР КРУГА (PNG / GIF / превью) =====
+    function drawRings(ctx, size, colors, phase) {
+      const cx = size/2, cy = size/2, maxR = size*0.48, n = colors.length, rw = maxR/n;
+      ctx.fillStyle = '#000'; ctx.fillRect(0,0,size,size);
+      for (let i=0;i<n;i++) {
+        const r = maxR - i*rw;
+        ctx.fillStyle = colors[(i+phase)%n];
+        ctx.beginPath(); ctx.arc(cx, cy, Math.max(r,0.5), 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    // ===== УПРАВЛЕНИЕ PALETTE =====
     const paletteModal = document.getElementById('paletteModal');
     const paletteBtn = document.getElementById('paletteBtn');
     const paletteClose = document.getElementById('paletteClose');
-    const paletteListWrap = document.getElementById('paletteListWrap');
-    const paletteTopCategories = document.getElementById('paletteTopCategories');
-    const paletteColorStrip = document.getElementById('paletteColorStrip');
+    const paletteLeftCol = document.getElementById('paletteLeftCol');
+    const pngCanvas = document.getElementById('pngCanvas');
+    const pngCopyBtn = document.getElementById('pngCopyBtn');
     const gifCanvas = document.getElementById('gifCanvas');
     const gifCopyBtn = document.getElementById('gifCopyBtn');
 
-    let currentPaletteCat = 'warm';
-    let currentPaletteIndex = 0;
-    let gifAnimFrame = null;
-    let gifPhase = 0;
+    let listOffset = 0;            // цикличный сдвиг по 320 палитрам
+    let activeColors = allPalettes[0].colors;
+    let gifAnimFrame = null, gifPhase = 0;
 
-    function getFilteredPalettes() {
-      return allPalettes.filter(p => p.category === currentPaletteCat);
-    }
-
-    function renderTopCategories() {
-      paletteTopCategories.innerHTML = '';
-      CATEGORIES.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = 'palette-top-cat' + (cat === currentPaletteCat ? ' active' : '');
-        btn.textContent = CAT_NAMES[cat];
-        btn.dataset.cat = cat;
-        btn.addEventListener('click', () => {
-          currentPaletteCat = cat;
-          renderTopCategories();
-          renderPaletteList();
-          updateColorStrip();
-          currentPaletteIndex = 0;
-          const filtered = getFilteredPalettes();
-          if (filtered.length > 0) startGifAnimation(filtered[0].colors);
-        });
-        paletteTopCategories.appendChild(btn);
-      });
-    }
-
-    function updateColorStrip() {
-      paletteColorStrip.innerHTML = '';
-      const filtered = getFilteredPalettes();
-      const p = filtered[currentPaletteIndex % filtered.length];
-      if (!p) return;
-      p.colors.forEach(c => {
-        const div = document.createElement('div');
-        div.className = 'palette-strip-color';
-        div.style.background = c;
-        div.title = c;
-        div.addEventListener('click', () => {
-          navigator.clipboard.writeText(c);
-        });
-        paletteColorStrip.appendChild(div);
-      });
-    }
-
-    function drawHighResCircle(canvas, colors, size) {
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const cx = size / 2, cy = size / 2;
-      const maxR = size * 0.48;
-      const numRings = colors.length;
-      const rw = maxR / numRings;
-      
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, size, size);
-      
-      for (let i = 0; i < numRings; i++) {
-        const r = maxR - (i * rw);
-        ctx.fillStyle = colors[i % numRings];
-        ctx.beginPath();
-        ctx.arc(cx, cy, Math.max(r, 1), 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function renderPaletteList() {
-      paletteListWrap.innerHTML = '';
-      const filtered = getFilteredPalettes();
-      
-      for (let i = 0; i < filtered.length; i += 6) {
-        const row = document.createElement('div');
-        row.className = 'palette-row';
-        row.dataset.index = i;
-        
-        for (let j = i; j < Math.min(i + 6, filtered.length); j++) {
-          const p = filtered[j];
-          const isLeft = (j - i) % 2 === 0;
-          
-          const item = document.createElement('div');
-          item.className = 'palette-item';
-          item.dataset.idx = j;
-          
-          if (isLeft) {
-            item.innerHTML = `
-              <button class="palette-item-copy" data-copy="colors-${j}">COPY</button>
-              <div class="palette-rect" style="position:relative;">
-                ${p.colors.map(c => `<div class="palette-rect-color" style="background:${c}" title="${c}"></div>`).join('')}
-              </div>
-            `;
-          } else {
-            item.innerHTML = `
-              <button class="palette-item-copy" data-copy="gif-${j}">COPY</button>
-              <div class="palette-circle-wrap">
-                <canvas class="palette-circle-canvas" width="600" height="600" data-idx="${j}"></canvas>
-              </div>
-            `;
-          }
-          
-          row.appendChild(item);
-        }
-        paletteListWrap.appendChild(row);
-      }
-      
-      document.querySelectorAll('.palette-item-copy').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+    function renderLeftCol() {
+      paletteLeftCol.innerHTML = '';
+      for (let k = 0; k < 3; k++) {
+        const p = allPalettes[(listOffset + k) % allPalettes.length];
+        const card = document.createElement('div'); card.className = 'palette-card';
+        card.innerHTML = `
+          <button class="palette-item-copy" data-i="${k}">COPY</button>
+          <div class="palette-card-name">${p.name}</div>
+          <div class="palette-rect">${p.colors.map(c=>`<div class="palette-rect-color" style="background:${c}" title="${c}"></div>`).join('')}</div>
+          <button class="create-btn" data-i="${k}">create</button>`;
+        card.querySelector('.palette-item-copy').addEventListener('click', (e) => {
           e.stopPropagation();
-          const action = btn.dataset.copy;
-          const idx = parseInt(action.split('-')[1]);
-          const p = filtered[idx];
-          if (!p) return;
-          
-          if (action.startsWith('colors-')) {
-            const colorsStr = p.colors.join(', ');
-            navigator.clipboard.writeText(colorsStr).then(() => {
-              btn.textContent = 'COPIED!';
-              btn.classList.add('copied');
-              setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
-            });
-          } else {
-            const tempCanvas = document.createElement('canvas');
-            const size = 1000;
-            tempCanvas.width = size; tempCanvas.height = size;
-            const tCtx = tempCanvas.getContext('2d');
-            const cx = size / 2, cy = size / 2;
-            const maxR = size * 0.48;
-            const numRings = p.colors.length;
-            const rw = maxR / numRings;
-            
-            tCtx.fillStyle = '#000';
-            tCtx.fillRect(0, 0, size, size);
-            for (let i = 0; i < numRings; i++) {
-              const r = maxR - (i * rw);
-              tCtx.fillStyle = p.colors[i % numRings];
-              tCtx.beginPath();
-              tCtx.arc(cx, cy, Math.max(r, 1), 0, Math.PI * 2);
-              tCtx.fill();
-            }
-            
-            tempCanvas.toBlob(blob => {
-              if (blob) {
-                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
-                  btn.textContent = 'COPIED!';
-                  btn.classList.add('copied');
-                  setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
-                }).catch(() => {
-                  const safeName = p.name.replace(/\s+/g, '_');
-                  const link = document.createElement('a');
-                  link.download = `palette-${safeName}.png`;
-                  link.href = tempCanvas.toDataURL();
-                  link.click();
-                  btn.textContent = 'DOWNLOADED!';
-                  setTimeout(() => { btn.textContent = 'COPY'; btn.classList.remove('copied'); }, 1500);
-                });
-              }
-            }, 'image/png');
-          }
+          navigator.clipboard.writeText(p.colors.join(', ')).then(() => {
+            const b = e.target; b.textContent='COPIED!'; b.classList.add('copied');
+            setTimeout(()=>{b.textContent='COPY';b.classList.remove('copied');},1500);
+          });
         });
-      });
-      
-      setTimeout(() => {
-        document.querySelectorAll('.palette-circle-canvas').forEach(canvas => {
-          const idx = parseInt(canvas.dataset.idx);
-          const p = filtered[idx];
-          if (p) drawHighResCircle(canvas, p.colors, 600);
-        });
-      }, 50);
+        card.querySelector('.create-btn').addEventListener('click', (e) => { e.stopPropagation(); createPalette(p); });
+        paletteLeftCol.appendChild(card);
+      }
+    }
+
+    function createPalette(p) {
+      activeColors = p.colors;
+      // PNG максимального качества
+      const ctx = pngCanvas.getContext('2d');
+      drawRings(ctx, 2000, p.colors, 0);
+      // GIF-превью
+      startGifAnimation(p.colors);
     }
 
     function startGifAnimation(colors) {
       if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
       gifPhase = 0;
-      const size = 1000;
-      gifCanvas.width = size;
-      gifCanvas.height = size;
       const ctx = gifCanvas.getContext('2d');
-      const cx = size / 2, cy = size / 2;
-      const maxR = size * 0.45;
-      const numRings = colors.length;
-      const rw = maxR / numRings;
-      
-      function drawFrame() {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, size, size);
-        for (let i = 0; i < numRings; i++) {
-          const r = maxR - (i * rw);
-          const colorIdx = (i + Math.floor(gifPhase)) % numRings;
-          ctx.fillStyle = colors[colorIdx];
-          ctx.beginPath();
-          ctx.arc(cx, cy, Math.max(r, 1), 0, Math.PI * 2);
-          ctx.fill();
-        }
-        gifPhase += 0.15;
-        gifAnimFrame = requestAnimationFrame(drawFrame);
-      }
-      drawFrame();
+      function frame() { drawRings(ctx, 800, colors, Math.floor(gifPhase)); gifPhase += 0.12; gifAnimFrame = requestAnimationFrame(frame); }
+      frame();
     }
 
-    let scrollTimeout;
-    paletteListWrap.addEventListener('wheel', (e) => {
+    // Цикличная прокрутка колесом / свайпом / стрелками
+    let wheelLock = false;
+    paletteLeftCol.addEventListener('wheel', (e) => {
       e.preventDefault();
-      clearTimeout(scrollTimeout);
-      scrollTimeout = setTimeout(() => {
-        const rowHeight = paletteListWrap.querySelector('.palette-row')?.offsetHeight || 200;
-        const direction = e.deltaY > 0 ? 1 : -1;
-        const currentScroll = paletteListWrap.scrollTop;
-        const targetScroll = Math.round(currentScroll / (rowHeight * 3)) * (rowHeight * 3) + direction * (rowHeight * 3);
-        const maxScroll = paletteListWrap.scrollHeight - paletteListWrap.clientHeight;
-        const clamped = Math.max(0, Math.min(targetScroll, maxScroll));
-        
-        if (clamped >= maxScroll - 10) {
-          paletteListWrap.scrollTo({ top: 0, behavior: 'smooth' });
-        } else if (clamped <= 0 && direction < 0) {
-          paletteListWrap.scrollTo({ top: maxScroll, behavior: 'smooth' });
-        } else {
-          paletteListWrap.scrollTo({ top: clamped, behavior: 'smooth' });
-        }
-      }, 50);
-    }, { passive: false });
+      if (wheelLock) return;
+      wheelLock = true; setTimeout(()=>wheelLock=false, 180);
+      listOffset = (listOffset + (e.deltaY > 0 ? 1 : -1) + allPalettes.length) % allPalettes.length;
+      renderLeftCol();
+    }, { passive:false });
 
-    paletteBtn.addEventListener('click', () => {
-      paletteModal.classList.add('active');
-      renderTopCategories();
-      renderPaletteList();
-      updateColorStrip();
-      const filtered = getFilteredPalettes();
-      if (filtered.length > 0) startGifAnimation(filtered[0].colors);
+    let touchY = null;
+    paletteLeftCol.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive:true });
+    paletteLeftCol.addEventListener('touchmove', e => {
+      if (touchY === null) return;
+      const dy = touchY - e.touches[0].clientY;
+      if (Math.abs(dy) > 45) {
+        listOffset = (listOffset + (dy > 0 ? 1 : -1) + allPalettes.length) % allPalettes.length;
+        renderLeftCol(); touchY = null;
+      }
+    }, { passive:true });
+    document.addEventListener('keydown', e => {
+      if (!paletteModal.classList.contains('active')) return;
+      if (e.key === 'ArrowDown') { listOffset = (listOffset+1) % allPalettes.length; renderLeftCol(); }
+      if (e.key === 'ArrowUp')   { listOffset = (listOffset-1+allPalettes.length) % allPalettes.length; renderLeftCol(); }
+      if (e.key === 'Escape')    { paletteModal.classList.remove('active'); if(gifAnimFrame)cancelAnimationFrame(gifAnimFrame); }
     });
 
+    // ===== КОПИРОВАНИЕ PNG (всегда работает) =====
+    pngCopyBtn.addEventListener('click', () => {
+      pngCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          flash(pngCopyBtn, 'COPIED!', 'COPY');
+        } catch(e) {
+          downloadBlob(blob, 'stroboscope-palette.png');
+          flash(pngCopyBtn, 'DOWNLOADED!', 'COPY');
+        }
+      }, 'image/png');
+    });
+
+    // ===== СОБСТВЕННЫЙ GIF89a ЭНКОДЕР (LZW) =====
+    function hexRGB(h){ h=h.replace('#',''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+    function lerpHex(a,b,t){ const A=hexRGB(a),B=hexRGB(b); return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*t).toString(16).padStart(2,'0')).join('').toUpperCase(); }
+    function buildGifPalette(colors) {
+      const pal = ['#000000', ...colors]; const seen = new Set(pal);
+      const add = (hex) => { if (seen.size < 256 && !seen.has(hex)) { seen.add(hex); pal.push(hex); } };
+      const n = colors.length;
+      for (let i = 0; i < n; i++) {
+        const a = colors[i], b = colors[(i+1)%n];
+        for (let t = 1; t < 12; t++) { add(lerpHex(a,b,t/12)); add(lerpHex(a,'#000000',t/12)); }
+      }
+      return pal;
+    }
+    function nearestIndex(r,g,b,palRGB,cache) {
+      const key = (r<<16)|(g<<8)|b;
+      if (cache.has(key)) return cache.get(key);
+      let best=0, bd=Infinity;
+      for (let i=0;i<palRGB.length;i++){ const c=palRGB[i]; const d=(c[0]-r)**2+(c[1]-g)**2+(c[2]-b)**2; if(d<bd){bd=d;best=i;} }
+      cache.set(key,best); return best;
+    }
+    function lzwEncode(pixels, minCodeSize, out) {
+      const clear=1<<minCodeSize, eoi=clear+1;
+      let codeSize=minCodeSize+1, next=eoi+1;
+      const dict=new Map();
+      const data=[]; let buf=0,bits=0;
+      const emit=(code)=>{ buf|=code<<bits; bits+=codeSize; while(bits>=8){ data.push(buf&255); buf>>=8; bits-=8; } };
+      emit(clear);
+      let cur=pixels[0];
+      for (let i=1;i<pixels.length;i++) {
+        const c=pixels[i], key=cur*256+c;
+        if (dict.has(key)) { cur=dict.get(key); }
+        else {
+          emit(cur);
+          if (next<4096) { dict.set(key,next++); if (next===(1<<codeSize)&&codeSize<12) codeSize++; }
+          else { emit(clear); dict.clear(); next=eoi+1; codeSize=minCodeSize+1; }
+          cur=c;
+        }
+      }
+      emit(cur); emit(eoi);
+      if (bits>0) data.push(buf&255);
+      for (let i=0;i<data.length;i+=255){ out.push(Math.min(255,data.length-i)); for(let j=0;j<255&&i+j<data.length;j++) out.push(data[i+j]); }
+      out.push(0);
+    }
+    function encodeGif(colors) {
+      const G = 480, n = colors.length, frames = n; // цикл по числу цветов — идеально плавный
+      const pal = buildGifPalette(colors);
+      const palRGB = pal.map(hexRGB);
+      const cache = new Map();
+      const off = document.createElement('canvas'); off.width=G; off.height=G;
+      const octx = off.getContext('2d');
+      const bytes = [];
+      const wb = x => { bytes.push(x&255); bytes.push((x>>8)&255); };
+      const ws = s => { for (let i=0;i<s.length;i++) bytes.push(s.charCodeAt(i)); };
+      ws('GIF89a'); wb(G); wb(G);
+      bytes.push(0xF7, 0, 0);
+      for (let i=0;i<256;i++){ const c=palRGB[i]||[0,0,0]; bytes.push(c[0],c[1],c[2]); }
+      bytes.push(0x21,0xFF,0x0B); ws('NETSCAPE2.0'); bytes.push(3,1); wb(0); bytes.push(0);
+      for (let f=0;f<frames;f++) {
+        drawRings(octx, G, colors, f);
+        const img = octx.getImageData(0,0,G,G).data;
+        const idx = new Uint8Array(G*G);
+        for (let p=0;p<G*G;p++){ idx[p]=nearestIndex(img[p*4],img[p*4+1],img[p*4+2],palRGB,cache); }
+        bytes.push(0x21,0xF9,4,0x04,9,0,0,0); // delay 90ms
+        bytes.push(0x2C); wb(0);wb(0);wb(G);wb(G); bytes.push(0);
+        bytes.push(8); lzwEncode(idx,8,bytes);
+      }
+      bytes.push(0x3B);
+      return new Blob([new Uint8Array(bytes)], { type:'image/gif' });
+    }
+
+    // ===== КОПИРОВАНИЕ GIF: сначала пробуем GIF, затем fallback =====
+    gifCopyBtn.addEventListener('click', async () => {
+      gifCopyBtn.textContent = 'GENERATING...';
+      await new Promise(r => setTimeout(r, 30));
+      let blob;
+      try { blob = encodeGif(activeColors); }
+      catch(e) { gifCopyBtn.textContent = 'ERROR'; setTimeout(()=>gifCopyBtn.textContent='COPY GIF',1500); return; }
+
+      // Попытка №1: настоящий GIF в буфер (если браузер это поддерживает)
+      try {
+        if (typeof ClipboardItem !== 'undefined' && ClipboardItem.supports && ClipboardItem.supports('image/gif')) {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/gif': blob })]);
+          flash(gifCopyBtn, 'GIF COPIED!', 'COPY GIF');
+          return;
+        }
+      } catch(e) {}
+
+      // Попытка №2: PNG в буфер + скачивание настоящего .gif
+      const pngBlob = await new Promise(r => pngCanvas.toBlob(r, 'image/png'));
+      let copiedPng = false;
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]); copiedPng = true; } catch(e) {}
+      downloadBlob(blob, 'stroboscope-palette.gif');
+      flash(gifCopyBtn, copiedPng ? 'GIF SAVED + PNG COPIED' : 'GIF DOWNLOADED', 'COPY GIF');
+    });
+
+    function downloadBlob(blob, name) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }
+    function flash(btn, msg, orig) {
+      btn.textContent = msg; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1800);
+    }
+
+    // Открытие/закрытие
+    paletteBtn.addEventListener('click', () => {
+      paletteModal.classList.add('active');
+      listOffset = 0;
+      renderLeftCol();
+      createPalette(allPalettes[0]);
+    });
     paletteClose.addEventListener('click', () => {
       paletteModal.classList.remove('active');
       if (gifAnimFrame) cancelAnimationFrame(gifAnimFrame);
     });
 
-    gifCopyBtn.addEventListener('click', () => {
-      gifCopyBtn.textContent = 'GENERATING...';
-      const filtered = getFilteredPalettes();
-      const p = filtered[currentPaletteIndex % filtered.length];
-      if (!p) { gifCopyBtn.textContent = 'COPY GIF'; return; }
-      
-      const tempCanvas = document.createElement('canvas');
-      const size = 2000;
-      tempCanvas.width = size; tempCanvas.height = size;
-      const ctx = tempCanvas.getContext('2d');
-      const cx = size / 2, cy = size / 2;
-      const maxR = size * 0.48;
-      const numRings = p.colors.length;
-      const rw = maxR / numRings;
-      
-      ctx.fillStyle = '#000';
-      ctx.fillRect(0, 0, size, size);
-      for (let i = 0; i < numRings; i++) {
-        const r = maxR - (i * rw);
-        ctx.fillStyle = p.colors[i % numRings];
-        ctx.beginPath();
-        ctx.arc(cx, cy, Math.max(r, 1), 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      tempCanvas.toBlob(blob => {
-        if (blob) {
-          navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(() => {
-            gifCopyBtn.textContent = 'COPIED!';
-            gifCopyBtn.classList.add('copied');
-            setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; gifCopyBtn.classList.remove('copied'); }, 1500);
-          }).catch(() => {
-            const safeName = p.name.replace(/\s+/g, '_');
-            const link = document.createElement('a');
-            link.download = `stroboscope-palette-${safeName}.png`;
-            link.href = tempCanvas.toDataURL();
-            link.click();
-            gifCopyBtn.textContent = 'DOWNLOADED!';
-            setTimeout(() => { gifCopyBtn.textContent = 'COPY GIF'; }, 1500);
-          });
-        }
-      }, 'image/png');
-    });
-
+    // Инициализация
     buildLangDropdown();
     applyLanguage(detectLanguage());
     renderStroboscopes(filteredStroboscopes);
